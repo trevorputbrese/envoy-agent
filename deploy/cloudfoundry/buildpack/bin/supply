@@ -87,7 +87,8 @@ export HERMES_PYTHON="$venv/bin/python"
 export PYTHONPATH="$build_dir\${PYTHONPATH:+:\$PYTHONPATH}"
 export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 export PATH="$deps/bin:$venv/bin:$(dirname "$node"):\$PATH"
-export HERMES_HOME="\${HERMES_HOME:-\$HOME/.envoy-home}"
+# The same home the web process uses (a bound volume when there is one), for cf ssh sessions too.
+if [ -z "\${HERMES_HOME:-}" ]; then eval "\$("$venv/bin/python" "$build_dir/.envoy-cf/lib/vcap_config.py" --home)"; fi
 export HERMES_WEB_DIST="\${HERMES_WEB_DIST:-$build_dir/hermes_cli/web_dist}"
 if [ -f "$build_dir/.envoy-cf/tui/dist/entry.js" ]; then export HERMES_TUI_DIR="\${HERMES_TUI_DIR:-$build_dir/.envoy-cf/tui}"; fi
 EOF

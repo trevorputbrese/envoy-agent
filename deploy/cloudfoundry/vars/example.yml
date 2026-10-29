@@ -1,0 +1,6 @@
+# Copy per foundation. Service names are yours to choose; Envoy recognises each binding by type.
+route: envoy-agent.apps.example.com
+services:
+  - my-chat-model        # ai-models plan with the chat capability
+  - my-dashboard-login   # cf cups ... -p '{"username": "...", "password_hash": "...", "secret": "..."}'
+  - my-envoy-volume      # optional: any volume service (block-storage, nfs, smb) for a persistent home

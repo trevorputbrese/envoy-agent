@@ -1,0 +1,6 @@
+# Techbrese lab foundation (org solution-architects, space tputbrese-space).
+route: envoy-agent.apps.techbrese.com
+services:
+  - envoy-agent-chat              # ai-models / gpt-5.4
+  - envoy-agent-dashboard-auth    # user-provided: username, password_hash, secret
+  # - envoy-block-store           # block-storage; add back once the foundation can attach its disk

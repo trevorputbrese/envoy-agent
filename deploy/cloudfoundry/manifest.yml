@@ -1,8 +1,10 @@
 ---
 # Envoy Agent on Tanzu Platform for Cloud Foundry, staged by the Envoy buildpack.
-# Push from the repository root:  cf push -f deploy/cloudfoundry/manifest.yml
-# The dashboard login lives in the user-provided service envoy-agent-dashboard-auth (see README),
-# never here or in `cf set-env`: `cf push` prints app environment variables in its manifest diff.
+# Push from the repository root with the foundation's vars file:
+#   cf push -f deploy/cloudfoundry/manifest.yml --vars-file deploy/cloudfoundry/vars/techbrese.yml
+# Envoy finds its bindings by what they carry, not their names: a chat model, a login
+# (user-provided: username + password_hash) and, optionally, a volume for its home folder.
+# The login never goes here or in `cf set-env`: `cf push` prints app environment variables.
 applications:
   - name: envoy-agent
     path: ../..
@@ -15,7 +17,5 @@ applications:
     health-check-type: http
     health-check-http-endpoint: /api/health
     routes:
-      - route: envoy-agent.apps.techbrese.com
-    services:
-      - envoy-agent-chat
-      - envoy-agent-dashboard-auth
+      - route: ((route))
+    services: ((services))

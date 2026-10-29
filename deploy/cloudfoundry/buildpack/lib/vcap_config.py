@@ -1,12 +1,19 @@
-"""Point Envoy at the chat model bound from the Tanzu AI Service, then print shell exports.
+"""Wire Envoy to its Cloud Foundry service bindings, then print shell exports.
 
-Reads ``VCAP_SERVICES`` for a binding whose credentials carry ``api_base``, ``api_key`` and
-``model_name`` with the ``chat`` capability (the ``ai-models`` offering), writes the ``model``
-block of ``$HERMES_HOME/config.yaml`` to a named custom provider (``tanzu-ai``), and prints
-``export`` lines for the API key, the dashboard's public URL and its login (from the bound
-user-provided service ``envoy-agent-dashboard-auth``). With several chat bindings,
-``ENVOY_CHAT_SERVICE`` names the one to use. Everything else in config.yaml is left alone, so
-settings changed from the dashboard survive a restart on persistent storage.
+Every binding is recognised by what it carries, never by its instance name, so the same app
+pushes to any foundation:
+
+- Home: the first bound volume service (any binding with a read-write ``volume_mounts`` entry)
+  holds ``envoy-home``; without one the home is ``$HOME/.envoy-home`` on the container disk.
+  ``ENVOY_VOLUME_SERVICE`` picks a volume when several are bound. ``--home`` prints only this.
+- Model: a binding whose credentials carry ``api_base``, ``api_key``, ``model_name`` and the
+  ``chat`` capability (the Tanzu AI Service's ``ai-models``) becomes the named custom provider
+  ``tanzu-ai`` in ``config.yaml``; ``ENVOY_CHAT_SERVICE`` picks one of several.
+- Dashboard login: a user-provided binding with ``username`` and ``password_hash`` (or
+  ``password``), optionally ``secret``; ``ENVOY_DASHBOARD_AUTH_SERVICE`` picks one of several.
+
+Only the keys written here change in config.yaml, so dashboard edits survive restarts on a
+volume. Caches, which can be rebuilt, stay on the container disk.
 """
 
 from __future__ import annotations
@@ -18,27 +25,65 @@ import sys
 from pathlib import Path
 
 KEY_ENV = "ENVOY_AI_API_KEY"
+# Rebuildable directories under the home that stay off a size-limited volume.
+LOCAL_DIRS = ("cache", "image_cache", "audio_cache", "installs")
 
 
-def chat_bindings(vcap: dict) -> list[dict]:
-    found = []
-    for bindings in vcap.values():
-        for binding in bindings:
-            creds = binding.get("credentials") or {}
-            caps = creds.get("model_capabilities") or []
-            if creds.get("api_base") and creds.get("api_key") and creds.get("model_name") and "chat" in caps:
-                found.append(binding)
-    return found
-
-
-def pick(bindings: list[dict]) -> dict | None:
-    wanted = os.environ.get("ENVOY_CHAT_SERVICE", "").strip()
+def _named(bindings: list[dict], env: str, what: str) -> dict | None:
+    wanted = os.environ.get(env, "").strip()
     if wanted:
         named = [b for b in bindings if wanted in (b.get("name"), b.get("instance_name"))]
         if not named:
-            sys.exit(f"envoy: ENVOY_CHAT_SERVICE={wanted} is not a bound chat model")
+            sys.exit(f"envoy: {env}={wanted} is not a bound {what}")
         return named[0]
     return bindings[0] if bindings else None
+
+
+def _bindings(vcap: dict):
+    for bindings in vcap.values():
+        yield from bindings
+
+
+def volume_dir(vcap: dict) -> Path | None:
+    volumes = [b for b in _bindings(vcap)
+               if any(m.get("container_dir") and m.get("mode", "rw") == "rw" for m in b.get("volume_mounts") or [])]
+    binding = _named(volumes, "ENVOY_VOLUME_SERVICE", "volume service")
+    if binding is None:
+        return None
+    mount = next(m for m in binding["volume_mounts"] if m.get("container_dir") and m.get("mode", "rw") == "rw")
+    return Path(mount["container_dir"])
+
+
+def resolve_home(vcap: dict) -> tuple[Path, bool]:
+    """(home, on_volume): an explicit HERMES_HOME wins, then a bound volume, then the disk."""
+    if os.environ.get("HERMES_HOME"):
+        home = Path(os.environ["HERMES_HOME"])
+        volume = volume_dir(vcap)
+        return home, volume is not None and volume in home.parents
+    volume = volume_dir(vcap)
+    if volume is not None:
+        return volume / "envoy-home", True
+    return Path(os.environ.get("HOME", "/home/vcap/app")) / ".envoy-home", False
+
+
+def keep_caches_local(home: Path) -> None:
+    local = Path(os.environ.get("HOME", "/home/vcap/app")) / ".envoy-local"
+    for name in LOCAL_DIRS:
+        target, link = local / name, home / name
+        target.mkdir(parents=True, exist_ok=True)
+        if link.is_symlink():
+            link.unlink()
+        elif link.exists():
+            continue  # a real directory from before: leave its contents alone
+        link.symlink_to(target)
+
+
+def chat_binding(vcap: dict) -> dict | None:
+    def is_chat(binding: dict) -> bool:
+        creds = binding.get("credentials") or {}
+        return bool(creds.get("api_base") and creds.get("api_key") and creds.get("model_name")
+                    and "chat" in (creds.get("model_capabilities") or []))
+    return _named([b for b in _bindings(vcap) if is_chat(b)], "ENVOY_CHAT_SERVICE", "chat model")
 
 
 PROVIDER = "tanzu-ai"
@@ -83,6 +128,12 @@ def write_model(home: Path, creds: dict, service: str) -> None:
     if not agent.get("reasoning_effort"):
         agent["reasoning_effort"] = os.environ.get("ENVOY_REASONING_EFFORT", "none")
     config["agent"] = agent
+    # Bounded history for a bounded home; an explicit auto_prune either way is the operator's.
+    sessions = config.get("sessions")
+    if not isinstance(sessions, dict):
+        sessions = {}
+    sessions.setdefault("auto_prune", True)
+    config["sessions"] = sessions
     with path.open("w", encoding="utf-8") as fh:
         yaml.dump(config, fh)
     path.chmod(0o600)
@@ -99,19 +150,29 @@ DASHBOARD_AUTH_FIELDS = {
 
 
 def dashboard_auth(vcap: dict) -> dict[str, str]:
-    wanted = os.environ.get("ENVOY_DASHBOARD_AUTH_SERVICE", "envoy-agent-dashboard-auth")
-    for binding in vcap.get("user-provided", []):
-        if wanted in (binding.get("name"), binding.get("instance_name")):
-            creds = binding.get("credentials") or {}
-            return {env: str(creds[field]) for field, env in DASHBOARD_AUTH_FIELDS.items() if creds.get(field)}
-    return {}
+    def is_login(binding: dict) -> bool:
+        creds = binding.get("credentials") or {}
+        return bool(creds.get("username") and (creds.get("password_hash") or creds.get("password")))
+    binding = _named([b for b in vcap.get("user-provided", []) if is_login(b)],
+                     "ENVOY_DASHBOARD_AUTH_SERVICE", "dashboard login service")
+    creds = (binding or {}).get("credentials") or {}
+    return {env: str(creds[field]) for field, env in DASHBOARD_AUTH_FIELDS.items() if creds.get(field)}
 
 
-def main() -> int:
-    home = Path(os.environ["HERMES_HOME"])
+def main(argv: list[str]) -> int:
     vcap = json.loads(os.environ.get("VCAP_SERVICES") or "{}")
-    exports: dict[str, str] = dashboard_auth(vcap)
-    binding = pick(chat_bindings(vcap))
+    home, on_volume = resolve_home(vcap)
+    if "--home" in argv:
+        print(f"export HERMES_HOME={shlex.quote(str(home))}")
+        return 0
+    home.mkdir(parents=True, exist_ok=True)
+    home.chmod(0o700)
+    if on_volume:
+        keep_caches_local(home)
+    print(f"envoy: home {home} ({'volume' if on_volume else 'container disk, lost on restart'})",
+          file=sys.stderr)
+    exports: dict[str, str] = {"HERMES_HOME": str(home), **dashboard_auth(vcap)}
+    binding = chat_binding(vcap)
     if binding is None:
         print("envoy: no AI Service chat model is bound; configure a provider from the dashboard",
               file=sys.stderr)
@@ -130,4 +191,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

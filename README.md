@@ -32,7 +32,7 @@ source ./activate                       # node + npm for the frontend build
 deploy/cloudfoundry/prepare.sh          # builds the dashboard + TUI, packages the buildpack
 cf create-buildpack envoy_buildpack deploy/cloudfoundry/build/envoy_buildpack-0.1.0.zip 99
 cf create-service ai-models gpt-5.4 envoy-agent-chat
-cf push -f deploy/cloudfoundry/manifest.yml
+cf push -f deploy/cloudfoundry/manifest.yml --vars-file deploy/cloudfoundry/vars/techbrese.yml
 ```
 
 See [deploy/cloudfoundry/README.md](deploy/cloudfoundry/README.md) for dashboard credentials,
