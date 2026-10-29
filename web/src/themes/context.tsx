@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -20,6 +21,7 @@ import type {
   ThemeColorOverrides,
   ThemeComponentStyles,
   ThemeDensity,
+  ThemeFamily,
   ThemeLayer,
   ThemeLayout,
   ThemeLayoutVariant,
@@ -283,6 +285,15 @@ function applyLayoutVariant(variant: ThemeLayoutVariant | undefined) {
   root.style.setProperty("--theme-layout-variant", final);
 }
 
+/** `data-theme-family` scopes a built-in chrome stylesheet (`clarity.css`);
+ *  themes without a family get the original chrome. */
+function applyThemeFamily(family: ThemeFamily | undefined) {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  if (family) root.dataset.themeFamily = family;
+  else delete root.dataset.themeFamily;
+}
+
 // ---------------------------------------------------------------------------
 // Font stylesheet injection
 // ---------------------------------------------------------------------------
@@ -353,7 +364,7 @@ function applyTheme(theme: DashboardTheme) {
     root.style.removeProperty(cssVar);
   }
   // Same clear-then-set for series colors so a theme that defines them
-  // (e.g. Nous Blue) doesn't leave its values behind when the user
+  // (e.g. Classic Blue) doesn't leave its values behind when the user
   // switches to a theme that inherits the `:root` defaults.
   for (const cssVar of ALL_SERIES_VARS) {
     root.style.removeProperty(cssVar);
@@ -388,6 +399,7 @@ function applyTheme(theme: DashboardTheme) {
   injectFontStylesheet(theme.typography.fontUrl);
   applyCustomCSS(theme.customCSS);
   applyLayoutVariant(theme.layoutVariant);
+  applyThemeFamily(theme.family);
 
   // Terminal colors — read by ChatPage via useTheme(); also available as CSS vars.
   root.style.setProperty(
@@ -411,8 +423,8 @@ function applyTheme(theme: DashboardTheme) {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   /** Name of the currently active theme (built-in id or user YAML name). */
   const [themeName, setThemeName] = useState<string>(() => {
-    if (typeof window === "undefined") return "default";
-    const stored = window.localStorage.getItem(STORAGE_KEY) ?? "default";
+    if (typeof window === "undefined") return defaultTheme.name;
+    const stored = window.localStorage.getItem(STORAGE_KEY) ?? defaultTheme.name;
     const migrated = migrateThemeName(stored);
     // Write the migrated name back so future reads converge on the new
     // key and we eventually retire the alias entry.
@@ -465,7 +477,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // whenever the theme, the resolver, OR the font override changes. Folding
   // font into the same effect means clearing the override re-runs applyTheme,
   // which restores the theme's own font; setting it re-asserts the override.
-  useEffect(() => {
+  // A layout effect, so the first paint already carries the stored theme's
+  // tokens and chrome family instead of flashing the `index.css` defaults.
+  useLayoutEffect(() => {
     _ACTIVE_FONT_OVERRIDE = fontId;
     applyTheme(resolveTheme(themeName));
   }, [themeName, resolveTheme, fontId]);
@@ -548,7 +562,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         ...availableThemes.map((t) => t.name),
         ...Object.keys(userThemeDefs),
       ]);
-      const next = knownNames.has(name) ? name : "default";
+      const next = knownNames.has(name) ? name : defaultTheme.name;
       setThemeName(next);
       if (typeof window !== "undefined") {
         window.localStorage.setItem(STORAGE_KEY, next);
@@ -589,7 +603,7 @@ export function useTheme(): ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: defaultTheme,
-  themeName: "default",
+  themeName: defaultTheme.name,
   availableThemes: Object.values(BUILTIN_THEMES).map((t) => ({
     name: t.name,
     label: t.label,

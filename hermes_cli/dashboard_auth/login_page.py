@@ -2,9 +2,9 @@
 
 Providers come from the registry; an OAuth provider renders an anchor to
 ``/auth/login?provider=<name>``, a ``supports_password`` provider renders a
-credential form wired by :data:`_PASSWORD_FORM_SCRIPT`. Styling mirrors the
-``@nous-research/ui`` design system; fonts load from the SPA's ``/fonts/``
-mount, which the gate allowlists pre-auth.
+credential form wired by :data:`_PASSWORD_FORM_SCRIPT`. Styling follows the
+dashboard's Clarity theme; fonts load from the SPA's ``/fonts/`` mount, which the gate
+allowlists pre-auth.
 
 The ``class="provider-btn"`` anchor is test-stable: the suite extracts its
 href to walk the OAuth flow.
@@ -23,45 +23,42 @@ _LOGIN_HTML_TEMPLATE = """\
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign in — Hermes Agent</title>
+<title>Sign in — Envoy Agent</title>
 <style>
-  /* Brand fonts shipped by @nous-research/ui — same files the SPA loads. */
+  /* VMware Clarity look, matching the dashboard's default theme: navy header bar, light
+     page, white card, action-blue buttons. Metropolis (Clarity's typeface) is the same file the
+     SPA loads from its /fonts/ mount, which the gate allowlists pre-auth. */
   @font-face {{
-    font-family: 'Collapse';
+    font-family: 'Metropolis';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('/fonts/Metropolis-Light.woff') format('woff');
+  }}
+  @font-face {{
+    font-family: 'Metropolis';
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url('/fonts/Collapse-Regular.woff2') format('woff2');
+    src: url('/fonts/Metropolis-Regular.woff') format('woff');
   }}
   @font-face {{
-    font-family: 'Collapse';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('/fonts/Collapse-Bold.woff2') format('woff2');
-  }}
-  @font-face {{
-    font-family: 'Rules Compressed';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/RulesCompressed-Regular.woff2') format('woff2');
-  }}
-  @font-face {{
-    font-family: 'Rules Compressed';
+    font-family: 'Metropolis';
     font-style: normal;
     font-weight: 600;
     font-display: swap;
-    src: url('/fonts/RulesCompressed-Medium.woff2') format('woff2');
+    src: url('/fonts/Metropolis-SemiBold.woff') format('woff');
   }}
-
   :root {{
-    --background-base: #170d02;
-    --background: #170d02;
-    --midground: #ffac02;
-    --foreground: #ffffff;
-    --hairline: color-mix(in srgb, #ffac02 18%, transparent);
-    --hairline-strong: color-mix(in srgb, #ffac02 35%, transparent);
+    --clr-header: #00364d;
+    --clr-page: #f4f6f7;
+    --clr-card: #ffffff;
+    --clr-ink: #21333b;
+    --clr-muted: #565656;
+    --clr-border: #cccccc;
+    --clr-action: #006a91;
+    --clr-action-hover: #004d8a;
+    --clr-danger: #c21d00;
   }}
 
   *, *::before, *::after {{ box-sizing: border-box; }}
@@ -70,103 +67,63 @@ _LOGIN_HTML_TEMPLATE = """\
     margin: 0;
     padding: 0;
     min-height: 100%;
-    background: var(--background-base);
-    color: var(--foreground);
-    font-family: 'Collapse', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 16px;
+    background: var(--clr-page);
+    color: var(--clr-ink);
+    font-family: Metropolis, "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }}
 
-  /* Subtle dot-grid backdrop — DS idiom (see `.dither` in globals.css). */
-  body {{
-    background-image:
-      radial-gradient(
-        ellipse at top,
-        color-mix(in srgb, var(--midground) 6%, transparent) 0%,
-        transparent 55%
-      ),
-      repeating-conic-gradient(
-        color-mix(in srgb, var(--midground) 4%, transparent) 0% 25%,
-        transparent 0% 50%
-      );
-    background-size: auto, 3px 3px;
-    background-attachment: fixed;
+  .header {{
+    display: flex;
+    align-items: center;
+    height: 3.75rem;
+    padding: 0 1.5rem;
+    background: var(--clr-header);
+    color: #ffffff;
   }}
-
-  /* Layout: vertically center on tall screens, top-anchor on short. */
-  body {{
-    display: grid;
-    place-items: center;
-    padding: clamp(1.5rem, 6vh, 6rem) 1.25rem;
+  .brand {{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }}
+  .brand .mark {{ color: #70c7ec; font-size: 1.35rem; line-height: 1; }}
+  .brand .product {{
+    padding-left: 0.6rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.35);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
   }}
 
   main {{
     width: 100%;
     max-width: 26rem;
-    position: relative;
-    animation: slide-up 0.6s ease-out both;
-  }}
-
-  @keyframes slide-up {{
-    from {{ opacity: 0; transform: translateY(6px); }}
-    to   {{ opacity: 1; transform: translateY(0); }}
-  }}
-
-  @media (prefers-reduced-motion: reduce) {{
-    main {{ animation: none; }}
-  }}
-
-  /* Brand wordmark above the card — same uppercase + wide-tracking
-     idiom DS Buttons use. */
-  .brand {{
-    text-align: center;
-    margin-bottom: 1.75rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
-    font-weight: 600;
-    font-size: 1.05rem;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--midground);
-  }}
-  .brand .dot {{
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--midground);
-    margin: 0 0.55em 0.18em;
-    vertical-align: middle;
-    border-radius: 1px;
+    margin: clamp(2rem, 10vh, 7rem) auto 2rem;
+    padding: 0 1rem;
   }}
 
   .card {{
-    position: relative;
-    padding: 2.25rem 2rem 2rem;
-    background: color-mix(in srgb, #ffffff 2%, var(--background-base));
-    border: 1px solid var(--hairline);
-    /* Hairline highlight + bevel shadow — matches DS Button SHADOW_DEFAULT
-       (`inset -1px -1px 0 #00000080, inset 1px 1px 0 #ffffff80`) at panel scale. */
-    box-shadow:
-      inset 1px 1px 0 0 color-mix(in srgb, #ffffff 5%, transparent),
-      inset -1px -1px 0 0 rgba(0, 0, 0, 0.4),
-      0 24px 60px -20px rgba(0, 0, 0, 0.6);
+    padding: 2rem 1.75rem 1.75rem;
+    background: var(--clr-card);
+    border: 1px solid var(--clr-border);
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   }}
 
   h1 {{
-    margin: 0 0 0.4rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
-    font-weight: 600;
-    font-size: 1.85rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--foreground);
+    margin: 0 0 0.35rem;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--clr-ink);
   }}
 
   .subtitle {{
-    margin: 0 0 1.75rem;
-    color: color-mix(in srgb, var(--foreground) 65%, transparent);
-    font-size: 0.95rem;
+    margin: 0 0 1.5rem;
+    color: var(--clr-muted);
   }}
 
   .provider-list {{
@@ -174,123 +131,89 @@ _LOGIN_HTML_TEMPLATE = """\
     gap: 0.75rem;
   }}
 
-  /* Provider button — mirrors DS Button (default variant):
-     amber surface, dark text, uppercase + wide tracking, inset bevel. */
+  /* Clarity primary button. */
   .provider-btn {{
     display: block;
     width: 100%;
-    box-sizing: border-box;
-    padding: 0.95rem 1rem;
+    padding: 0.6rem 1rem;
     text-align: center;
-    background: var(--midground);
-    color: var(--background-base);
-    font-family: 'Collapse', sans-serif;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.2em;
+    background: var(--clr-action);
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     text-decoration: none;
-    border: 0;
-    border-radius: 0;  /* DS Button is squared — no rounded corners. */
+    border: 1px solid var(--clr-action);
+    border-radius: 3px;
     cursor: pointer;
-    box-shadow:
-      inset 1px 1px 0 0 rgba(255, 255, 255, 0.5),
-      inset -1px -1px 0 0 rgba(0, 0, 0, 0.5);
-    transition: filter 0.12s ease-out;
+    transition: background 0.12s ease-out;
   }}
-  .provider-btn:hover {{
-    filter: brightness(1.08);
-  }}
-  .provider-btn:active {{
-    /* DS Button uses `active:invert` on the default surface. */
-    filter: invert(1);
-  }}
-  .provider-btn:focus-visible {{
-    outline: 2px solid var(--midground);
-    outline-offset: 3px;
-  }}
+  .provider-btn:hover {{ background: var(--clr-action-hover); border-color: var(--clr-action-hover); }}
+  .provider-btn:focus-visible {{ outline: 2px solid var(--clr-action); outline-offset: 2px; }}
 
-  /* Password provider form — same visual language as the OAuth buttons:
-     squared inputs, hairline borders, amber focus ring. */
   .provider-form {{
     display: grid;
-    gap: 0.75rem;
+    gap: 0.9rem;
     text-align: left;
   }}
   .form-title {{
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-size: 0.75rem;
     font-weight: 600;
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--foreground) 70%, transparent);
+    color: var(--clr-muted);
   }}
   .field {{
     display: grid;
-    gap: 0.3rem;
+    gap: 0.25rem;
   }}
   .field-label {{
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--foreground) 55%, transparent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--clr-ink);
   }}
+  /* Clarity form control: bottom-border input. */
   .field-input {{
     width: 100%;
-    box-sizing: border-box;
-    padding: 0.7rem 0.8rem;
-    background: color-mix(in srgb, #000000 25%, var(--background-base));
-    color: var(--foreground);
-    border: 1px solid var(--hairline-strong);
+    padding: 0.4rem 0.1rem;
+    background: transparent;
+    color: var(--clr-ink);
+    border: 0;
+    border-bottom: 1px solid #b3b3b3;
     border-radius: 0;
-    font-family: 'Collapse', sans-serif;
-    font-size: 0.95rem;
+    font: inherit;
   }}
   .field-input:focus-visible {{
     outline: none;
-    border-color: var(--midground);
-    box-shadow: 0 0 0 1px var(--midground);
+    border-bottom: 2px solid var(--clr-action);
   }}
   .form-error {{
-    color: #ff6b6b;
-    font-size: 0.82rem;
-    letter-spacing: 0.02em;
+    color: var(--clr-danger);
+    font-size: 0.8rem;
   }}
-  .provider-form .provider-btn {{
-    margin-top: 0.25rem;
-  }}
+  .provider-form .provider-btn {{ margin-top: 0.5rem; }}
 
   footer {{
-    margin-top: 1.75rem;
+    margin-top: 1.25rem;
     text-align: center;
-    color: color-mix(in srgb, var(--foreground) 45%, transparent);
+    color: var(--clr-muted);
     font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    line-height: 1.7;
   }}
-  footer .sep {{
-    display: inline-block;
-    width: 1.5rem;
-    height: 1px;
-    background: var(--hairline-strong);
-    vertical-align: middle;
-    margin: 0 0.6em 0.2em;
-  }}
+  footer .sep {{ display: none; }}
 
-  /* Selection — DS uses midground bg + background text. */
-  ::selection {{
-    background: var(--midground);
-    color: var(--background-base);
-  }}
+  ::selection {{ background: #c5eeff; color: var(--clr-ink); }}
 </style>
 </head>
 <body>
+<header class="header">
+  <div class="brand"><span class="mark">&#9672;</span>Envoy<span class="product">Agent</span></div>
+</header>
 <main>
-  <div class="brand">Nous<span class="dot"></span>Research</div>
   <div class="card">
     <h1>Sign in</h1>
-    <p class="subtitle">Choose a sign-in method to continue to the Hermes Agent dashboard.</p>
+    <p class="subtitle">Choose a sign-in method to continue to the Envoy Agent dashboard.</p>
     <div class="provider-list">
 {provider_buttons}
     </div>
@@ -310,34 +233,34 @@ _EMPTY_HTML = """\
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign-in unavailable — Hermes Agent</title>
+<title>Sign-in unavailable — Envoy Agent</title>
 <style>
   @font-face {
-    font-family: 'Collapse';
+    font-family: 'Metropolis';
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url('/fonts/Collapse-Regular.woff2') format('woff2');
+    src: url('/fonts/Metropolis-Regular.woff') format('woff');
   }
   @font-face {
-    font-family: 'Rules Compressed';
+    font-family: 'Metropolis';
     font-style: normal;
     font-weight: 600;
     font-display: swap;
-    src: url('/fonts/RulesCompressed-Medium.woff2') format('woff2');
+    src: url('/fonts/Metropolis-SemiBold.woff') format('woff');
   }
   :root {
-    --background-base: #170d02;
-    --midground: #ffac02;
+    --background-base: #1b2a32;
+    --midground: #70c7ec;
     --foreground: #ffffff;
-    --hairline: color-mix(in srgb, #ffac02 18%, transparent);
+    --hairline: color-mix(in srgb, #70c7ec 25%, transparent);
   }
   *, *::before, *::after { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; min-height: 100%;
     background: var(--background-base);
     color: var(--foreground);
-    font-family: 'Collapse', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: Metropolis, "Avenir Next", "Helvetica Neue", Arial, sans-serif;
     font-size: 16px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
@@ -357,7 +280,7 @@ _EMPTY_HTML = """\
   }
   h1 {
     margin: 0 0 1rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: inherit;
     font-weight: 600; font-size: 1.5rem;
     letter-spacing: 0.05em; text-transform: uppercase;
     color: var(--midground);
@@ -379,7 +302,7 @@ _EMPTY_HTML = """\
 <p>This dashboard is bound to a non-loopback host but no authentication
 providers are available.</p>
 <p>Configure the bundled username/password provider or an OAuth provider.
-See the <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/web-dashboard#authentication-gated-mode">dashboard
+See the <a href="https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/features/web-dashboard.md">dashboard
 authentication documentation</a> for setup instructions.</p>
 <p>For auth-free local use, bind to <code>127.0.0.1</code> and connect through
 an SSH tunnel or Tailscale.</p>
@@ -397,20 +320,34 @@ _TOKEN_MODE_HTML = """\
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token-gated dashboard — Hermes Agent</title>
+<title>Token-gated dashboard — Envoy Agent</title>
 <style>
+  @font-face {
+    font-family: 'Metropolis';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/Metropolis-Regular.woff') format('woff');
+  }
+  @font-face {
+    font-family: 'Metropolis';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/Metropolis-SemiBold.woff') format('woff');
+  }
   :root {
-    --background-base: #170d02;
-    --midground: #ffac02;
+    --background-base: #1b2a32;
+    --midground: #70c7ec;
     --foreground: #ffffff;
-    --hairline: color-mix(in srgb, #ffac02 18%, transparent);
+    --hairline: color-mix(in srgb, #70c7ec 25%, transparent);
   }
   *, *::before, *::after { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; min-height: 100%;
     background: var(--background-base);
     color: var(--foreground);
-    font-family: 'Collapse', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: Metropolis, "Avenir Next", "Helvetica Neue", Arial, sans-serif;
     font-size: 16px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
@@ -430,7 +367,7 @@ _TOKEN_MODE_HTML = """\
   }
   h1 {
     margin: 0 0 1rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: inherit;
     font-weight: 600; font-size: 1.5rem;
     letter-spacing: 0.05em; text-transform: uppercase;
     color: var(--midground);
@@ -545,7 +482,7 @@ def render_login_html(*, next_path: str = "", prefix: str = "") -> str:
                 .replace("{note}",
                          "Clients authenticate with the deployment&rsquo;s provisioned "
                          "credential (<code>Authorization: Bearer</code>, or "
-                         "<code>?token=</code> on the /api/ws upgrade) &mdash; e.g. Hermes "
+                         "<code>?token=</code> on the /api/ws upgrade) &mdash; e.g. Envoy "
                          "Desktop&rsquo;s &ldquo;Session token&rdquo; remote-gateway field. "
                          "There is no browser sign-in flow."))
     buttons = [

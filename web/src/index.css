@@ -7,6 +7,10 @@
    stack (Tabs, Segmented, Typography, Buttons, etc. all look unstyled). */
 @import '@nous-research/ui/styles/fonts.css';
 @import '@nous-research/ui/styles/globals.css';
+/* Clarity chrome (header bar, vertical nav, controls) for themes with
+   `family: "clarity"`; inert for every other theme. Unlayered, so its
+   scoped rules outrank the DS/Tailwind utility layers. */
+@import './themes/clarity.css';
 
 /* Scan the published design-system bundle so its utility classes survive
    Tailwind's JIT purge. */
@@ -43,49 +47,83 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Hermes Agent — Nous DS with the LENS_0 (Hermes teal) palette applied
-   statically as the default dashboard theme. */
+/* Metropolis — Clarity's typeface, the face the main Envoy app renders. */
+/* Decoded verbatim from the WOFF payloads embedded in @clr/ui 18.4.0's  */
+/* clr-ui.min.css (npm sha512-cR9L5reAbUWIoXacUEXzlsvZCQBFvfFvS8jXEkgIp  */
+/* q7jfwi4hVy6Y6hPO6GuNmecNXHOY+cTr4e1QD8Be27p+w==). Clarity is MIT, the */
+/* fonts SIL OFL 1.1: public/CLARITY-LICENSE.txt (served beside the app). */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: Metropolis;
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url('/fonts/Metropolis-Light.woff') format('woff');
+}
+@font-face {
+  font-family: Metropolis;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Metropolis-Regular.woff') format('woff');
+}
+@font-face {
+  font-family: Metropolis;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Metropolis-Medium.woff') format('woff');
+}
+@font-face {
+  font-family: Metropolis;
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('/fonts/Metropolis-SemiBold.woff') format('woff');
+}
+
+/* ------------------------------------------------------------------ */
+/* Envoy Agent — the Nous DS components with the Clarity light palette */
+/* applied statically as the default dashboard theme.                 */
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* LENS_0 — from design-language/src/ui/components/overlays/index.tsx.
-     These are the defaults for the `default` (Hermes Teal) dashboard theme;
-     ThemeProvider rewrites them as inline styles when a user switches themes. */
-  --foreground: color-mix(in srgb, #ffffff 0%, transparent);
-  --foreground-base: #ffffff;
+  /* First-paint tokens for the default `clarity` theme (presets.ts);
+     ThemeProvider rewrites them as inline styles before the first React
+     paint and on every theme switch. */
+  --foreground: color-mix(in srgb, #25333d 0%, transparent);
+  --foreground-base: #25333d;
   --foreground-alpha: 0;
-  --midground: color-mix(in srgb, #ffe6cb 100%, transparent);
-  --midground-base: #ffe6cb;
+  --midground: color-mix(in srgb, #25333d 100%, transparent);
+  --midground-base: #25333d;
   --midground-alpha: 1;
-  --background: color-mix(in srgb, #041c1c 100%, transparent);
-  --background-base: #041c1c;
+  --background: color-mix(in srgb, #f4f6f8 100%, transparent);
+  --background-base: #f4f6f8;
   --background-alpha: 1;
 
-  /* Typography tokens — rewritten by ThemeProvider. Defaults match the
-     system stack so themes that don't override look native. */
-  --theme-font-sans: system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --theme-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo,
-    Consolas, monospace;
+  /* Typography tokens — rewritten by ThemeProvider. */
+  --theme-font-sans: Metropolis, "Avenir Next", "Helvetica Neue", Arial,
+    sans-serif;
+  --theme-font-mono: "JetBrains Mono", ui-monospace, "SF Mono",
+    "Cascadia Mono", Menlo, Consolas, monospace;
   --theme-font-display: var(--theme-font-sans);
   --theme-base-size: 15px;
-  --theme-line-height: 1.55;
+  --theme-line-height: 1.5;
   --theme-letter-spacing: 0;
 
   /* Layout tokens. */
-  --radius: 0.5rem;
-  --theme-radius: 0.5rem;
+  --radius: 0.1875rem;
+  --theme-radius: 0.1875rem;
   --theme-spacing-mul: 1;
   --theme-density: comfortable;
 
   /* Data-series accents — consumed by Analytics + Models pages for the
      input-vs-output token visualisations (chart bars, table values,
-     legend swatches). Defaults are tuned for the Hermes-teal LENS_0
-     look: cream input + emerald-400 output read as warm/cool against
-     the dark canvas. Themes override via ThemeProvider, which emits
+     legend swatches). Themes override via ThemeProvider, which emits
      these as `--series-input-token` / `--series-output-token`. */
-  --series-input-token: #ffe6cb;
-  --series-output-token: #34d399;
+  --series-input-token: #006a91;
+  --series-output-token: #21682d;
 }
 
 /* Theme tokens cascade into the document root so every descendant inherits
@@ -150,8 +188,12 @@ code { font-size: 0.875rem; }
    The dashboard's page code predates the Nous DS and uses shadcn-style
    utility classes (bg-card, text-muted-foreground, border-border, etc.)
    extensively. Rather than rewrite every call site, we expose those
-   tokens on top of the Nous palette so classes continue to resolve. */
-@theme inline {
+   tokens on top of the Nous palette so classes continue to resolve.
+   Deliberately NOT `inline`: utilities read `var(--color-*)`, so a theme's
+   `colorOverrides` (written as `--color-*` on <html> by ThemeProvider)
+   actually reach `bg-card`, `border-border`, `text-primary`, …; an inline
+   block would bake the palette mix into every utility and drop them. */
+@theme {
   /* Remap foreground to midground so `text-foreground` / `bg-foreground`
      stay visible — in LENS_0, `--foreground` itself has alpha 0. */
   --color-foreground: var(--midground);
@@ -179,7 +221,9 @@ code { font-size: 0.875rem; }
   --color-ring: var(--midground);
   --color-popover: color-mix(in srgb, var(--midground-base) 4%, var(--background-base));
   --color-popover-foreground: var(--midground);
+}
 
+@theme inline {
   --radius-sm: calc(var(--theme-radius) - 4px);
   --radius-md: calc(var(--theme-radius) - 2px);
   --radius-lg: var(--theme-radius);

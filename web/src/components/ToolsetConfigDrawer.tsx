@@ -30,7 +30,7 @@ interface Props {
 
 /**
  * Full configuration surface for a single toolset's backends — the dashboard
- * equivalent of selecting a toolset in the `hermes tools` curses UI: toggle
+ * equivalent of selecting a toolset in the `envoy tools` curses UI: toggle
  * the toolset on/off, pick a provider, enter API keys, and run a provider's
  * post-setup install hook (npm/pip/binary) with a live log tail.
  */
@@ -211,6 +211,10 @@ export function ToolsetConfigDrawer({ toolset, profile, onClose, onChanged }: Pr
   };
 
   const labelText = toolset.label?.trim() || toolset.name;
+  // Nous Portal-only backends are not offered (an active one stays listed).
+  const providers = (config?.providers ?? []).filter(
+    (provider) => !provider.requires_nous_auth || provider.name === activeProvider,
+  );
   const platformText = toolset.platform_label?.trim() || toolset.platform;
 
   return createPortal(
@@ -275,12 +279,12 @@ export function ToolsetConfigDrawer({ toolset, profile, onClose, onChanged }: Pr
               This toolset has no configurable backends — toggle it on or off
               above. It works with no provider selection or API keys.
             </p>
-          ) : config.providers.length === 0 ? (
+          ) : providers.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">
               No providers are available for this toolset in this install.
             </p>
           ) : (
-            config.providers.map((provider) => {
+            providers.map((provider) => {
               const isActive = provider.name === activeProvider;
               return (
                 <div
@@ -298,11 +302,6 @@ export function ToolsetConfigDrawer({ toolset, profile, onClose, onChanged }: Pr
                       {provider.badge && (
                         <Badge tone="secondary" className="text-xs">
                           {provider.badge}
-                        </Badge>
-                      )}
-                      {provider.requires_nous_auth && (
-                        <Badge tone="outline" className="text-xs">
-                          Nous Portal
                         </Badge>
                       )}
                     </div>

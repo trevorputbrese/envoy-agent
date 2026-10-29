@@ -59,7 +59,6 @@ import {
 import { Button } from "@nous-research/ui/ui/components/button";
 import { SelectionSwitcher } from "@nous-research/ui/ui/components/selection-switcher";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { Typography } from "@nous-research/ui/ui/components/typography/index";
 import { ConfirmDialog } from "@nous-research/ui/ui/components/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { SidebarFooter } from "@/components/SidebarFooter";
@@ -73,7 +72,7 @@ import { ProfileSwitcher } from "@/components/ProfileSwitcher";
 import { ProfileScopeBanner } from "@/components/ProfileScopeBanner";
 import { MemoryPressureBanner } from "@/components/MemoryPressureBanner";
 import { MultiplexStandaloneBanner } from "@/components/MultiplexStandaloneBanner";
-import { SharedMetricsConsentBanner } from "@/components/SharedMetricsConsentBanner";
+import { EnvoyWordmark } from "@/components/EnvoyWordmark";
 import { useSystemActions } from "@/contexts/useSystemActions";
 import type { SystemAction } from "@/contexts/system-actions-context";
 // Route pages are lazy-loaded so the initial dashboard shell does not pay for
@@ -528,7 +527,8 @@ export default function App() {
 
       <header
         className={cn(
-          "lg:hidden fixed top-0 left-0 right-0 z-40 min-h-14",
+          // Clarity's theme CSS keeps this bar on desktop too (its app header).
+          "app-topbar lg:hidden fixed top-0 left-0 right-0 z-40 min-h-14",
           "flex items-center gap-2 px-4 py-2",
           "border-b border-current/20",
           "bg-background-base",
@@ -547,14 +547,12 @@ export default function App() {
           aria-label={t.app.openNavigation}
           aria-expanded={mobileOpen}
           aria-controls="app-sidebar"
-          className="text-text-secondary hover:text-midground"
+          className="lg:hidden text-text-secondary hover:text-midground"
         >
           <Menu />
         </Button>
 
-        <Typography className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground">
-          {t.app.brand}
-        </Typography>
+        <EnvoyWordmark className="text-midground" label={t.app.brand} />
       </header>
 
       {mobileOpen && (
@@ -578,7 +576,6 @@ export default function App() {
       <ProfileScopeBanner />
       <MemoryPressureBanner status={sidebarStatus} />
       <MultiplexStandaloneBanner status={sidebarStatus} />
-      <SharedMetricsConsentBanner />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <div className="flex min-h-0 min-w-0 flex-1">
@@ -586,7 +583,7 @@ export default function App() {
             id="app-sidebar"
             aria-label={t.app.navigation}
             className={cn(
-              "fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col font-sans",
+              "app-sidebar fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col font-sans",
               "border-r border-current/20",
               "bg-background-base",
               "transition-[transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
@@ -604,24 +601,20 @@ export default function App() {
           >
             <div
               className={cn(
-                "flex h-14 shrink-0 items-center gap-2",
+                "app-sidebar-head flex h-14 shrink-0 items-center gap-2",
                 "border-b border-current/20",
                 collapsed ? "lg:justify-center lg:px-0" : "px-4 justify-between",
               )}
             >
               <div
                 className={cn(
-                  "flex items-center gap-2",
+                  "flex min-w-0 items-center gap-2",
                   collapsed && "lg:hidden",
                 )}
               >
                 <PluginSlot name="header-left" />
 
-                <Typography className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase">
-                  Hermes
-                  <br />
-                  Agent
-                </Typography>
+                <EnvoyWordmark className="text-midground" label={t.app.brand} />
               </div>
 
               <Button
@@ -654,7 +647,7 @@ export default function App() {
             <ProfileSwitcher collapsed={isDesktopCollapsed} />
 
             <nav
-              className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-2"
+              className="app-nav min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-2"
               aria-label={t.app.navigation}
             >
               <ul className="flex flex-col">
@@ -678,7 +671,7 @@ export default function App() {
                 >
                   <span
                     className={cn(
-                      "px-5 pt-2.5 pb-1",
+                      "app-nav-heading px-5 pt-2.5 pb-1",
                       "font-sans text-display text-xs tracking-[0.12em] text-text-tertiary",
                       isDesktopCollapsed && "lg:hidden",
                     )}
@@ -712,7 +705,7 @@ export default function App() {
 
             <div
               className={cn(
-                "flex shrink-0 items-center gap-2",
+                "app-sidebar-tools flex shrink-0 items-center gap-2",
                 "px-3 py-2",
                 "border-t border-current/20",
                 isDesktopCollapsed
@@ -886,7 +879,7 @@ function SidebarNavLink({
         onBlur={collapsed ? hideTooltip : undefined}
         className={({ isActive }) =>
           cn(
-            "group/nav relative flex items-center gap-3",
+            "app-nav-link group/nav relative flex items-center gap-3",
             "px-5 py-2.5",
             "font-sans text-display uppercase text-sm tracking-[0.12em]",
             "whitespace-nowrap transition-colors cursor-pointer",
@@ -915,13 +908,13 @@ function SidebarNavLink({
 
             <span
               aria-hidden
-              className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/nav:opacity-5"
+              className="app-nav-hover absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/nav:opacity-5"
             />
 
             {isActive && (
               <span
                 aria-hidden
-                className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+                className="app-nav-indicator absolute left-0 top-0 bottom-0 w-px bg-midground"
               />
             )}
           </>
@@ -981,12 +974,12 @@ function SidebarSystemActions({
     if (updateConfirmInfo?.behind && updateConfirmInfo.behind > 0) {
       const cmd = updateConfirmInfo.update_command;
       const n = updateConfirmInfo.behind;
-      return `This will run 'hermes update' (${cmd}) and pull ${n} new commit${n === 1 ? "" : "s"}. The gateway restarts when the update finishes; the current session keeps its prompt cache until then.`;
+      return `This will run 'envoy update' (${cmd}) and pull ${n} new commit${n === 1 ? "" : "s"}. The gateway restarts when the update finishes; the current session keeps its prompt cache until then.`;
     }
-    const cmd = updateConfirmInfo?.update_command ?? "hermes update";
+    const cmd = updateConfirmInfo?.update_command ?? "envoy update";
     return (
       t.status.updateHermesConfirmMessage ??
-      `This will run 'hermes update' (${cmd}) and restart the gateway when it finishes.`
+      `This will run 'envoy update' (${cmd}) and restart the gateway when it finishes.`
     );
   }, [t.status.updateHermesConfirmMessage, updateConfirmInfo]);
 
@@ -1049,7 +1042,7 @@ function SidebarSystemActions({
     >
       <span
         className={cn(
-          "px-5 pt-0.5 pb-0.5",
+          "app-nav-heading px-5 pt-0.5 pb-0.5",
           "font-sans text-display text-xs tracking-[0.12em] text-text-tertiary",
           collapsed && "lg:hidden",
         )}
@@ -1086,7 +1079,7 @@ function SidebarSystemActions({
         sharedGateway
           ? sharedGatewayRestartDescription(sharedGateway)
           : (t.status.restartGatewayConfirmMessage ??
-            "This restarts the Hermes gateway process. Connected channels and active sessions will reconnect afterward.")
+            "This restarts the Envoy gateway process. Connected channels and active sessions will reconnect afterward.")
       }
       loading={pendingAction === "restart"}
       onCancel={() => setRestartConfirmOpen(false)}
@@ -1152,7 +1145,7 @@ function SystemActionButton({
         onBlur={collapsed ? hideTooltip : undefined}
         type="button"
         className={cn(
-          "group/action relative flex w-full items-center gap-3",
+          "app-nav-link group/action relative flex w-full items-center gap-3",
           "px-5 py-2.5",
           "font-sans text-display text-xs tracking-[0.1em]",
           "whitespace-nowrap transition-colors cursor-pointer",
@@ -1185,13 +1178,13 @@ function SystemActionButton({
 
         <span
           aria-hidden
-          className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/action:opacity-5"
+          className="app-nav-hover absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/action:opacity-5"
         />
 
         {busy && (
           <span
             aria-hidden
-            className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+            className="app-nav-indicator absolute left-0 top-0 bottom-0 w-px bg-midground"
           />
         )}
       </button>
@@ -1325,7 +1318,7 @@ function SidebarTooltip({ anchor, label, warmRef }: SidebarTooltipProps) {
   return createPortal(
     <span
       className={cn(
-        "fixed z-[100] pointer-events-none",
+        "app-tooltip fixed z-[100] pointer-events-none",
         "px-2 py-1",
         "bg-background-base border border-current/20 shadow-lg",
         "font-sans text-display text-xs tracking-[0.1em] text-midground uppercase",

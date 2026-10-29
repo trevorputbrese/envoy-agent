@@ -76,6 +76,14 @@ export interface ThemeLayout {
  *  `[data-layout-variant="..."]` selectors. */
 export type ThemeLayoutVariant = "standard" | "cockpit" | "tiled";
 
+/** Built-in chrome a theme can opt into. `clarity` renders the VMware
+ *  Clarity shell: a persistent dark header bar with the wordmark, a Clarity
+ *  vertical nav, and Clarity-styled controls (`themes/clarity.css`, scoped by
+ *  `data-theme-family` on `<html>`). Colours still come from the palette,
+ *  `colorOverrides` and `componentStyles`, so one stylesheet serves light and
+ *  dark variants. */
+export type ThemeFamily = "clarity";
+
 /** Named hero/background assets a theme can populate. Each value is
  *  emitted as a CSS var (`--theme-asset-<name>`). Plugin slots and
  *  shell chrome may consume these via CSS. */
@@ -121,7 +129,7 @@ export interface ThemeComponentStyles {
  *  `--series-input-token` / `--series-output-token` CSS vars consumed
  *  inline by pages that render input-vs-output token flows. Themes can
  *  omit either field to inherit the default token defined in
- *  `index.css` (Hermes-teal `#ffe6cb` for input, `#34d399` for output). */
+ *  `index.css` (the Clarity defaults: `#006a91` input, `#21682d` output). */
 export interface ThemeSeriesColors {
   /** Input-tokens series accent (Analytics chart bars + table values). */
   inputTokenAccent?: string;
@@ -162,6 +170,8 @@ export interface DashboardTheme {
   layout: ThemeLayout;
   /** Overall shell layout. Defaults to `"standard"` when absent. */
   layoutVariant?: ThemeLayoutVariant;
+  /** Built-in chrome family. Absent = the original dashboard chrome. */
+  family?: ThemeFamily;
   /** Named + custom asset URLs exposed as CSS vars on theme apply. */
   assets?: ThemeAssets;
   /** Raw CSS injected as a scoped `<style>` tag on theme apply, cleaned up

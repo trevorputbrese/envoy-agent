@@ -16,6 +16,7 @@ from hermes_cli.web_deps import LateState, late
 from hermes_cli.config import cfg_get
 from hermes_cli.web_routers._common import config_scoped_to_thread
 from hermes_cli.web_server_dashboard import (
+    DEFAULT_DASHBOARD_THEME,
     _BUILTIN_DASHBOARD_THEMES, _discover_user_themes, _invalidate_plugins_hub_cache, _merged_plugins_hub,
     _plugin_consent_withheld,
 )
@@ -56,7 +57,7 @@ async def get_dashboard_themes(profile: Optional[str] = None):
     from `~/.hermes/dashboard-themes/*.yaml` ship their normalised `definition`."""
     def _run():
         config = load_config()
-        active = cfg_get(config, "dashboard", "theme", default="default")
+        active = cfg_get(config, "dashboard", "theme", default=DEFAULT_DASHBOARD_THEME)
         themes = list(_BUILTIN_DASHBOARD_THEMES)
         seen = {t["name"] for t in themes}
         for t in _discover_user_themes():
@@ -82,7 +83,7 @@ async def set_dashboard_theme(body: ThemeSetBody, profile: Optional[str] = None)
 _FONT_DEFAULT_ID = "theme"
 _FONT_CHOICES = frozenset({
     "system-sans", "system-serif", "system-mono",
-    "inter", "ibm-plex-sans", "work-sans", "atkinson-hyperlegible", "dm-sans",
+    "metropolis", "inter", "ibm-plex-sans", "work-sans", "atkinson-hyperlegible", "dm-sans",
     "spectral", "fraunces", "source-serif",
     "jetbrains-mono", "ibm-plex-mono", "space-mono",
 })
@@ -271,7 +272,7 @@ async def delete_agent_plugin(request: Request, name: str):
 
 @router.post("/api/dashboard/agent-plugins/activate")
 async def post_agent_plugin_activate(request: Request):
-    """``hermes plugins install`` / ``enable`` in another process asks this backend to load the plugin
+    """``envoy plugins install`` / ``enable`` in another process asks this backend to load the plugin
     for ``home`` and hand its MCP servers and skills to that profile's open chats
     (``hermes_cli.plugins_activation.load_and_go_live``). ``home`` must be a profile this host serves."""
     _require_token(request)
@@ -284,7 +285,7 @@ async def post_agent_plugin_activate(request: Request):
     home = Path(str((body or {}).get("home") or "")).expanduser()
     profile = profile_name_for_home(home) if str(home) not in ("", ".") else None
     if profile is None:
-        raise HTTPException(status_code=400, detail="Not a Hermes profile home.")
+        raise HTTPException(status_code=400, detail="Not an Envoy profile home.")
     from hermes_cli.plugins_activation import load_and_go_live
 
     def _run():

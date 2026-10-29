@@ -50,13 +50,10 @@ export const it: Translations = {
   },
 
   app: {
-    brand: "Hermes Agent",
-    brandShort: "HA",
+    brand: "Envoy Agent",
+    brandShort: "EA",
     closeNavigation: "Chiudi navigazione",
     closeModelTools: "Chiudi modello e strumenti",
-    footer: {
-      org: "Nous Research",
-    },
     activeSessionsLabel: "Sessioni attive:",
     gatewayStatusLabel: "Stato gateway:",
     gatewayStrip: {
@@ -97,13 +94,13 @@ export const it: Translations = {
     activeProvider: "Provider di memoria attivo",
     noProvider: "nessuno — solo integrata",
     builtinLayer: "Livello integrato",
-    builtinNote: "MEMORY.md e USER.md sono la memoria propria di Hermes, indipendente da qualsiasi provider esterno. Entrambi vengono caricati nelle sessioni per impostazione predefinita; le opzioni di configurazione (memory.memory_enabled / memory.user_profile_enabled) disattivano ciascuno. Un provider si aggiunge a essi; non li sostituisce mai.",
+    builtinNote: "MEMORY.md e USER.md sono la memoria propria di Envoy, indipendente da qualsiasi provider esterno. Entrambi vengono caricati nelle sessioni per impostazione predefinita; le opzioni di configurazione (memory.memory_enabled / memory.user_profile_enabled) disattivano ciascuno. Un provider si aggiunge a essi; non li sostituisce mai.",
   },
 
   status: {
     actionFailed: "Azione non riuscita",
     actionFinished: "Completata",
-    actionFinishedOwed: "Aggiornato, ma ancora in sospeso (riesegui `hermes update` per completare)",
+    actionFinishedOwed: "Aggiornato, ma ancora in sospeso (riesegui `envoy update` per completare)",
     actions: "Azioni",
     agent: "Agente",
     activeSessions: "Sessioni attive",
@@ -129,8 +126,8 @@ export const it: Translations = {
     starting: "Avvio in corso",
     startedInBackground: "Avviato in background — controlla i log per i progressi",
     stopped: "Arrestato",
-    updateHermes: "Aggiorna Hermes",
-    updatingHermes: "Aggiornamento di Hermes…",
+    updateHermes: "Aggiorna Envoy",
+    updatingHermes: "Aggiornamento di Envoy…",
     waitingForOutput: "In attesa di output…",
   },
 
@@ -342,7 +339,7 @@ export const it: Translations = {
       "Salvato: riavvia il gateway per applicare la modifica.",
     forceReinstall: "Forza reinstallazione (elimina prima la cartella esistente)",
     headline:
-      "Scopri, installa, abilita e aggiorna i plugin Hermes (parità con `hermes plugins`).",
+      "Scopri, installa, abilita e aggiorna i plugin Envoy (parità con `envoy plugins`).",
     identifierLabel: "URL Git o owner/repo",
     inactive: "inattivo",
     installBtn: "Installa",
@@ -456,7 +453,7 @@ export const it: Translations = {
     showValue: "Mostra valore reale",
     hideValue: "Nascondi valore",
     customTitle: "Chiavi personalizzate",
-    customHint: "Variabili d'ambiente arbitrarie salvate nel tuo .env che Hermes non riconosce. Usale per iniettare variabili d'ambiente per skill, server MCP o i tuoi strumenti.",
+    customHint: "Variabili d'ambiente arbitrarie salvate nel tuo .env che Envoy non riconosce. Usale per iniettare variabili d'ambiente per skill, server MCP o i tuoi strumenti.",
     customConfigured: "{count} chiave/i personalizzata/e impostata/e",
     addCustomKey: "Aggiungi una chiave personalizzata",
     customKeyName: "Nome della variabile",
@@ -520,11 +517,11 @@ export const it: Translations = {
   achievements: {
     hero: {
       kicker: "Agentic Gamerscore",
-      title: "Hermes Achievements",
+      title: "Envoy Achievements",
       subtitle:
-        "Badge Hermes da collezione, ottenuti dalla cronologia reale delle sessioni. Gli achievement noti non completati vengono mostrati come Scoperti; gli achievement segreti restano nascosti finché non compare il primo comportamento corrispondente.",
+        "Badge Envoy da collezione, ottenuti dalla cronologia reale delle sessioni. Gli achievement noti non completati vengono mostrati come Scoperti; gli achievement segreti restano nascosti finché non compare il primo comportamento corrispondente.",
       scan_subtitle:
-        "Scansione della cronologia delle sessioni Hermes in corso. La prima scansione può richiedere 5–10 secondi su cronologie ampie.",
+        "Scansione della cronologia delle sessioni Envoy in corso. La prima scansione può richiedere 5–10 secondi su cronologie ampie.",
     },
     actions: {
       rescan: "Riscansiona",
@@ -539,7 +536,7 @@ export const it: Translations = {
       highest_tier: "Livello più alto",
       highest_tier_hint: "Copper → Silver → Gold → Diamond → Olympian",
       latest: "Più recente",
-      latest_hint_empty: "usa Hermes di più",
+      latest_hint_empty: "usa Envoy di più",
       none_yet: "Nessuno ancora",
     },
     state: {
@@ -570,10 +567,10 @@ export const it: Translations = {
       tiers_header: "Livelli",
       secret_header: "Achievement segreti",
       secret_body:
-        "I segreti nascondono il loro trigger esatto. Quando Hermes rileva un segnale correlato, la carta passa a Scoperto e mostra il requisito.",
+        "I segreti nascondono il loro trigger esatto. Quando Envoy rileva un segnale correlato, la carta passa a Scoperto e mostra il requisito.",
       scan_status_header: "Stato della scansione",
       scan_status_body:
-        "Hermes sta scansionando la cronologia locale una sola volta, poi le carte appariranno automaticamente. Non è bloccato nulla se richiede qualche secondo.",
+        "Envoy sta scansionando la cronologia locale una sola volta, poi le carte appariranno automaticamente. Non è bloccato nulla se richiede qualche secondo.",
       what_scanned_header: "Cosa viene scansionato",
       what_scanned_body:
         "Sessioni, chiamate agli strumenti, metadati del modello, errori, achievement e stato di sblocco locale.",
@@ -620,7 +617,7 @@ export const it: Translations = {
         "Condividi su X apre un post precompilato in una nuova scheda. Clicca prima su Copia immagine se vuoi allegare il badge 1200×630 — X ti permette di incollarlo direttamente nell'editor del tweet. Scarica PNG salva il file per l'uso ovunque.",
       clipboard_unsupported:
         "La copia delle immagini negli appunti non è supportata in questo browser — usa Scarica invece.",
-      tweet_text: "Just unlocked {tier_part}\"{name}\" in Hermes Agent ☤",
+      tweet_text: "Just unlocked {tier_part}\"{name}\" in Envoy Agent ◈",
     },
   },
   kanban: {

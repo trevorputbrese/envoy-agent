@@ -40,6 +40,7 @@ import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
 import { errorMessage } from "@/lib/api-error";
+import { isHiddenEnvKey } from "@/lib/hidden-vendors";
 
 /* ------------------------------------------------------------------ */
 /*  Provider grouping                                                  */
@@ -47,9 +48,7 @@ import { errorMessage } from "@/lib/api-error";
 
 /** Map env-var key prefixes to a human-friendly provider name + ordering. */
 const PROVIDER_GROUPS: { prefix: string; name: string; priority: number }[] = [
-  // Nous Portal first
-  { prefix: "NOUS_", name: "Nous Portal", priority: 0 },
-  // Then alphabetical by display name
+  // Alphabetical by display name
   { prefix: "ANTHROPIC_", name: "Anthropic", priority: 1 },
   { prefix: "DASHSCOPE_", name: "DashScope (Qwen)", priority: 2 },
   { prefix: "HERMES_QWEN_", name: "DashScope (Qwen)", priority: 2 },
@@ -808,8 +807,10 @@ export default function EnvPage() {
       };
 
     const providerEntries = Object.entries(vars).filter(
-      ([, info]) =>
-        info.category === "provider" && (showAdvanced || !info.advanced),
+      ([key, info]) =>
+        info.category === "provider" &&
+        (showAdvanced || !info.advanced) &&
+        !isHiddenEnvKey(key, info.is_set),
     );
 
     // Group by provider
@@ -846,10 +847,11 @@ export default function EnvPage() {
     const otherCategories = ["tool", "messaging", "setting"];
     const nonProvider = otherCategories.map((cat) => {
       const entries = Object.entries(vars).filter(
-        ([, info]) =>
+        ([key, info]) =>
           info.category === cat &&
           !info.channel_managed &&
-          (showAdvanced || !info.advanced),
+          (showAdvanced || !info.advanced) &&
+          !isHiddenEnvKey(key, info.is_set),
       );
       const setEntries = entries.filter(([, info]) => info.is_set);
       const unsetEntries = entries.filter(([, info]) => !info.is_set);

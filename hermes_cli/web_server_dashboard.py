@@ -49,7 +49,7 @@ def _layer_hex(palette: dict[str, Any], key: str, default: str) -> str:
 
 def _render_active_theme_bootstrap_css() -> str:
     """Critical-CSS ``<style>`` shim for the active *user* theme, so the first paint uses the
-    target palette instead of flashing the bundle's default Hermes Teal until
+    target palette instead of flashing the bundle's default Clarity tokens until
     ``ThemeProvider.applyTheme()`` runs. Built-in themes return "" (the bundle owns them).
 
     Variable names MUST match what the bundle consumes (``layerVars()`` /
@@ -59,7 +59,7 @@ def _render_active_theme_bootstrap_css() -> str:
     """
     from hermes_cli.config import load_config
     try:
-        active = cfg_get(load_config(), "dashboard", "theme", default="default")
+        active = cfg_get(load_config(), "dashboard", "theme", default=DEFAULT_DASHBOARD_THEME)
         if not active or not isinstance(active, str):
             return ""
         if any(b["name"] == active for b in _BUILTIN_DASHBOARD_THEMES):
@@ -99,8 +99,8 @@ def _render_active_theme_bootstrap_css() -> str:
 _IMMUTABLE_ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable"
 _NO_STORE = {"Cache-Control": "no-store, no-cache, must-revalidate"}
 _HEADLESS_MSG = (
-    "Headless backend (hermes serve): web UI disabled — use "
-    "`hermes dashboard` for the browser UI."
+    "Headless backend (envoy serve): web UI disabled — use "
+    "`envoy dashboard` for the browser UI."
 )
 
 
@@ -124,7 +124,7 @@ def mount_spa(application: FastAPI):
     from hermes_cli.web_server_surface import policy
     from hermes_cli.web_server_static_assets import is_static_asset_path, public_font_file
 
-    # `hermes serve` is the headless backend: it must NEVER serve the browser SPA, even if a
+    # `envoy serve` is the headless backend: it must NEVER serve the browser SPA, even if a
     # dist is lying around, so only the JSON-RPC/WS/API surface is reachable.
     if os.environ.get("HERMES_SERVE_HEADLESS") == "1":
 
@@ -132,7 +132,7 @@ def mount_spa(application: FastAPI):
         async def no_frontend(full_path: str):
             # Desktop token handshake: the Electron shell boots by fetching `/` and reading
             # ``window.__HERMES_SESSION_TOKEN__`` for /api/ws auth. When headless 404'd every
-            # path, a renderer whose spawn token no longer matched (e.g. after `hermes update`)
+            # path, a renderer whose spawn token no longer matched (e.g. after `envoy update`)
             # white-screened. Serve a token-only page at the exact root, but ONLY when the auth
             # gate is off: on a gated serve the token must never be readable without auth.
             # See #94227, #95575.
@@ -149,7 +149,7 @@ def mount_spa(application: FastAPI):
             return JSONResponse({"error": _HEADLESS_MSG}, status_code=404)
         return
 
-    # A missing WEB_DIST is deliberately NOT a mount-time terminal state (#82614): a long-lived `hermes
+    # A missing WEB_DIST is deliberately NOT a mount-time terminal state (#82614): a long-lived `envoy
     # dashboard --skip-build` process that survives a `git pull` (or starts before the first build) used to
     # install a permanent no_frontend catch-all here and could never recover — every route answered 404
     # "Frontend not built" until the process was restarted, even after `npm run build` completed. The SPA
@@ -172,14 +172,14 @@ def mount_spa(application: FastAPI):
             html = (web_dist() / "index.html").read_text(encoding="utf-8-sig")
         except OSError:
             # Partial build / wiped dist / permissions: same JSON 404 as a fully-missing dist. The
-            # Webapp's bundle is built by `hermes webapp`, not by the dashboard's web project.
+            # Webapp's bundle is built by `envoy webapp`, not by the dashboard's web project.
             webapp = getattr(application.state, "ui_surface", "dashboard") == "webapp"
-            missing = ("The Webapp is not built. Run: hermes webapp" if webapp
+            missing = ("The Webapp is not built. Run: envoy webapp" if webapp
                        else "Frontend not built. Run: cd web && npm run build")
             return JSONResponse({"error": missing}, status_code=404)
         if getattr(application.state, "ui_surface", "dashboard") == "webapp":
-            # A bundle `hermes update` could not rebuild was built for the code before the update:
-            # refuse it until `hermes webapp` rebuilds it.
+            # A bundle `envoy update` could not rebuild was built for the code before the update:
+            # refuse it until `envoy webapp` rebuilds it.
             from gateway.webapp_listener import bundle_stale_reason
             stale = bundle_stale_reason(web_dist())
             if stale:
@@ -305,10 +305,15 @@ def mount_spa(application: FastAPI):
 # ---------------------------------------------------------------------------
 
 # Built-in themes — label + description only; colors live in web/src/themes/presets.ts.
+# ``clarity`` is the default (``DEFAULT_DASHBOARD_THEME``, mirrored by ``defaultTheme`` there).
+# Ids are stable config values: ``default`` and ``nous-blue`` keep their names so saved configs resolve.
+DEFAULT_DASHBOARD_THEME = "clarity"
 _BUILTIN_DASHBOARD_THEMES = [
-    {"name": "default",       "label": "Hermes Teal",         "description": "Classic dark teal — the canonical Hermes look"},
-    {"name": "default-large", "label": "Hermes Teal (Large)", "description": "Hermes Teal with bigger fonts and roomier spacing"},
-    {"name": "nous-blue",     "label": "Nous Blue",           "description": "Light mode — vivid Nous-blue accents on cream canvas"},
+    {"name": "clarity",       "label": "Clarity",            "description": "Clarity light — navy header, blue actions, neutral greys"},
+    {"name": "clarity-dark",  "label": "Clarity Dark",       "description": "Clarity dark — slate surfaces with light-blue actions"},
+    {"name": "default",       "label": "Envoy Teal",         "description": "Dark teal with cream accents — the original dashboard look"},
+    {"name": "default-large", "label": "Envoy Teal (Large)", "description": "Envoy Teal with bigger fonts and roomier spacing"},
+    {"name": "nous-blue",     "label": "Classic Blue",        "description": "Light mode — vivid blue accents on cream canvas"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
     {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},
@@ -534,7 +539,7 @@ def _dashboard_plugin_search_dirs() -> list[tuple]:
     User dashboard plugins are a dashboard-owned asset (like theme YAML): resolved from the
     process launch home so they don't vanish when a request is scoped to another profile.
     When the process itself is profile-scoped (``HERMES_HOME=<root>/profiles/<name>``) the
-    launch home has no ``plugins/`` — user plugins live in the hermes root — so the default
+    launch home has no ``plugins/`` — user plugins live in the envoy root — so the default
     root is scanned too; profile-local plugins stay authoritative over same-named root ones.
     The project source is gated on shared truthy semantics (``1``/``true``/``yes``/``on``):
     a bare non-empty check let ``=0``/``=false`` silently enable it (GHSA-5qr3-c538-wm9j).
@@ -548,7 +553,7 @@ def _dashboard_plugin_search_dirs() -> list[tuple]:
     # context-local HERMES_HOME override (e.g. embedded /chat under --open-profile). #87197: when the
     # process itself is profile-scoped (``--profile <name>`` sets ``HERMES_HOME=<root>/profiles/<name>``),
     # the launch home is the profile directory, which has no ``plugins/`` — user plugins are installed in
-    # the hermes root (``~/.hermes/plugins``). Scan the default root as well (``get_default_hermes_root()``
+    # the envoy root (``~/.hermes/plugins``). Scan the default root as well (``get_default_hermes_root()``
     # unwraps ``<root>/profiles/<name>`` → ``<root>`` and returns a custom ``HERMES_HOME`` unchanged when it
     # *is* the root), mirroring how ``hermes_cli.plugins`` resolves plugin install locations. The
     # ``seen_names`` dedupe below keeps profile-local plugins (if any) authoritative over same-named root
@@ -697,9 +702,9 @@ def _schedule_check_fn_probe(fn) -> Optional[threading.Thread]:
 
 
 def _plugin_login_command(name: str) -> str:
-    """A plugin that left core with its own login command (``hermes spotify login``), else ``hermes auth <name>``."""
+    """A plugin that left core with its own login command (``envoy spotify login``), else ``envoy auth <name>``."""
     from hermes_cli.left_core_migration import LEFT_CORE
-    return next((f"hermes {f.cli} login" for f in LEFT_CORE if f.plugin == name and f.cli), f"hermes auth {name}")
+    return next((f"envoy {f.cli} login" for f in LEFT_CORE if f.plugin == name and f.cli), f"envoy auth {name}")
 
 
 def _plugin_auth_hint(name: str, provides_tools: list) -> tuple:
@@ -779,7 +784,7 @@ def _merged_plugins_hub(force_refresh: bool = False) -> dict[str, Any]:
     active = _category_active_names()
 
     for name, version, description, source, dir_str, key in _discover_all_plugins():
-        # Same verdict as `hermes plugins list` / the TUI hub: name+key aliases for the lists, bundled
+        # Same verdict as `envoy plugins list` / the TUI hub: name+key aliases for the lists, bundled
         # backends/platforms/providers and the live memory provider count as enabled without a list
         # entry (#73131, #82898).
         runtime_status = _plugin_status(
@@ -1097,7 +1102,7 @@ def _try_hot_mount_plugin_api(name: str) -> bool:
     from hermes_cli.plugins_cmd import _get_disabled_set, _get_enabled_set
     from hermes_cli.web_server import _get_dashboard_plugins, app
     from hermes_cli.web_server_plugin_profiles import plugin_api_path, secondary_plugin, secondary_profile_home
-    # A secondary profile reaches this router only for its own bundled copy (Hermes code), and its
+    # A secondary profile reaches this router only for its own bundled copy (Envoy code), and its
     # own lists decide that one (PLG-3).
     secondary, own, requester_sets = secondary_profile_home() is not None, secondary_plugin(name), _plugin_enable_sets_here()
     with _launch_profile_scope(), _plugin_api_mount_lock:

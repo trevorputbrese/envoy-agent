@@ -53,7 +53,7 @@ export function PageHeaderProvider({
       <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <header
           className={cn(
-            "z-1 w-full shrink-0",
+            "app-page-header z-1 w-full shrink-0",
             "box-border border-b border-current/20",
             "bg-background-base",
             // Mobile stacks title + toolbar — fixed h-14 clips content; desktop stays one row.
@@ -81,7 +81,7 @@ export function PageHeaderProvider({
             >
               <h1
                 className={cn(
-                  "font-expanded min-w-0 text-sm font-bold tracking-[0.08em] text-midground",
+                  "app-page-title font-expanded min-w-0 text-sm font-bold tracking-[0.08em] text-midground",
                   afterTitle && isEnvRoute
                     ? "max-w-full sm:min-w-0 sm:shrink sm:truncate"
                     : afterTitle

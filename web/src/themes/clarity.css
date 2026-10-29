@@ -1,0 +1,328 @@
+/*
+ * Clarity chrome — the VMware Clarity Design System look (the main Envoy
+ * app's @clr/ui 18.4.0 shell) laid over the dashboard's existing components.
+ *
+ * Active only while the theme declares `family: "clarity"` (ThemeProvider
+ * sets `data-theme-family` on <html>), so every other theme keeps its own
+ * chrome. No colour is hard-coded here: light and dark variants differ only
+ * in the tokens ThemeProvider writes — the palette, `colorOverrides`
+ * (`--color-*`) and `componentStyles` (`--component-<bucket>-*`, see
+ * `clarityTheme()` in presets.ts).
+ *
+ * Shell elements are targeted through their `app-*` hooks (App.tsx,
+ * PageHeaderProvider.tsx). The design-system components carry no hooks, so
+ * they are matched by role/data-slot or by their own class signatures. These
+ * rules are unlayered on purpose: they must outrank the DS variant utilities
+ * (`bg-midground`, `tracking-[…]`, inset shadows) they restyle. Element
+ * defaults sit in `@layer base`, where a call site's utilities still win.
+ */
+
+:root[data-theme-family="clarity"] {
+  color-scheme: var(--component-page-color-scheme, light);
+
+  /* The DS brand display faces (Mondwest, Collapse, Rules) become Metropolis. */
+  --font-mondwest: var(--theme-font-sans);
+  --font-rules-compressed: var(--theme-font-sans);
+  --font-rules-expanded: var(--theme-font-sans);
+  --selection-bg: color-mix(in srgb, var(--color-primary) 28%, transparent);
+
+  /* ── Typography: sentence case, untracked (Clarity has no display caps) ── */
+  & .text-display,
+  & .font-mondwest,
+  & .font-expanded,
+  & .font-compressed,
+  & .tracking-\[0\.0525rem\],
+  & .tracking-\[0\.135rem\],
+  & .tracking-\[0\.1875rem\] {
+    letter-spacing: normal;
+  }
+  & .text-display,
+  & .font-mondwest.uppercase,
+  & .font-expanded.uppercase {
+    text-transform: none;
+  }
+  /* DS <Label>: Clarity's bold control label */
+  & label.font-mondwest {
+    color: var(--color-foreground);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  & .font-courier {
+    font-family: var(--theme-font-sans);
+  }
+  & code.font-courier {
+    font-family: var(--theme-font-mono);
+  }
+
+  /* `bg-midground` is the DS "ink fill" (primary buttons, checked segments and
+     thumbs, progress, indicators): in Clarity that is the action blue. */
+  & .bg-midground {
+    background-color: var(--color-primary);
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────
+     DS <Button> keeps one class through tailwind-merge whatever its size or
+     variant: the base `grid-cols-[auto_1fr_auto]` icon/label grid. */
+  & .arc-border {
+    display: none;
+  }
+  & button.grid-cols-\[auto_1fr_auto\] {
+    border-radius: var(--theme-radius);
+    font-family: var(--theme-font-sans);
+    font-weight: 600;
+    box-shadow: none;
+  }
+  & button.grid-cols-\[auto_1fr_auto\]:not(.shadow-none) {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  & button.grid-cols-\[auto_1fr_auto\].bg-midground {
+    color: var(--color-primary-foreground);
+  }
+  & button.grid-cols-\[auto_1fr_auto\].bg-midground:hover:not(:disabled) {
+    filter: brightness(0.88);
+  }
+  /* outlined → Clarity secondary (outline) button */
+  & button.grid-cols-\[auto_1fr_auto\].bg-transparent.text-midground:not(.shadow-none) {
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+    color: var(--color-primary);
+  }
+  & button.grid-cols-\[auto_1fr_auto\].bg-transparent.text-midground:not(.shadow-none):hover:not(:disabled) {
+    background-color: var(--color-accent);
+  }
+
+  /* ── Cards, dialogs, popovers ───────────────────────────────────────── */
+  & .border.bg-background-base\/80 {
+    border-color: var(--component-card-border-color, var(--color-border));
+    border-radius: var(--theme-radius);
+  }
+  & [data-slot="dialog-content"],
+  & [role="dialog"].border,
+  & [role="listbox"].border,
+  & [role="menu"].border {
+    background-color: var(--color-popover);
+    color: var(--color-popover-foreground);
+    border-color: var(--color-border);
+    border-radius: var(--theme-radius);
+    box-shadow: 0 2px 8px color-mix(in srgb, #000 18%, transparent);
+  }
+
+  /* ── Form controls ──────────────────────────────────────────────────── */
+  & :is(
+      input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]),
+      textarea:not(.xterm-helper-textarea),
+      select,
+      button[role="combobox"]
+    ).border {
+    border-color: var(--color-input);
+    border-radius: var(--theme-radius);
+    background-color: var(--color-card);
+    color: var(--color-card-foreground);
+  }
+  & :is(input, textarea:not(.xterm-helper-textarea), select, button[role="combobox"]).border:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+    outline: none;
+  }
+
+  & button[role="switch"],
+  & button[role="switch"] > span {
+    border-radius: 999px;
+  }
+  & button[role="switch"][aria-checked="true"] {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  & button[role="switch"][aria-checked="true"] > span {
+    background-color: var(--color-primary-foreground);
+  }
+
+  & button[role="checkbox"] {
+    border-radius: 0.125rem;
+    border-color: var(--color-input);
+  }
+  & button[role="checkbox"]:is([data-state="checked"], [data-state="indeterminate"]) {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  & button[role="checkbox"]:is([data-state="checked"], [data-state="indeterminate"]) svg {
+    color: var(--color-primary-foreground);
+  }
+
+  & [role="radiogroup"].inline-flex.border {
+    border-color: var(--color-primary);
+    border-radius: var(--theme-radius);
+    overflow: hidden;
+  }
+  & [role="radiogroup"] > button[role="radio"] {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  & [role="radiogroup"] > button[role="radio"][aria-checked="true"] {
+    color: var(--color-primary-foreground);
+  }
+
+  /* ── Tabs: Clarity's 3px action underline ───────────────────────────── */
+  & button.font-mondwest.text-display.after\:bg-midground {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+  & button.font-mondwest.text-display.after\:bg-midground::after {
+    height: 3px;
+    background-color: var(--color-primary);
+  }
+
+  /* Inverted "active item" fills read as Clarity's selected row. */
+  & .bg-foreground\/90.text-background {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  /* DS <Stats> dotted leader rows: sans labels, no wide tracking. */
+  & div.grid-cols-\[auto_1fr_auto\].text-display .font-mono {
+    font-family: var(--theme-font-sans);
+    letter-spacing: normal;
+  }
+
+  /* ── Badges / labels ────────────────────────────────────────────────── */
+  & .font-compressed.text-display {
+    border-radius: var(--theme-radius);
+    font-weight: 600;
+  }
+
+  /* ── Header bar (Clarity app header) ────────────────────────────────── */
+  & .app-topbar {
+    color: var(--component-header-foreground);
+    border-bottom-color: transparent;
+  }
+  & .app-topbar .app-wordmark {
+    color: var(--component-header-foreground);
+  }
+  & .app-topbar .app-wordmark-mark {
+    color: var(--component-header-accent);
+  }
+  & .app-topbar .app-wordmark-product {
+    color: var(--component-header-muted);
+    border-left-color: var(--component-header-divider);
+  }
+  & .app-topbar button {
+    color: var(--component-header-foreground);
+  }
+  & .app-topbar button:hover {
+    background-color: var(--component-header-hover);
+  }
+  & .app-sidebar .app-wordmark-mark {
+    color: var(--color-primary);
+  }
+
+  /* ── Vertical nav ───────────────────────────────────────────────────── */
+  & .app-sidebar {
+    border-right-color: var(--component-sidebar-border-color);
+  }
+  & .app-sidebar-head,
+  & .app-sidebar-tools,
+  & .app-sidebar-footer,
+  & .app-nav,
+  & .app-sidebar .border-current\/10,
+  & .app-sidebar .border-current\/20 {
+    border-color: var(--component-sidebar-border-color);
+  }
+  & .app-nav-link {
+    margin: 1px 0.5rem;
+    padding: 0.5rem 0.75rem;
+    width: auto;
+    border-left: 3px solid transparent;
+    border-radius: var(--theme-radius);
+    color: var(--component-tab-foreground);
+    font-size: 0.875rem;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  & button.app-nav-link {
+    width: calc(100% - 1rem);
+  }
+  & .app-nav-link:hover:not(:disabled) {
+    background-color: var(--component-tab-hover-background);
+  }
+  & .app-nav-link[aria-current="page"],
+  & .app-nav-link[aria-busy="true"] {
+    background-color: var(--component-tab-active-background);
+    border-left-color: var(--component-tab-active-foreground);
+    color: var(--component-tab-active-foreground);
+    font-weight: 600;
+  }
+  & .app-nav-hover,
+  & .app-nav-indicator {
+    display: none;
+  }
+  & .app-nav-heading {
+    padding: 0.75rem 1.25rem 0.375rem;
+    color: var(--color-muted-foreground);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  & .app-tooltip {
+    background-color: var(--component-header-background);
+    border-color: transparent;
+    border-radius: var(--theme-radius);
+    color: var(--component-header-foreground);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* ── Page header ────────────────────────────────────────────────────── */
+  & .app-page-header {
+    border-bottom-color: var(--color-border);
+  }
+  & .app-page-title {
+    font-size: 1.375rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    line-height: 1.3;
+  }
+}
+
+/* Desktop: the header bar carries the wordmark, so the nav's own head row is
+   only the collapse toggle. */
+@media (min-width: 1024px) {
+  :root[data-theme-family="clarity"] .app-sidebar-head {
+    height: 2.5rem;
+    border-bottom-color: transparent;
+  }
+  :root[data-theme-family="clarity"] .app-sidebar-head .app-wordmark {
+    display: none;
+  }
+  /* Other themes show the bar on mobile only (lg:hidden); unlayered, this wins over utilities. */
+  :root[data-theme-family="clarity"] .app-topbar {
+    display: flex;
+    position: relative;
+    flex-shrink: 0;
+    padding-inline: 1.5rem;
+  }
+  /* Below the header bar the nav fills the row instead of the viewport. */
+  :root[data-theme-family="clarity"] .app-sidebar {
+    height: auto;
+    max-height: none;
+  }
+}
+
+@layer base {
+  :root[data-theme-family="clarity"] {
+    & a {
+      text-underline-offset: 2px;
+    }
+    & code {
+      background: var(--color-muted);
+      color: var(--color-foreground);
+      border-radius: 0.125rem;
+    }
+    & pre code {
+      background: transparent;
+    }
+    & ::selection {
+      color: inherit;
+    }
+  }
+}

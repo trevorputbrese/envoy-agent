@@ -78,9 +78,6 @@ export interface Translations {
     brandShort: string;
     closeNavigation: string;
     closeModelTools: string;
-    footer: {
-      org: string;
-    };
     activeSessionsLabel: string;
     gatewayStatusLabel: string;
     gatewayStrip: {
@@ -131,13 +128,6 @@ export interface Translations {
     multiplexStandaloneBanner?: string;
     dismiss?: string;
     /** First-run shared-metrics offer — optional, English fallback. */
-    sharedMetricsTitle?: string;
-    sharedMetricsBody?: string;
-    sharedMetricsReaskBody?: string;
-    sharedMetricsShare?: string;
-    sharedMetricsOff?: string;
-    sharedMetricsDetails?: string;
-    sharedMetricsSaveFailed?: string;
   };
 
   // ── System page: Memory section ──

@@ -22,6 +22,7 @@ import { ConfirmDialog } from "@nous-research/ui/ui/components/confirm-dialog";
 import { OAuthLoginModal } from "@/components/OAuthLoginModal";
 import { useI18n } from "@/i18n";
 import { errorMessage } from "@/lib/api-error";
+import { isHiddenProvider } from "@/lib/hidden-vendors";
 
 interface Props {
   onError?: (msg: string) => void;
@@ -66,7 +67,11 @@ export function OAuthProvidersCard({ onError, onSuccess }: Props) {
     setLoading(true);
     api
       .getOAuthProviders()
-      .then((resp) => setProviders(resp.providers))
+      .then((resp) =>
+        setProviders(
+          resp.providers.filter((p) => !isHiddenProvider(p.id, p.status.logged_in)),
+        ),
+      )
       .catch((e) => onErrorRef.current?.(`Failed to load providers: ${errorMessage(e)}`))
       .finally(() => setLoading(false));
   }, []);

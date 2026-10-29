@@ -1,11 +1,14 @@
-# Hermes Agent — Web UI
+# Envoy Agent — Web UI
 
-Browser-based dashboard for managing Hermes Agent configuration, API keys, and monitoring active sessions.
+Browser-based dashboard for managing Envoy Agent configuration, API keys, and monitoring active sessions.
 
 ## Stack
 
 - **Vite** + **React 19** + **TypeScript**
-- **Tailwind CSS v4** with custom dark theme
+- **Tailwind CSS v4**; themes in `src/themes/` — the default `clarity` (and `clarity-dark`) give the
+  dashboard the VMware Clarity look of the main Envoy app: `src/themes/clarity.css` restyles the shell
+  and design-system components while a theme declares `family: "clarity"`, with Metropolis vendored
+  from `@clr/ui` 18.4.0 under `src/assets/fonts/` (MIT / SIL OFL, `public/CLARITY-LICENSE.txt`)
 - **shadcn/ui**-style components (hand-rolled, no CLI dependency)
 
 ## Development
@@ -23,7 +26,7 @@ npm run dev
 
 Open the **Vite URL** printed in the terminal (usually `http://localhost:5173`). That is the live-reload UI.
 
-`hermes dashboard` on port 9119 serves the **built** bundle from `hermes_cli/web_dist/`, not the Vite dev server — changes in `web/src/` will not appear there until you run `npm run build` and restart the dashboard (or use `web --no-open` + Vite as above).
+`envoy dashboard` on port 9119 serves the **built** bundle from `hermes_cli/web_dist/`, not the Vite dev server — changes in `web/src/` will not appear there until you run `npm run build` and restart the dashboard (or use `web --no-open` + Vite as above).
 
 The Vite dev server proxies `/api` requests to `http://127.0.0.1:9119` (the FastAPI backend).
 
@@ -88,7 +91,7 @@ Typography is **opt-in per surface**, not global on layout shells — the app sh
 | Brand chrome | `font-mondwest text-display` (or `themedChrome`) | Sidebar nav, card section headers (`CardTitle`), Segmented filter buttons, filter panel headings |
 | Themed body | `font-mondwest normal-case` (or `themedBody`) | Card content (`Card`, `CardDescription`), session/platform rows, analytics tables — **scoped to the component** |
 | Page chrome | `font-expanded` | Page header h1 (`PageHeaderProvider`) — sentence case, not `text-display` |
-| Wordmark | `Typography` + size/tracking only | Sidebar/mobile “Hermes Agent” — mixed case, no Mondwest, no `text-display` |
+| Wordmark | `Typography` + size/tracking only | Sidebar/mobile “Envoy Agent” — mixed case, no Mondwest, no `text-display` |
 | Technical | `font-mono-ui` / `font-mono` / `font-courier` | Model slugs, env keys, schedules, YAML, repo URLs |
 
 - Do **not** put `themedBody` or `themedFont` on `<main>`, `App`, or other layout wrappers — it overrides component-scoped styles.

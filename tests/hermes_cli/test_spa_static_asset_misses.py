@@ -43,7 +43,7 @@ def test_the_sign_in_page_fonts_load_as_fonts(monkeypatch, tmp_path, surface):
     for url in _login_font_urls():
         response = client.get(url)
         assert response.status_code == 200, url
-        assert response.headers["content-type"] == "font/woff2", url
+        assert response.headers["content-type"] == f"font/{Path(url).suffix.lstrip('.')}", url
         assert response.content == (WEB_PUBLIC / url.lstrip("/")).read_bytes()
 
 
