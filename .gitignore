@@ -328,3 +328,8 @@ native/fts5_cjk/*.so
 /pm/.lock.json.lock
 
 apps/desktop/.dist-build*
+
+# Cloud Foundry push artifacts (deploy/cloudfoundry/prepare.sh)
+.envoy-cf/
+deploy/cloudfoundry/build/
+deploy/cloudfoundry/.local/

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Envoy Agent checkout: the CLI launcher, the package it starts, and the pinned toolchain lock.
+build_dir="$1"
+if [ -f "$build_dir/envoy" ] && [ -f "$build_dir/hermes_cli/main.py" ] && [ -f "$build_dir/pm/lock.json" ]; then
+  echo "envoy-agent $(cat "$(dirname "$0")/../VERSION")"
+  exit 0
+fi
+exit 1

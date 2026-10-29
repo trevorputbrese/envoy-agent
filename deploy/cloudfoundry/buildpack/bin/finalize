@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# finalize BUILD_DIR CACHE_DIR DEPS_DIR INDEX
+#
+# Makes sure the dashboard and the TUI it embeds are built. `deploy/cloudfoundry/prepare.sh`
+# ships both prebuilt (their output is plain JavaScript); a raw checkout is built here with the
+# pinned Node from supply.
+set -euo pipefail
+
+build_dir="$1" cache_dir="$2" deps_dir="$3" index="$4"
+bp_dir="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=../lib/common.sh
+. "$bp_dir/lib/common.sh"
+deps="$deps_dir/$index"
+node="$(sed -n 's/^node=//p' "$deps/tool-paths.env")"
+export PATH="$(dirname "$node"):$PATH" npm_config_cache="$cache_dir/npm"
+
+if [ ! -f "$build_dir/hermes_cli/web_dist/index.html" ] || [ ! -f "$build_dir/.envoy-cf/tui/dist/entry.js" ]; then
+  step "Building the dashboard and TUI from source"
+  (cd "$build_dir" && node scripts/build/node-deps.mjs --source "$build_dir" --workspace ui-tui --workspace web)
+  # The TUI build refuses an output inside its source tree.
+  (cd "$build_dir" && node scripts/build/tui.mjs --source "$build_dir" --out "$deps/tui")
+  rm -rf "$build_dir/.envoy-cf/tui"; mkdir -p "$build_dir/.envoy-cf"; mv "$deps/tui" "$build_dir/.envoy-cf/tui"
+  (cd "$build_dir/web" && npm run build)
+  rm -rf "$build_dir/node_modules" "$build_dir/web/node_modules" "$build_dir/ui-tui/node_modules"
+else
+  step "Using the prebuilt dashboard and TUI"
+fi
+
+# A code-scoped install stamp tells `envoy update` this tree is managed by the platform: a new
+# version arrives with `cf push`, never an in-place update.
+printf 'cloudfoundry\n' > "$build_dir/.install_method"
+step "Envoy staged"

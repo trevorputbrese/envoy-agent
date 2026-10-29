@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# release BUILD_DIR: the default web process (supply copies the start script into the app).
+cat <<'EOF'
+---
+default_process_types:
+  web: exec .envoy-cf/lib/start.sh
+EOF

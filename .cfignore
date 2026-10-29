@@ -1,0 +1,21 @@
+# `cf push` of this checkout with the Envoy buildpack (deploy/cloudfoundry/). The dashboard and
+# TUI ship prebuilt (hermes_cli/web_dist, .envoy-cf/tui), so their sources' dependencies stay home.
+.git/
+.github/
+.venv/
+.pytest_cache/
+.pytest-cache/
+**/__pycache__/
+**/node_modules/
+.envoy-home/
+apps/desktop/
+apps/bootstrap-installer/
+contributors/
+docker/
+evals/
+nix/
+tests/
+tests-js/
+website/
+deploy/cloudfoundry/build/
+deploy/cloudfoundry/.local/
