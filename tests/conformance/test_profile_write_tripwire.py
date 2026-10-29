@@ -115,7 +115,7 @@ def profile_tripwire(tmp_path, monkeypatch):
 
     Sets up:
 
-    1. A temp hermes root acting as the *default* profile, seeded with the
+    1. A temp envoy root acting as the *default* profile, seeded with the
        files a real install has (config.yaml, memories/, cron/jobs.json) so
        both "new file created" and "existing file modified" leaks are
        detectable.

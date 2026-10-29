@@ -72,7 +72,7 @@ def _discovered_catalog_stale(entry: dict, model_ids: list[str]) -> bool:
     """Whether a live probe may overwrite ``entry["models"]``.
 
     A ``models`` mapping or list of dicts is user-curated per-model metadata — never replaced.
-    A mapping Hermes itself discovered (entry flag or legacy in-mapping sentinel) is ours to
+    A mapping Envoy itself discovered (entry flag or legacy in-mapping sentinel) is ours to
     refresh, but only when stale; a legacy-shape entry is always rewritten so the save migrates
     it to the clean entry-level flag."""
     existing = entry.get("models")
@@ -405,7 +405,7 @@ def _is_aws_sdk(pconfig) -> bool:
 
 def _live_or_curated_ids(slug: str, curated: dict, *fallback_keys: str, merge_models_dev: bool = True,
                          non_blocking: bool = False) -> list:
-    """``cached_provider_model_ids`` (the SAME disk-cached list ``hermes model`` builds), falling
+    """``cached_provider_model_ids`` (the SAME disk-cached list ``envoy model`` builds), falling
     back to the curated list (merged with models.dev for preferred providers) when live is empty.
     ``non_blocking`` (GUI read path) reads the disk cache only — a provider that is slow or down
     contributes its curated list instead of stalling the whole picker (#114215)."""
@@ -590,7 +590,7 @@ def _discover_flag(entry: dict):
 
 
 def _display_prefix(name: str) -> str:
-    """Text before the per-model separator Hermes's own writer uses ("—" / " - ")."""
+    """Text before the per-model separator Envoy's own writer uses ("—" / " - ")."""
     return next((name.split(sep)[0].strip() for sep in ("—", " - ") if sep in name), name)
 
 
@@ -702,7 +702,7 @@ def _collect_authed_provider_slugs(
 @dataclass
 class _PickerBuild:
     """State threaded through the ``list_authenticated_providers`` sections: 1 built-ins mapped to
-    models.dev, 2 Hermes-only overlays, 2b canonical providers missed by 1/2, 3 ``providers:``
+    models.dev, 2 Envoy-only overlays, 2b canonical providers missed by 1/2, 3 ``providers:``
     entries + 3b the bare active custom endpoint, 4 ``custom_providers:`` entries. Row-builder
     imports of ``hermes_cli.auth/models`` stay lazy so tests can patch those modules."""
     current_provider: str
@@ -909,12 +909,12 @@ def _overlay_has_creds(b: _PickerBuild, pid: str, hermes_slug: str, overlay) -> 
 
 
 def _lap_overlay_rows(b: _PickerBuild, data: dict, user_providers: dict) -> None:
-    """Section 2: Hermes-only providers (nous, openai-codex, opencode-go, plugin overlays, ...)."""
+    """Section 2: Envoy-only providers (nous, openai-codex, opencode-go, plugin overlays, ...)."""
     from agent.models_dev import models_dev_provider_map
     from hermes_cli.model_switch import _declared_model_ids
     from hermes_cli.providers import hermes_overlays
 
-    # Overlay keys may be models.dev IDs while config.yaml uses Hermes IDs.
+    # Overlay keys may be models.dev IDs while config.yaml uses Envoy IDs.
     mdev_to_hermes = {v: k for k, v in models_dev_provider_map().items()}
     for pid, overlay in hermes_overlays().items():
         hermes_slug = mdev_to_hermes.get(pid, pid)
@@ -972,7 +972,7 @@ def _lap_canonical_rows(b: _PickerBuild) -> None:
             _is_aws_sdk(cp_config) and _has_aws_sdk_creds_for_listing(cp.slug, b.current_provider))
         if not has_creds and cp_config is not None and cp_config.auth_type == "external_process":
             # Subprocess-backed providers own their auth; the binary resolving is the credential
-            # evidence for listing (same gate as the section-2 overlay rows and hermes auth status).
+            # evidence for listing (same gate as the section-2 overlay rows and envoy auth status).
             try:
                 from hermes_cli.auth import get_external_process_provider_status
                 has_creds = bool(get_external_process_provider_status(cp.slug).get("configured"))
@@ -1185,7 +1185,7 @@ def _lap_custom_provider_rows(b: _PickerBuild, custom_providers: list) -> None:
 
 def _build_curated_lists(current_provider: str, current_base_url: str, current_model: str,
                         non_blocking: bool = False) -> dict[str, list[str]]:
-    """Curated model lists keyed by hermes provider id, plus the dynamic ones (nous manifest,
+    """Curated model lists keyed by envoy provider id, plus the dynamic ones (nous manifest,
     Ollama Cloud, LM Studio live probe). ``non_blocking`` (GUI read path) takes cached Ollama Cloud
     ids and warms them in the background rather than waiting on an 8s probe (#114215)."""
     from hermes_cli.models import OPENROUTER_MODELS, _PROVIDER_MODELS, get_curated_nous_model_ids

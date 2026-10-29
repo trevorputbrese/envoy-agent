@@ -1,4 +1,4 @@
-"""Building a listener's ``uvicorn.Config`` must leave Hermes's own file logging alone.
+"""Building a listener's ``uvicorn.Config`` must leave Envoy's own file logging alone.
 
 uvicorn's default ``log_config`` runs ``logging.config.dictConfig``, which calls
 ``logging.shutdown()`` on every live handler. A multiplexed gateway installs its profile log

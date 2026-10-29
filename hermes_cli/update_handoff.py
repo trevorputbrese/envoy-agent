@@ -108,7 +108,7 @@ def _takeover_request(payload: dict[str, Any], argv_tail: list[str] | None) -> d
 def _continue_legacy_post_swap(handoff_path: str | Path, *, argv_tail: list[str]) -> int:
     """Complete the command shape shipped before PM owned source updates.
 
-    Those releases start the replacement checkout as ``hermes update <flags>
+    Those releases start the replacement checkout as ``envoy update <flags>
     --post-swap FILE``. The replacement bootstrap calls this before importing
     its PM or CLI graph, then the existing takeover child prepares and finishes
     the update entirely on replacement code.

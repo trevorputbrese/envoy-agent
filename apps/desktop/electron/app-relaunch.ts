@@ -71,7 +71,7 @@ export function createAppRelauncher(
 
       const args = options.args ?? process.argv.slice(1)
       const target = relaunchTarget(execPath, env)
-      // The new process skips `hermes desktop`: it needs the launcher's short socket TMPDIR,
+      // The new process skips `envoy desktop`: it needs the launcher's short socket TMPDIR,
       // not the long one main.ts restored after the lock (linux-sandbox-relaunch.ts).
       const childEnv = { ...env }
       restoreLaunchTmpdir(childEnv)

@@ -51,7 +51,7 @@ _ROLE_LABELS = {"system": "System", "user": "User", "assistant": "Assistant", "t
 # True/False is cached, so a CLI installed mid-session is picked up.
 _ACP_PROBE_CACHE: dict[str, bool] = {}
 _PROMPT_PREAMBLE = (
-    "You are being used as the active ACP agent backend for Hermes.",
+    "You are being used as the active ACP agent backend for Envoy.",
     "Use ACP capabilities to complete tasks.",
     "IMPORTANT: If you take an action with a tool, you MUST output tool calls using <tool_call>{...}</tool_call> blocks with JSON exactly in OpenAI function-call shape.",
     "If no tool is needed, answer normally.",
@@ -59,7 +59,7 @@ _PROMPT_PREAMBLE = (
 _INITIALIZE_PARAMS = {
     "protocolVersion": 1,
     "clientCapabilities": {"fs": {"readTextFile": True, "writeTextFile": True}},
-    "clientInfo": {"name": "hermes-agent", "title": "Hermes Agent", "version": "0.0.0"},
+    "clientInfo": {"name": "hermes-agent", "title": "Envoy Agent", "version": "0.0.0"},
 }
 def _acp_supported(command: str, args: list[str]) -> bool | None:
     """Tri-state ``--acp`` probe (a CLI without the flag exits 1 and the parent would wait the
@@ -189,7 +189,7 @@ def _format_messages_as_prompt(
 ) -> str:
     # Deliberately no "requested model" line: the model is applied for real via ACP session/set_model;
     # a prompt-text mention makes a substituted backend model FALSELY self-identify as the requested
-    # one. The whole Hermes toolset is forwarded; the agent's own tools run inside the agent.
+    # one. The whole Envoy toolset is forwarded; the agent's own tools run inside the agent.
     sections: list[str] = [*_PROMPT_PREAMBLE, *_render_tool_bridge_sections(tools, tool_choice)]
     transcript: list[str] = []
     for message in (m for m in messages if isinstance(m, dict)):
@@ -556,7 +556,7 @@ class ACPClient:
                 except Exception as exc:
                     response = _jsonrpc_error(message_id, -32602, str(exc))
         else:
-            response = _jsonrpc_error(message_id, -32601, f"ACP client method '{method}' is not supported by Hermes yet.")
+            response = _jsonrpc_error(message_id, -32601, f"ACP client method '{method}' is not supported by Envoy yet.")
         process.stdin.write(json.dumps(response) + "\n")
         process.stdin.flush()
         return True

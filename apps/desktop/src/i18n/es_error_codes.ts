@@ -10,7 +10,7 @@ export const esErrorCodes: Partial<ThreadCopy['errorCodes']> = {
   },
   session_read_only: {
     title: 'Este chat es de solo lectura',
-    body: 'Es historial guardado que Hermes puede mostrar pero no continuar, así que tu mensaje no se ejecutó. Empieza un chat nuevo para enviarlo.'
+    body: 'Es historial guardado que Envoy puede mostrar pero no continuar, así que tu mensaje no se ejecutó. Empieza un chat nuevo para enviarlo.'
   },
   workspace_unavailable: {
     title: 'La carpeta de este chat ya no existe',

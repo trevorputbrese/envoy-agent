@@ -155,7 +155,7 @@ class ProviderProfile:
     # True when the provider is pre-release / not for public listing. Discovery surfaces (provider
     # pickers, the setup provider list, the dashboard accounts tab) skip it unless ``listed()``
     # says otherwise; resolution by name is untouched, so an explicit ``model.provider`` /
-    # ``hermes auth add <name>`` keeps working.
+    # ``envoy auth add <name>`` keeps working.
     hidden: bool = False
 
     # ── Auth & endpoints ─────────────────────────────────────
@@ -171,11 +171,11 @@ class ProviderProfile:
     supports_model_listing: bool = True
 
     # ── Provider-owned auth (optional; non-api-key plugins) ──────────
-    # ``auth_handler(action, args) -> bool``: ``hermes auth add|status|logout|refresh <name>`` calls it
+    # ``auth_handler(action, args) -> bool``: ``envoy auth add|status|logout|refresh <name>`` calls it
     # FIRST with the parsed CLI namespace; truthy = the plugin owned the action, falsy = built-in path.
     # ``refresh_credential(entry) -> Mapping | None``: the credential pool's refresh of a pooled OAuth
     # row — return the rotated fields (``access_token``, ``refresh_token``, ``expires_at_ms`` …) or raise.
-    # Both own their own token endpoints; Hermes passes no secrets beyond the pooled row itself.
+    # Both own their own token endpoints; Envoy passes no secrets beyond the pooled row itself.
     # ``classify_api_error(error, *, status_code, error_code, message, body, model) -> Mapping | None``:
     # consulted by ``agent.error_classifier.classify_api_error`` for THIS provider's failures only, after
     # the generic ``transform_api_error_classification`` plugin hooks and before the built-in pipeline.
@@ -271,7 +271,7 @@ class ProviderProfile:
     start_device_login: Callable[[], Any] | None = None
     poll_device_login: Callable[[Any], Any] | None = None
     save_device_login: Callable[[Any], None] | None = None
-    # ``model_setup_flow(config, current_model, args)``: this provider's own ``hermes model`` step
+    # ``model_setup_flow(config, current_model, args)``: this provider's own ``envoy model`` step
     # (credential prompt, catalog, persist); None = the generic flow for its auth_type.
     model_setup_flow: Callable[[Any, str, Any], Any] | None = None
     # ``setup_reasoning_efforts(model) -> tuple | None``: levels the setup effort picker offers for
@@ -478,7 +478,7 @@ class ProviderProfile:
         """Whether discovery surfaces may offer this provider.
 
         Every non-``hidden`` profile is listed. A ``hidden`` (pre-release) one surfaces once the user
-        opted in by name (``hermes auth add <name>`` put a row in its credential pool), so the
+        opted in by name (``envoy auth add <name>`` put a row in its credential pool), so the
         pickers can then offer it. Reads auth.json only: it runs on every picker build.
         """
         if not self.hidden:
@@ -638,13 +638,13 @@ class ProviderProfile:
     def seed_pool_credentials(self, *, suppressed_sources: frozenset[str],
                               explicitly_configured: bool) -> list[dict] | None:
         """Pool rows ``{source, access_token, base_url, label}`` this provider seeds itself; skip any source in
-        ``suppressed_sources`` (``hermes auth remove``). Plain data, so it crosses ``plugins.isolation: host``.
+        ``suppressed_sources`` (``envoy auth remove``). Plain data, so it crosses ``plugins.isolation: host``.
         Overriding it replaces generic env seeding (that loop would overwrite exchanged tokens with the raw env
         value), so an override returns ``[]`` for none; only the base implementation keeps generic env seeding."""
         return None
 
     def remove_credential_source(self, source: str) -> tuple[tuple[str, ...], tuple[str, ...]] | None:
-        """``hermes auth remove`` of *source*: ``(sources_to_suppress, hints)``; None = generic removal."""
+        """``envoy auth remove`` of *source*: ``(sources_to_suppress, hints)``; None = generic removal."""
         return None
 
     def refresh_runtime_credentials(self, *, reason: str) -> tuple[str, str | None] | None:

@@ -65,7 +65,7 @@ def test_gateway_bootstrap_reaches_a_verdict_on_the_store_python():
 def test_packaged_gateway_bootstrap_boots_the_root_it_is_given_or_names_why_it_cannot(tmp_path):
     """The TUI product ships the helper in its own dist/scripts/ (a separate Nix store path, #139208),
     where parents[2] is not the Python root: the helper must boot the generation of the root Ink
-    passes, and an interpreter that still cannot load Hermes is a named, terminal verdict the client
+    passes, and an interpreter that still cannot load Envoy is a named, terminal verdict the client
     stops retrying on, never a bare ImportError retried every 30 s (#138878)."""
     packaged = tmp_path / "hermes-tui" / "dist" / "scripts"
     packaged.mkdir(parents=True)
@@ -99,11 +99,11 @@ def test_store_python_without_a_generation_names_the_remedy():
     lines = bootstrap.stderr.strip().splitlines()
     assert bootstrap.returncode == 1
     assert lines[0] == "gateway unavailable: bootstrap_dependencies", bootstrap.stderr
-    assert lines[-1] == "gateway unavailable: run `hermes pm repair`, then restart the TUI", bootstrap.stderr
+    assert lines[-1] == "gateway unavailable: run `envoy pm repair`, then restart the TUI", bootstrap.stderr
 
 
 def test_clipboard_helper_without_a_generation_answers_false(tmp_path):
-    """The clipboard helper activates before importing Hermes, and a missing generation is `false`
+    """The clipboard helper activates before importing Envoy, and a missing generation is `false`
     on stdout (no image), not a traceback before Ink can parse anything."""
     clipboard = _store_python_child("clipboard_image.py", str(tmp_path / "paste.png"))
     assert clipboard.returncode == 0, clipboard.stderr

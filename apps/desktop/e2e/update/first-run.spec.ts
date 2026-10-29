@@ -1,8 +1,8 @@
 /**
  * Failure class: FIRST RUN on a healthy install.
  *
- * A user who installed Hermes with scripts/install.sh and built the Desktop
- * app with `hermes desktop` opens the app. It must find that install and go
+ * A user who installed Envoy with scripts/install.sh and built the Desktop
+ * app with `envoy desktop` opens the app. It must find that install and go
  * straight to chat — on the first launch and on every later one — and never
  * show the first-run setup chooser or start the bootstrap installer
  * (#123888, #123800: the chooser / installer came back on every launch while
@@ -120,7 +120,7 @@ test('a healthy local install opens straight to chat on every launch: no setup c
           })
           .toEqual([])
         const stopped = stopInstallGateway(facts)
-        expect(stopped.code, `hermes gateway stop\n${stopped.output}`).toBe(0)
+        expect(stopped.code, `envoy gateway stop\n${stopped.output}`).toBe(0)
         await expect
           .poll(() => installProcesses(facts).map(p => `${p.pid} ${p.cmdline.slice(0, 160)}`), {
             timeout: 30_000,

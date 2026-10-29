@@ -17,7 +17,7 @@ import { CanonicalDesktopProtocol, canonicalProfile, canonicalPromptParams, cano
 // /api/profiles runs list_profiles(), which does a recursive skill-tree walk
 // per profile — so the 15s default (DEFAULT_FETCH_TIMEOUT_MS in hardening.ts)
 // times out a backend that is alive-but-busy, surfacing as a spurious
-// "Timed out connecting to Hermes backend" that hangs the UI (#48504).
+// "Timed out connecting to Envoy backend" that hangs the UI (#48504).
 //
 // Give the boot burst a generous per-call timeout instead of raising the
 // global default: interactive/runtime calls and the liveness poll (/api/status)
@@ -34,7 +34,7 @@ const DEFAULT_GATEWAY_REQUEST_TIMEOUT_MS = 30_000
 // ever fires when the turn itself would have been abandoned server-side.
 export const PROMPT_SUBMIT_REQUEST_TIMEOUT_MS = 1_800_000
 
-export const GATEWAY_NOT_CONNECTED_MESSAGE = 'Hermes gateway is not connected'
+export const GATEWAY_NOT_CONNECTED_MESSAGE = 'Envoy gateway is not connected'
 
 // Canonical shared prompts (`gateway/session_pending_controls.py`) travel as
 // `approval.request` / `clarify.request` EVENTS keyed by `prompt_id` and are
@@ -59,7 +59,7 @@ const ATTACH_REQUIRED = new Set([
 // (`session_key`) is the same CAS mutation on a sidebar row.
 const PARENT_ATTACH_REQUIRED = new Set(['session.branch_stored', 'session.branch_whole', 'session.workspace.move'])
 
-// Canonical-only identity keys. The legacy `hermes serve` contract refuses an unknown key as
+// Canonical-only identity keys. The legacy `envoy serve` contract refuses an unknown key as
 // version skew (4000), so they are stripped on a non-canonical dial. `prompt.submit` keeps its
 // `submission_id` on purpose: the submit path retries identityless on that exact refusal and
 // records the send as legacy-attempted, which a silent strip here would hide. A message-level
@@ -92,7 +92,7 @@ function remainingRequestBudget(deadline: number, signal?: AbortSignal): number 
   if (deadline === Number.POSITIVE_INFINITY) { return 0 }
   const remaining = deadline - Date.now()
 
-  if (remaining <= 0) { throw new Error('Hermes gateway request timed out') }
+  if (remaining <= 0) { throw new Error('Envoy gateway request timed out') }
 
   return remaining
 }
@@ -469,7 +469,7 @@ export class HermesGateway extends JsonRpcGatewayClient {
   }
 
   private requireConnectionGeneration(generation: number): void {
-    if (generation !== this.connectionGeneration) { throw new Error('Hermes gateway connection changed; reopen the session') }
+    if (generation !== this.connectionGeneration) { throw new Error('Envoy gateway connection changed; reopen the session') }
   }
 
   // Resume the session (and, for branch-like methods, its parent) on THIS socket before a
@@ -517,8 +517,8 @@ export class HermesGateway extends JsonRpcGatewayClient {
 
   constructor() {
     super({
-      closedErrorMessage: 'Hermes gateway connection closed',
-      connectErrorMessage: 'Could not connect to Hermes gateway',
+      closedErrorMessage: 'Envoy gateway connection closed',
+      connectErrorMessage: 'Could not connect to Envoy gateway',
       createRequestId: nextId => nextId,
       notConnectedErrorMessage: GATEWAY_NOT_CONNECTED_MESSAGE,
       // The channel already answered -32603; surface the crash in devtools like the dial-failure sink.
@@ -526,7 +526,7 @@ export class HermesGateway extends JsonRpcGatewayClient {
         console.error(`[gateway] server request handler crashed for ${request.method} (${request.id}):`, error),
       // The channel already answered -32601; note the missing registry in devtools.
       onUnhandledRequest: request =>
-        console.warn(`[gateway] Hermes Desktop has no server-request registry for ${request.method} (${request.id})`),
+        console.warn(`[gateway] Envoy Desktop has no server-request registry for ${request.method} (${request.id})`),
       requestTimeoutMs: DEFAULT_GATEWAY_REQUEST_TIMEOUT_MS,
       socketFactory: openGatewaySocket
     })

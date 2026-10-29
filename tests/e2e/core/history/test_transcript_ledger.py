@@ -258,7 +258,7 @@ def test_transcript_ledger(world, name):
     assert_usage_matches(hermes_home, lineage(hermes_home, sid), srv.requests, f"scenario {name}")
     integrity_ok(hermes_home)
 
-    # (d) resume in a FRESH `hermes chat --resume` process: its first request replays the persisted
+    # (d) resume in a FRESH `envoy chat --resume` process: its first request replays the persisted
     # model view and is a byte-identical extension of the last in-process request. Messages only:
     # the tools array of an in-process AIAgent is a harness construction choice; the cross-surface
     # tools comparison lives in test_prefix_stability.py (real surfaces only).

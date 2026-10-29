@@ -25,7 +25,7 @@ def _by_label(sources):
 def test_manifest_matches_what_the_prompt_actually_loads(project, tmp_path_factory):
     """Every context type present at once; the ladder picks .hermes.md, the chain lists both AGENTS files,
     CLAUDE.md/.cursorrules/.cursor/rules/*.mdc are shadowed, an empty file never wins, SOUL.md rides along."""
-    (project / ".hermes.md").write_text("hermes rules")
+    (project / ".hermes.md").write_text("envoy rules")
     (project / "AGENTS.md").write_text("root agents rules")
     sub = project / "pkg"
     sub.mkdir()
@@ -69,7 +69,7 @@ def test_truncated_and_suppressed_statuses_follow_the_builder(project, monkeypat
     assert entry["status"] == "truncated" and entry["loaded"] is True
     assert "[...truncated AGENTS.md" in build_context_files_prompt(cwd=str(project), home_override=home)
 
-    # Install-tree guard: a fallback cwd (cwd=None) inside the Hermes tree lists the file but never loads it.
+    # Install-tree guard: a fallback cwd (cwd=None) inside the Envoy tree lists the file but never loads it.
     monkeypatch.setattr("agent.runtime_cwd._is_install_tree", lambda _p: True)
     monkeypatch.chdir(project)
     entry = _by_label(list_context_file_sources(cwd=None, home_override=home))["AGENTS.md"]

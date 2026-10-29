@@ -481,11 +481,11 @@ class CLIStreamMixin:
             try:
                 from hermes_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
-                label = _skin.get_branding("response_label", "☤ Hermes")
-                _text_hex = _skin.get_color("banner_text", "#FFF8DC")
+                label = _skin.get_branding("response_label", "◈ Envoy")
+                _text_hex = _skin.get_color("banner_text", "#E3F5FC")
             except Exception:
-                label = "☤ Hermes"
-                _text_hex = "#FFF8DC"
+                label = "◈ Envoy"
+                _text_hex = "#E3F5FC"
             try:  # true-color escape so streamed text matches the Rich Panel appearance
                 _r, _g, _b = (int(_text_hex[i:i + 2], 16) for i in (1, 3, 5))
                 self._stream_text_ansi = f"\033[38;2;{_r};{_g};{_b}m"

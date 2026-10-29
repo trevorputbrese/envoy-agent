@@ -741,15 +741,15 @@ export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promis
     const result = await bridge.apply(opts)
 
     // CLI install with no staged updater: not an error — the user just runs
-    // `hermes update` themselves. Land on a dedicated manual state so the
+    // `envoy update` themselves. Land on a dedicated manual state so the
     // overlay shows the command + copy button instead of a dead retry loop.
     if (result?.manual) {
       $updateApply.set({
         ...IDLE,
         applying: false,
         stage: 'manual',
-        message: result.message ?? result.command ?? 'hermes update',
-        command: result.command ?? 'hermes update'
+        message: result.message ?? result.command ?? 'envoy update',
+        command: result.command ?? 'envoy update'
       })
 
       return result
@@ -1019,7 +1019,7 @@ async function runBackendUpdate(): Promise<DesktopUpdateApplyResult> {
       // An empty update_command is the backend saying "there is no command to
       // run here" (managed container, commit build) — render the message-only
       // view. Only a field absent from an older backend falls back.
-      const command = ((started as { update_command?: string | null }).update_command ?? 'hermes update') || null
+      const command = ((started as { update_command?: string | null }).update_command ?? 'envoy update') || null
       $backendUpdateApply.set({ ...IDLE, applying: false, stage: 'manual', message, command })
 
       return { ok: false, error: 'manual', manual: true, message, command: command ?? undefined }

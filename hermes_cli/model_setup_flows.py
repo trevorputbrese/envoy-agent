@@ -108,7 +108,7 @@ def _model_flow_moa(config, current_model=""):
     moa = normalize_moa_config(config.get("moa") if isinstance(config, dict) else {})
     presets = moa.get("presets") or {}
     if not presets:
-        print("No MoA presets configured. Run `hermes moa configure <name>` first.")
+        print("No MoA presets configured. Run `envoy moa configure <name>` first.")
         return
 
     names = list(presets.keys())
@@ -374,7 +374,7 @@ def _model_flow_openai_codex(config, current_model=""):
         PROVIDER_REGISTRY["openai-codex"], recheck=lambda: get_codex_auth_status().get("logged_in")):
         return
 
-    # Prefer the credential pool (where `hermes auth` stores device_code tokens),
+    # Prefer the credential pool (where `envoy auth` stores device_code tokens),
     # fall back to legacy provider state.
     # Token and route base travel together (#121486): a pooled gateway key must never be sent to
     # the chatgpt.com default by the catalog probe.
@@ -410,7 +410,7 @@ def _model_flow_xai_oauth(_config, current_model="", *, args=None):
         return
 
     # ``resolve_xai_oauth_runtime_credentials`` only reads the auth.json singleton, but
-    # credentials may live only in the pool (``hermes auth add xai-oauth``) — fall back to
+    # credentials may live only in the pool (``envoy auth add xai-oauth``) — fall back to
     # the default base URL so the picker still completes.
     base_url = DEFAULT_XAI_OAUTH_BASE_URL
     with contextlib.suppress(Exception):
@@ -652,10 +652,10 @@ def _select_zai_endpoint(current_base: str) -> str:
 
 _GEMINI_FREE_TIER_NOTICE = (
     "", "❌ This Google API key is on the free tier (<= 250 requests/day for gemini-2.5-flash).",
-    "   Hermes typically makes 3-10 API calls per user turn (tool iterations + auxiliary tasks),",
+    "   Envoy typically makes 3-10 API calls per user turn (tool iterations + auxiliary tasks),",
     "   so the free tier is exhausted after a handful of messages and cannot sustain",
     "   an agent session.", "",
-    "   To use Gemini with Hermes, enable billing on your Google Cloud project and regenerate",
+    "   To use Gemini with Envoy, enable billing on your Google Cloud project and regenerate",
     "   the key in a billing-enabled project: https://aistudio.google.com/apikey", "",
     "   Alternatives with workable free usage: DeepSeek, OpenRouter (free models), Groq, Nous.", "",
     "Not saving Gemini as the default provider.")
@@ -957,7 +957,7 @@ def _external_process_login_gate(profile, status) -> bool:
 def _plugin_flow_external_process(provider_id: str, profile) -> tuple[str, str] | None:
     from hermes_cli.auth import get_external_process_provider_status, resolve_external_process_provider_credentials
     status = get_external_process_provider_status(provider_id)
-    _say(f"  {profile.display_name or provider_id} delegates Hermes turns to a local `{status.get('command') or profile.process_command}` process.",
+    _say(f"  {profile.display_name or provider_id} delegates Envoy turns to a local `{status.get('command') or profile.process_command}` process.",
          f"  Command: {status.get('resolved_command') or status.get('command') or '(not found)'}",
          f"  Backend marker: {status.get('base_url') or profile.base_url}", "")
     try:
@@ -983,7 +983,7 @@ def _plugin_flow_oauth(provider_id: str, profile) -> tuple[str, str] | None:
     if not status.get("logged_in"):
         missing = plugin_missing_auth_handler_error(provider_id, "add")
         _say(f"  ⚠ Not signed in to {profile.display_name or provider_id}.",
-             f"  {missing.code if missing else status.get('hint') or f'Run `hermes auth add {provider_id}` to sign in.'}")
+             f"  {missing.code if missing else status.get('hint') or f'Run `envoy auth add {provider_id}` to sign in.'}")
         return None
     from agent.credential_pool import load_pool
     entry = load_pool(provider_id).select()
@@ -999,7 +999,7 @@ _PLUGIN_FLOW_CREDENTIALS = {
 
 
 def _profile_model_setup_flow(provider_id: str):
-    """``flow(config, current_model, args)`` for a registered profile that owns its ``hermes model``
+    """``flow(config, current_model, args)`` for a registered profile that owns its ``envoy model``
     step (``ProviderProfile.model_setup_flow``), else None."""
     from providers import get_provider_profile
     profile = get_provider_profile(provider_id)
@@ -1028,7 +1028,7 @@ def _plugin_flow_live_rows(profile, api_key: str, base_url: str) -> tuple[list[s
 
 
 def _model_flow_plugin_provider(config, provider_id, current_model=""):
-    """Generic ``hermes model`` flow for a registered plugin profile: credential step by auth_type,
+    """Generic ``envoy model`` flow for a registered plugin profile: credential step by auth_type,
     catalog via ``merge_profile_catalog`` (live ``fetch_models()`` ⊕ ``fallback_models``), persist."""
     from hermes_cli.auth_plugin_providers import plugin_profile
     from hermes_cli.models import merge_profile_catalog

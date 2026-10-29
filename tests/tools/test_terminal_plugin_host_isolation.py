@@ -1,5 +1,5 @@
 """A user terminal backend under ``plugins.isolation: host``: the plugin's environment object cannot cross
-the host boundary (its methods would run outside the Hermes process's interrupt, activity and terminal-scope
+the host boundary (its methods would run outside the Envoy process's interrupt, activity and terminal-scope
 state), so creating it refuses with the setting to change before the host starts a sandbox nobody can use
 or clean up. Real plugin, real host process, real loader against a temp HERMES_HOME.
 """

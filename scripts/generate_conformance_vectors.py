@@ -56,7 +56,7 @@ GRID: list[tuple] = [
     ("italic", "This is *italic* text."),
     ("bold-italic", "Mix of **bold** and *italic* in one line."),
     ("strikethrough", "This is ~~struck~~ text."),
-    ("inline-code", "Run `pip install hermes` to start."),
+    ("inline-code", "Run `pip install envoy` to start."),
     ("fenced-code", "```\nprint('hello')\n```"),
     ("fenced-code-lang", "```python\ndef f(x):\n    return x * 2\n```"),
     ("link", "See [the docs](https://example.com/docs) for more."),
@@ -231,7 +231,7 @@ def generate(out_dir: Path) -> dict[str, Any]:
                 "native renderers are the oracle (executable spec)."
             ),
             "oracle": {
-                "repo": "NousResearch/hermes-agent",
+                "repo": "trevorputbrese/envoy-agent",
                 "commit": commit,
                 "generator": "scripts/generate_conformance_vectors.py",
                 "generator_version": GENERATOR_VERSION,

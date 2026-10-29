@@ -19,7 +19,7 @@ from tests.docker.conftest import (
 def test_logs_gateways_seeded_and_hermes_owned(
     built_image: str, container_name: str,
 ) -> None:
-    """logs/ and logs/gateways/ must exist and be owned by hermes after boot."""
+    """logs/ and logs/gateways/ must exist and be owned by envoy after boot."""
     start_container(built_image, container_name)
 
     # Both directories must exist
@@ -34,7 +34,7 @@ def test_logs_gateways_seeded_and_hermes_owned(
         f"logs/ or logs/gateways/ not seeded: {r.stdout}"
     )
 
-    # Both must be owned by hermes
+    # Both must be owned by envoy
     r = docker_exec_sh(
         container_name,
         'logs_owner=$(stat -c "%U" /opt/data/logs); '
@@ -43,10 +43,10 @@ def test_logs_gateways_seeded_and_hermes_owned(
         timeout=10,
     )
     assert "logs=hermes" in r.stdout, (
-        f"logs/ not owned by hermes: {r.stdout}"
+        f"logs/ not owned by envoy: {r.stdout}"
     )
     assert "gateways=hermes" in r.stdout, (
-        f"logs/gateways/ not owned by hermes: {r.stdout}"
+        f"logs/gateways/ not owned by envoy: {r.stdout}"
     )
 
 

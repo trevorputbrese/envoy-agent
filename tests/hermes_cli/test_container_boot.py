@@ -34,7 +34,7 @@ def _hermetic_container_argv(monkeypatch: pytest.MonkeyPatch) -> None:
 
     ``_read_container_argv()`` walks the entire ``/proc`` table looking for
     a process whose argv contains ``main-wrapper.sh`` (the s6-overlay v3
-    fallback). On a host that is *also* running hermes containers, those
+    fallback). On a host that is *also* running envoy containers, those
     containers' ``main-wrapper.sh`` processes are visible in the host's
     ``/proc`` (shared PID view), so the scan would pick up a foreign
     ``gateway run`` argv and make ``_maybe_migrate_legacy_gateway_run_state``
@@ -68,7 +68,7 @@ def _make_profile(
     p.mkdir(parents=True)
     if config:
         # SOUL.md is what the reconciler keys on — it's always seeded by
-        # `hermes profile create`. See container_boot._render_run_script.
+        # `envoy profile create`. See container_boot._render_run_script.
         (p / "SOUL.md").write_text("# fake profile\n")
     if state is not None or desired_state is not None:
         payload: dict[str, object] = {"timestamp": 1234567890}
@@ -306,7 +306,7 @@ def test_main_skips_reconcile_in_dashboard_container_s6v3(
 
 
 def test_a_named_slots_autostart_intent_boots_the_root_slot(tmp_path: Path) -> None:
-    """An image only ever driven as `hermes -p coder gateway start` has no root state at all.
+    """An image only ever driven as `envoy -p coder gateway start` has no root state at all.
     Named slots are now registered DOWN unconditionally (one gateway per container), so without
     the root slot inheriting their intent the container boots with ZERO gateways while every
     action reports "registered" — healthy-looking and completely dark."""

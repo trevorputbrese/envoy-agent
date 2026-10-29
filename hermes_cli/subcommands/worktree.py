@@ -1,4 +1,4 @@
-"""``hermes worktree`` subcommand parser."""
+"""``envoy worktree`` subcommand parser."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ def build_worktree_parser(subparsers) -> None:
     """Attach the ``worktree`` subcommand to ``subparsers``."""
     worktree_parser = subparsers.add_parser(
         "worktree", help="Audit and reclaim accumulated git worktrees and merged branches",
-        description="Audit, reclaim and restore the .worktrees/ trees Hermes sessions "
+        description="Audit, reclaim and restore the .worktrees/ trees Envoy sessions "
             "accumulate. Idle trees with uncommitted changes or unpushed commits are "
             "archived to refs/hermes/archive/<tree> before removal "
             "(worktrees.archive_dirty); `restore` brings one back. In-use trees are "
             "never touched. See: "
-            "https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees")
+            "https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/git-worktrees.md")
     worktree_subparsers = worktree_parser.add_subparsers(dest="worktree_action")
     worktree_list = worktree_subparsers.add_parser(
         "list", aliases=["ls", "audit"],
@@ -44,7 +44,7 @@ def build_worktree_parser(subparsers) -> None:
 
     worktree_restore = worktree_subparsers.add_parser(
         "restore", help="Recreate an archived worktree (tracked, staged and untracked files)")
-    worktree_restore.add_argument("name", help="Archive name or tree name (see `hermes worktree list`)")
+    worktree_restore.add_argument("name", help="Archive name or tree name (see `envoy worktree list`)")
     worktree_restore.add_argument("--path", help="Restore here instead of the original path")
     worktree_restore.add_argument("--repo", help="Repo root (default: current repo)")
 

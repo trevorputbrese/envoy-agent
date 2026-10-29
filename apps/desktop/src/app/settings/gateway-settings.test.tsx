@@ -423,7 +423,7 @@ describe('GatewaySettings', () => {
     })
   })
 
-  // The Webapp is served by one Hermes host and can only reach that host, so no
+  // The Webapp is served by one Envoy host and can only reach that host, so no
   // mode switch, Cloud sign-in or saved connection can act there. What applies
   // is which host this is and, behind the sign-in gate, signing out of it.
   describe('in the Webapp', () => {

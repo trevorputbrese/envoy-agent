@@ -2,7 +2,7 @@ name: wallpaper-theme
 repo: https://github.com/strnadchristopher/hermes-wallpaper-theme
 sha: 40ebeaac235be5751f44491540b7b41d35d41da1
 description: >-
-  A Hermes Desktop theme that follows your wallpaper. Reads Pywal's ~/.cache/wal/colors.json by
+  An Envoy Desktop theme that follows your wallpaper. Reads Pywal's ~/.cache/wal/colors.json by
   default, or any palette JSON you point it at (settings page or ~/.config/hermes-wallpaper-theme/config.json),
   derives a palette with checked contrast floors and repaints live when the file changes. Optional
   glass mode paints a translucent background for native window materials or compositor blur.

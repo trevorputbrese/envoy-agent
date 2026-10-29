@@ -1,11 +1,11 @@
 /**
- * Shared E2E fixtures for the Hermes desktop Playwright suite.
+ * Shared E2E fixtures for the Envoy desktop Playwright suite.
  *
  * Two fixture modes:
  *
  *  1. `mockBackend` — starts a mock inference server, writes a config.yaml
  *     that points at it, and launches the desktop app so the full chain
- *     (electron → hermes serve → provider → inference → renderer) is
+ *     (electron → envoy serve → provider → inference → renderer) is
  *     exercised with a real backend but a fake LLM.
  *
  *  2. `noProvider` — launches the app with an empty config (no provider
@@ -14,7 +14,7 @@
  *
  * Both modes launch the *dev* Electron app (`electron .` against the built
  * `dist/`), not the packaged binary. This avoids the multi-minute
- * `electron-builder --dir` step and matches `hermes desktop --source`. The
+ * `electron-builder --dir` step and matches `envoy desktop --source`. The
  * packaged-binary path is already covered by `launch.spec.ts`.
  *
  * Prerequisite: `npm run build` must have been run so that `dist/` exists.
@@ -74,7 +74,7 @@ function isCredentialEnvVar(name: string): boolean {
   return CREDENTIAL_SUFFIXES.some((suffix) => name.endsWith(suffix))
 }
 
-// Runtime state of whatever Hermes launched this run. A spec driven from inside
+// Runtime state of whatever Envoy launched this run. A spec driven from inside
 // an agent's terminal inherits HERMES_YOLO_MODE, HERMES_INTERACTIVE,
 // HERMES_SESSION_ID…, and the sandboxed backend then skips approvals or binds
 // the caller's session — the approval spec failed locally on the leaked yolo
@@ -209,7 +209,7 @@ export function buildAppEnv(sandbox: Sandbox, extra: Record<string, string> = {}
     HERMES_HOME: sandbox.hermesHome,
     HERMES_DESKTOP_USER_DATA_DIR: sandbox.userDataDir,
     HERMES_DESKTOP_IGNORE_EXISTING: '1',
-    // One `hermes serve` per host, and profile roots are HOME-anchored
+    // One `envoy serve` per host, and profile roots are HOME-anchored
     // (`~/.hermes/profiles`, the default profile's own home): without both of
     // these a local e2e run attaches to the developer's running backend or
     // lists and writes their real profiles, and chats through their real
@@ -428,7 +428,7 @@ export interface DeadBackendOptions {
 
 /**
  * Launch the app with a provider pointing at a dead endpoint (port 1, which
- * nothing listens on). By default the backend still boots (`hermes serve`
+ * nothing listens on). By default the backend still boots (`envoy serve`
  * starts fine — the dead endpoint only matters at chat time). Pass
  * `{ fakeError: true }` to inject a fake boot failure, triggering the
  * BootFailureOverlay.
@@ -441,7 +441,7 @@ export async function setupDeadBackend(options: DeadBackendOptions = {}): Promis
   writeMockProviderConfig(sandbox.hermesHome, deadUrl)
   writeEnvFile(sandbox.hermesHome, 'e2e-mock-key', deadUrl)
 
-  const env = buildAppEnv(sandbox, options.fakeError ? { HERMES_DESKTOP_BOOT_FAKE_ERROR: 'Failed to connect to Hermes backend: connection refused' } : {})
+  const env = buildAppEnv(sandbox, options.fakeError ? { HERMES_DESKTOP_BOOT_FAKE_ERROR: 'Failed to connect to Envoy backend: connection refused' } : {})
   const { app, page } = await launchDesktop(env)
 
   return {
@@ -463,13 +463,13 @@ export async function setupDeadBackend(options: DeadBackendOptions = {}): Promis
  */
 function resolvePackagedBinaryPath(): string {
   if (process.platform === 'win32') {
-    return path.join(RELEASE_ROOT, 'win-unpacked', 'Hermes.exe')
+    return path.join(RELEASE_ROOT, 'win-unpacked', 'Envoy.exe')
   }
 
   if (process.platform === 'darwin') {
     const arch = process.arch === 'arm64' ? 'arm64' : 'x64'
 
-    return path.join(RELEASE_ROOT, `mac-${arch}`, 'Hermes.app', 'Contents', 'MacOS', 'Hermes')
+    return path.join(RELEASE_ROOT, `mac-${arch}`, 'Envoy.app', 'Contents', 'MacOS', 'Envoy')
   }
 
   return path.join(RELEASE_ROOT, 'linux-unpacked', 'hermes')
@@ -491,7 +491,7 @@ export interface PackagedAppFixture {
 /**
  * Launch the *packaged* Electron binary (from `npm run pack` →
  * `electron-builder --dir`) with `BOOT_FAKE=1` so it simulates boot
- * progress without spawning a real Hermes backend.
+ * progress without spawning a real Envoy backend.
  *
  * Uses the same sandbox isolation (credential stripping, isolated
  * HERMES_HOME + userData, unique app name) as the dev-mode fixtures.

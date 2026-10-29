@@ -2,7 +2,7 @@
 
 Every ``external_process`` model provider (a plugin profile whose ``create_client`` returns an
 ``ACPClient`` subclass) inherits these, so they are pinned on the generic base with a vendor-neutral
-subclass: the agent's own permission requests are never granted (Hermes has no human channel on that
+subclass: the agent's own permission requests are never granted (Envoy has no human channel on that
 path), the ``fs/*`` bridge is confined to the session cwd, honours the write deny-list and redacts
 secrets it hands back, and every spawned agent process is reaped by its own session or by ``close()``.
 """

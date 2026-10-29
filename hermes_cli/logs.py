@@ -1,4 +1,4 @@
-"""``hermes logs`` — view and filter Hermes log files.
+"""``envoy logs`` — view and filter Envoy log files.
 
 Supports tailing, following, session filtering, level filtering,
 component filtering, and relative time ranges.  All log files live
@@ -6,19 +6,19 @@ under ``~/.hermes/logs/``.
 
 Usage examples::
 
-    hermes logs                    # last 50 lines of agent.log
-    hermes logs -f                 # follow agent.log in real time
-    hermes logs errors             # last 50 lines of errors.log
-    hermes logs gateway -n 100    # last 100 lines of gateway.log
-    hermes logs gui -f            # follow gui.log (dashboard/pty/ws)
-    hermes logs desktop -f        # follow desktop.log (Electron app boot/backend)
-    hermes logs update            # last 50 lines of update.log (hermes update mirror)
-    hermes logs handoff           # last 50 lines of desktop-update-handoff.log
-    hermes logs --level WARNING    # only WARNING+ lines
-    hermes logs --session abc123   # filter by session ID substring
-    hermes logs --component tools  # only tool-related lines
-    hermes logs --since 1h         # lines from the last hour
-    hermes logs --since 30m -f     # follow, starting 30 min ago
+    envoy logs                    # last 50 lines of agent.log
+    envoy logs -f                 # follow agent.log in real time
+    envoy logs errors             # last 50 lines of errors.log
+    envoy logs gateway -n 100    # last 100 lines of gateway.log
+    envoy logs gui -f            # follow gui.log (dashboard/pty/ws)
+    envoy logs desktop -f        # follow desktop.log (Electron app boot/backend)
+    envoy logs update            # last 50 lines of update.log (envoy update mirror)
+    envoy logs handoff           # last 50 lines of desktop-update-handoff.log
+    envoy logs --level WARNING    # only WARNING+ lines
+    envoy logs --session abc123   # filter by session ID substring
+    envoy logs --component tools  # only tool-related lines
+    envoy logs --since 1h         # lines from the last hour
+    envoy logs --since 30m -f     # follow, starting 30 min ago
 """
 
 import re
@@ -37,11 +37,11 @@ LOG_FILES = {
     "gateway": "gateway.log",
     "gui": "gui.log",
     "desktop": "desktop.log",
-    # Full stdout/stderr mirror of the last `hermes update` runs (written by
+    # Full stdout/stderr mirror of the last `envoy update` runs (written by
     # hermes_cli.main's _UpdateOutputStream; append-only across runs). When a
     # Desktop-driven update fails at the Electron rebuild the ONLY artifacts
     # holding the root cause are this file and the hand-off log below, so
-    # `hermes logs list` (a directory scan) showing them without readable
+    # `envoy logs list` (a directory scan) showing them without readable
     # keys was an inconsistency of its own.
     "update": "update.log",
     # Desktop-driven update hand-off (scripts/desktop-update/windows.ps1 +
@@ -53,7 +53,7 @@ LOG_FILES = {
     "mcp": "mcp-stderr.log",
 }
 
-# Written to the ROOT home whatever profile is active: ``hermes update`` mutates the checkout every
+# Written to the ROOT home whatever profile is active: ``envoy update`` mutates the checkout every
 # profile shares, and its mirror (main_dashboard) + the Desktop hand-off scripts write <root>/logs.
 ROOT_HOME_LOGS = frozenset({"update", "handoff"})
 
@@ -191,7 +191,7 @@ def tail_log(
     log_path = log_file_path(log_name)
     if not log_path.exists():
         print(f"Log file not found: {log_path}")
-        print("(Logs are created when Hermes runs — try 'hermes chat' first)")
+        print("(Logs are created when Envoy runs — try 'envoy chat' first)")
         sys.exit(1)
 
     since_dt = None
@@ -347,4 +347,4 @@ def list_logs() -> None:
             found = True
 
     if not found:
-        print("  (no log files yet — run 'hermes chat' to generate logs)")
+        print("  (no log files yet — run 'envoy chat' to generate logs)")

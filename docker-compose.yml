@@ -1,5 +1,5 @@
 #
-# docker-compose.yml for Hermes Agent
+# docker-compose.yml for Envoy Agent
 #
 # Usage:
 #   HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
@@ -30,7 +30,7 @@ services:
   gateway:
     build: .
     image: hermes-agent
-    container_name: hermes
+    container_name: envoy
     restart: unless-stopped
     network_mode: host
     volumes:

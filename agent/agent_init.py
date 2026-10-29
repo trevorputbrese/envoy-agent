@@ -610,8 +610,8 @@ def _init_prompt_cache_config(agent):
         # Config values and traceback frames may contain credentials.
         logger.warning(
             "Agent configuration for prompt_caching.cache_ttl could not be loaded (%s); "
-            "using default prompt caching settings. Check the active Hermes Python "
-            "environment and dependencies; run 'hermes config check' after "
+            "using default prompt caching settings. Check the active Envoy Python "
+            "environment and dependencies; run 'envoy config check' after "
             "configuration imports work again.",
             type(exc).__name__,
         )
@@ -866,8 +866,8 @@ def _routed_client_kwargs(agent, fallback_model, _provider_timeout) -> Optional[
     from agent.auxiliary_unavailable import ProviderNotConfiguredError
     _sel = profile_cli_selector()
     raise ProviderNotConfiguredError(
-        "No LLM provider configured. Run `hermes model` to "
-        "select a provider, or run `hermes setup` for first-time "
+        "No LLM provider configured. Run `envoy model` to "
+        "select a provider, or run `envoy setup` for first-time "
         "configuration."
     )
 
@@ -1119,7 +1119,7 @@ def _init_session_state(agent, session_id, session_db, parent_session_id, reason
         "reasoning_config": reasoning_config,
         "max_tokens": max_tokens,
     }
-    # Process-scoped --yolo is persisted so `hermes --resume` restores the bypass
+    # Process-scoped --yolo is persisted so `envoy --resume` restores the bypass
     # (SessionDB.session_yolo_enabled); session-scoped /yolo toggles persist separately.
     with suppress(Exception):
         from tools.approval import _YOLO_MODE_FROZEN
@@ -1399,7 +1399,7 @@ def _compression_codex_settings(cfg: dict[str, Any]) -> tuple[str, bool, Optiona
     if app_server_auto not in {"native", "hermes", "off"}:
         _ra().logger.warning(
             "Invalid compression.codex_app_server_auto=%r; using 'native'. "
-            "Valid values are: native, hermes, off.",
+            "Valid values are: native, envoy, off.",
             app_server_auto,
         )
         app_server_auto = "native"
@@ -1990,7 +1990,7 @@ def _enforce_minimum_context(agent):
         raise ValueError(
             f"Model {agent.model} has a context window of {_ctx:,} tokens, "
             f"which is below the minimum {MINIMUM_CONTEXT_LENGTH:,} required "
-            f"by Hermes Agent.  {remedy}"
+            f"by Envoy Agent.  {remedy}"
         )
 
 
@@ -2235,7 +2235,7 @@ def init_agent(
         logger.warning(
             "Agent configuration could not be loaded (%s); using defaults for "
             "memory, skills, compression and related settings. Check the active "
-            "Hermes Python environment and dependencies; run 'hermes config check' "
+            "Envoy Python environment and dependencies; run 'envoy config check' "
             "after configuration imports work again.",
             type(exc).__name__,
         )

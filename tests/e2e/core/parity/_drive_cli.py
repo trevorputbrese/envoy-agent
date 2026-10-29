@@ -57,8 +57,8 @@ def _client_turn(ph: ParityHome, label: str, *args: str) -> DriveResult:
 
 
 def drive_oneshot(ph: ParityHome, srv: FakeLLMServer, prompt: str) -> DriveResult:
-    return _client_turn(ph, "hermes -z", "-z", prompt)
+    return _client_turn(ph, "envoy -z", "-z", prompt)
 
 
 def drive_chat_q(ph: ParityHome, srv: FakeLLMServer, prompt: str) -> DriveResult:
-    return _client_turn(ph, "hermes chat -q", "chat", "-q", prompt, "-Q")
+    return _client_turn(ph, "envoy chat -q", "chat", "-q", prompt, "-Q")

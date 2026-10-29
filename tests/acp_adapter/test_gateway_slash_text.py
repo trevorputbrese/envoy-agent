@@ -1,4 +1,4 @@
-"""Only registered Hermes commands are slash commands; other text starting with '/' is a prompt."""
+"""Only registered Envoy commands are slash commands; other text starting with '/' is a prompt."""
 import asyncio
 from unittest.mock import AsyncMock
 
@@ -30,7 +30,7 @@ async def test_path_and_unknown_slash_text_is_submitted_as_the_prompt(text):
 
 @pytest.mark.asyncio
 async def test_registered_command_the_owner_refuses_is_a_named_reply_not_a_failed_prompt():
-    # A Hermes command is never forwarded as prompt text: the owner's slash.exec answers or
+    # An Envoy command is never forwarded as prompt text: the owner's slash.exec answers or
     # refuses it, and the refusal is the command's reply (#134889 ACP-17).
     from hermes_cli.gateway_client import GatewayRPCError
     agent = GatewayACPAgent()

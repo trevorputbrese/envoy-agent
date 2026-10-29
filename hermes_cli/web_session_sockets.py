@@ -13,7 +13,7 @@ credential (``hermes_cli.webapp_sign_in``): a ticket such a login mints records 
 generation as ``sign_in`` and likewise opens nothing once it is replaced.
 
 Every socket the browser credential admits, directly or through such a ticket, is tracked here under
-that generation until it ends; ``close_all``, which ``browser_credential.rotate`` runs when ``hermes
+that generation until it ends; ``close_all``, which ``browser_credential.rotate`` runs when ``envoy
 webapp --sign-out`` replaces the credential, closes them all at once. Sockets admitted on any other
 credential (a native client's grant or sign-in, a dashboard login off the Webapp) are never tracked.
 """

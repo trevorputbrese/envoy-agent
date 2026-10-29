@@ -246,9 +246,11 @@ class TestFallbackChain:
     releases (opus 4.8, etc.) never reach the picker.
     """
 
-    PRIMARY = "https://hermes-agent.nousresearch.com/docs/api/model-catalog.json"
+    # The shipped primary is already the raw GitHub copy (the fallback helper skips a fallback equal
+    # to the primary), so the chain is exercised from an operator-configured ``model_catalog.url``.
+    PRIMARY = "https://catalog.example.com/docs/api/model-catalog.json"
     FALLBACK = (
-        "https://raw.githubusercontent.com/NousResearch/hermes-agent"
+        "https://raw.githubusercontent.com/trevorputbrese/envoy-agent"
         "/main/website/static/api/model-catalog.json"
     )
 
@@ -287,6 +289,7 @@ class TestFallbackChain:
         """End-to-end: ``get_catalog`` routes through the fallback helper so
         a primary URL failure transparently produces a working catalog."""
         from hermes_cli import model_catalog
+        (isolated_home / "config.yaml").write_text(f"model_catalog:\n  url: {self.PRIMARY}\n")
         manifest = _valid_manifest()
         calls: list[str] = []
 
@@ -445,7 +448,7 @@ class TestIntegrationWithModelsModule:
 
     def test_picker_nous_row_uses_curated_list(self, tmp_path, monkeypatch):
         """The /model picker surfaces the curated ``_PROVIDER_MODELS["nous"]``
-        list in curated order — matching the ``hermes model`` CLI — not the live
+        list in curated order — matching the ``envoy model`` CLI — not the live
         ``/v1/models`` catalog or the manifest. Portal free/paid recommendations
         are unioned in when reachable; offline (as here, with the Portal calls
         stubbed out) it's exactly the curated list.
@@ -709,7 +712,7 @@ class TestManifestMatchesInRepoLists:
     def test_inclusion_ling_free_is_curated_and_published(self):
         """inclusionai/ling-3.0-flash:free must reach the picker from BOTH sources (#73686).
 
-        The model works when named explicitly via ``hermes config set model.default`` but was
+        The model works when named explicitly via ``envoy config set model.default`` but was
         absent from the curated fallback list, so the runtime fetcher's stale-while-revalidate
         and offline floors never offered it in the Desktop model picker. The static list is
         the floor; the published manifest is what fresh installs fetch — both must carry it.

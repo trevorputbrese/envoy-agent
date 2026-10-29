@@ -1,5 +1,5 @@
 """A host gateway that booted with ONE profile comes up standalone (``SINGLE_PROFILE_REASON``), and
-multiplexing is settled once per boot. A profile created afterwards (Desktop's New Agent, ``hermes
+multiplexing is settled once per boot. A profile created afterwards (Desktop's New Agent, ``envoy
 profile create``) was then never served: every ticket the Desktop minted for it through the host's
 control socket was refused, so its sessions, chat and Delete all failed with "Invalid gateway ticket
 response" (#141623). The creator's ``rescan-profiles`` signal (and the 30 s watcher) must start serving

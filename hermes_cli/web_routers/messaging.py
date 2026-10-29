@@ -90,8 +90,8 @@ _MESSAGING_ENV_FALLBACKS: dict[str, dict[str, Any]] = {
         ("WECOM_CALLBACK_AGENT_ID", "WeCom app agent ID", "WeCom Agent ID", {}),
         ("WECOM_CALLBACK_TOKEN", "WeCom callback verification token", "WeCom Token", {}),
         ("WECOM_CALLBACK_ENCODING_AES_KEY", "WeCom callback AES encoding key", "WeCom AES Key", {"password": True}),
-        ("WEIXIN_ACCOUNT_ID", "iLink Bot account ID obtained through QR login in hermes gateway setup", "iLink Bot account ID", {}),
-        ("WEIXIN_TOKEN", "iLink Bot token obtained through QR login in hermes gateway setup", "iLink Bot token", {"password": True}),
+        ("WEIXIN_ACCOUNT_ID", "iLink Bot account ID obtained through QR login in envoy gateway setup", "iLink Bot account ID", {}),
+        ("WEIXIN_TOKEN", "iLink Bot token obtained through QR login in envoy gateway setup", "iLink Bot token", {"password": True}),
         ("WEIXIN_BASE_URL", "iLink API base URL saved by QR login (default: https://ilinkai.weixin.qq.com)", "iLink API base URL", {}),
         ("FEISHU_APP_ID", "Feishu / Lark app ID", "App ID", {}),
         ("FEISHU_APP_SECRET", "Feishu / Lark app secret", "App secret", {"password": True}),
@@ -258,7 +258,7 @@ def _messaging_platform_payload(
     elif gateway_running and not state:
         state = "pending_restart"
     elif not gateway_running and not state:
-        # Same verdict /api/status gives: ``hermes gateway stop`` keeps the last failure on disk,
+        # Same verdict /api/status gives: ``envoy gateway stop`` keeps the last failure on disk,
         # and a profile the operator stopped must not wear a "Start failed" badge for it.
         state = "startup_failed" if retained_gateway_state(rt) == "startup_failed" else "gateway_stopped"
 
@@ -297,7 +297,7 @@ def _platform_payloads(scoped_dir: Optional[Path], entries) -> list[dict[str, An
     # profile's standalone days outranks nothing: only a record proving a live own gateway does —
     # the same rung order ``resolve_gateway_liveness`` uses (own runtime PID before the multiplexer),
     # so the two surfaces cannot disagree. Unscoped, the profile is the process's own home (a pooled
-    # ``hermes --profile X serve``).
+    # ``envoy --profile X serve``).
     own_home = scoped_dir if scoped_dir is not None else get_process_hermes_home()
     runtime = served_profile_runtime(own_home, runtime) or runtime
     # Credentials a secret manager supplies have no .env line; only values the profile's enabled
@@ -818,7 +818,7 @@ async def _telegram_onboarding_request(method: str, path: str, *, body=None, bea
 
 @router.post("/api/messaging/telegram/onboarding/start")
 async def start_telegram_onboarding(body: TelegramOnboardingStart):
-    bot_name = (body.bot_name or "Hermes Agent").strip() or "Hermes Agent"
+    bot_name = (body.bot_name or "Envoy Agent").strip() or "Envoy Agent"
     payload = await _telegram_onboarding_request("POST", "/v1/telegram/pairings", body={"bot_name": bot_name})
 
     def field(key: str) -> str:
@@ -909,7 +909,7 @@ async def apply_telegram_onboarding(pairing_id: str, body: TelegramOnboardingApp
         _telegram_onboarding_pairings.pop(pairing_id, None)
 
     # Best-effort restart: the QR flow pulls users into Telegram on another device, so a
-    # saved token waiting on a manual restart click reads as "Hermes is broken" from the
+    # saved token waiting on a manual restart click reads as "Envoy is broken" from the
     # chat side. The save stays authoritative; a failed restart is reported for the UI banner.
     restart_result = _restart_gateway_after(effective_profile, what="Telegram onboarding", label="Telegram onboarding")
     return {
@@ -939,7 +939,7 @@ async def get_messaging_platforms(profile: Optional[str] = None):
         with _profile_scope(profile) as scoped_dir:
             return {
                 "env_path": str(get_env_path()),
-                "gateway_start_command": " ".join(["hermes", *_gateway_subcommand(profile, "start")]),
+                "gateway_start_command": " ".join(["envoy", *_gateway_subcommand(profile, "start")]),
                 "platforms": _platform_payloads(scoped_dir, _messaging_platform_catalog()),
             }
 
@@ -1058,7 +1058,7 @@ async def update_messaging_platform(platform_id: str, body: MessagingPlatformUpd
 def _notify_multiplexer_hot_serve(profile: Optional[str]) -> bool:
     """True when a live multiplexer serves the written profile and was told to rebuild its adapters.
     Unscoped (no ``?profile=``) means THIS process's profile: Desktop routes a pooled
-    ``hermes --profile X serve`` without the query (#109088), so X must resolve here too."""
+    ``envoy --profile X serve`` without the query (#109088), so X must resolve here too."""
     from hermes_cli.gateway import _current_profile_name, named_profile_served_by_running_multiplexer
     from hermes_cli.gateway_multiplex_served import notify_multiplexer_profiles_changed
     name = (profile or "").strip() or _current_profile_name()

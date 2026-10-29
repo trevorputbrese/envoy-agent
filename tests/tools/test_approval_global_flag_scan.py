@@ -21,7 +21,7 @@ def test_long_flag_runs_still_reach_the_target():
 from tools.approval_detection import detect_dangerous_command
 run = "--opt val --flag=x -q - " * 58
 cases = {
-    f"hermes {run}gateway restart": "stop/restart hermes gateway (kills running agents)",
+    f"hermes {run}gateway restart": "stop/restart envoy gateway (kills running agents)",
     f"docker {run}-H ssh://prod ps": "docker with remote daemon redirect (-H/--host)",
     f"docker {run}--context=prod ps": "docker with daemon redirect (--context: alternate daemon)",
     f"podman {run}--url tcp://prod ps": "podman with remote daemon redirect (--url/--connection/--identity)",
@@ -46,7 +46,7 @@ for prefix in ("rclone lsf $HOME/.hermes --recursive --files-only", "hermes", "d
 
 def test_value_whitespace_decisions_are_unchanged():
     # The fix must not move any approval decision: docker/podman values follow exactly one
-    # whitespace character, as before, while hermes values may follow a whitespace run.
+    # whitespace character, as before, while envoy values may follow a whitespace run.
     _run('''
 from tools.approval_detection import detect_dangerous_command
 cases = {

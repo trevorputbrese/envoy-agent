@@ -1,4 +1,4 @@
-"""Centralized logging setup for Hermes Agent.
+"""Centralized logging setup for Envoy Agent.
 
 Log files: agent.log (INFO+, everything), errors.log (WARNING+), gateway.log (INFO+,
 gateway components; ``mode="gateway"``), gui.log (INFO+, dashboard/TUI-gateway;
@@ -75,7 +75,7 @@ def _portalocker_probe() -> bool:
 # Windows-ONLY swap (#44873): stdlib ``RotatingFileHandler.doRollover()`` calls
 # ``os.rename()``, which fails with ``PermissionError [WinError 32]`` whenever
 # another process holds an append handle on ``agent.log`` — essentially always
-# in Hermes (TUI, gateway, hy_memory, MCP servers, CLI commands all log) —
+# in Envoy (TUI, gateway, hy_memory, MCP servers, CLI commands all log) —
 # pinning the file at the size threshold and spamming stderr on every emit.
 # ``concurrent-log-handler`` serializes rollover with a cross-process lock.
 # POSIX keeps stdlib: renames of open files work, and managed mode (NixOS)
@@ -302,7 +302,7 @@ class _ComponentFilter(logging.Filter):
         return record.name.startswith(self._prefixes)
 
 
-# Logger name prefixes per component; used by _ComponentFilter and ``hermes logs --component``.
+# Logger name prefixes per component; used by _ComponentFilter and ``envoy logs --component``.
 COMPONENT_PREFIXES = {
     # ``plugins.platforms``: messaging adapters that migrated out of
     # ``gateway/platforms/`` into bundled plugins (#41112) are still gateway
@@ -357,7 +357,7 @@ def setup_logging(
     mode: Optional[str] = None,
     force: bool = False,
 ) -> Path:
-    """Configure the Hermes logging subsystem; returns the ``logs/`` directory.
+    """Configure the Envoy logging subsystem; returns the ``logs/`` directory.
 
     Safe to call multiple times; the second call is a no-op unless *force*. Level and
     rotation defaults come from config.yaml ``logging.*``. ``mode="gateway"`` adds
@@ -374,8 +374,8 @@ def setup_logging(
     # reaches this function gets it; a no-op once this stdout is line-buffered.
     _line_buffer_piped_stdout()
 
-    # A second Hermes home in a process that already logs for another one — a dashboard or
-    # ``hermes serve`` backend building agents for several profiles, a multiplexed gateway —
+    # A second Envoy home in a process that already logs for another one — a dashboard or
+    # ``envoy serve`` backend building agents for several profiles, a multiplexed gateway —
     # gets routed by record home. Stacking another file handler here would hand it EVERY
     # profile's records (the handlers carry no home filter), and a duplicate writer on top of
     # an existing router.
@@ -638,7 +638,7 @@ _PROFILE_LIVENESS_RECHECK_S = 2.0
 
 
 class _ProfileRoutingFileHandler(logging.Handler):
-    """Route queued records to the log file for their Hermes home.
+    """Route queued records to the log file for their Envoy home.
 
     Used only behind the QueueListener, so its small routing lock never blocks an agent
     or dashboard event loop. Per-home handlers keep rotation, redaction and managed perms.
@@ -686,7 +686,7 @@ class _ProfileRoutingFileHandler(logging.Handler):
         self._liveness_checked_at[home] = _monotonic()
         if home.is_dir() and not named_profile_is_deleted(home):
             return False
-        # Deleted out of band (CLI ``hermes profile delete`` while this process runs; it
+        # Deleted out of band (CLI ``envoy profile delete`` while this process runs; it
         # tombstones before rmtree). The startup snapshot still names it, so its handler would
         # retry the vanished logs/ path on every record (#103777). Release it the way an
         # in-process delete does: the stale fd is closed on this routed record and the home is

@@ -253,7 +253,7 @@ class CLIInfoMixin:
             self._console_print(f"[dim]   {t('cli.banner.hermes_models_switch_hint')}[/]")
 
         # Project-local skills one-liner: trusted → count; untrusted-with-skills → point at
-        # `hermes skills trust`. Never raises.
+        # `envoy skills trust`. Never raises.
         try:
             from agent.skill_utils import (
                 get_project_skills_dirs, get_untrusted_project_skills_root, iter_skill_index_files)
@@ -571,9 +571,9 @@ class CLIInfoMixin:
             _tip = get_random_tip()
             try:
                 from hermes_cli.skin_engine import get_active_skin
-                _tip_color = get_active_skin().get_color("banner_dim", "#B8860B")
+                _tip_color = get_active_skin().get_color("banner_dim", "#5B7F95")
             except Exception:
-                _tip_color = "#B8860B"
+                _tip_color = "#5B7F95"
             self._console_print(f"[dim {_tip_color}]{t('cli.tip_line', tip=_tip)}[/]")
         except Exception:
             pass

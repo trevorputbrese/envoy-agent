@@ -14,8 +14,8 @@
  * down, and a module whose evaluation never settles times out on its own row.
  *
  * Sources today: the in-repo runtime example (`?raw`, proves the pipeline)
- * and the two on-disk doors — `<hermes home>/desktop-plugins/<name>/plugin.js`
- * and the unified agent-plugin half `<hermes home>/plugins/<name>/desktop/
+ * and the two on-disk doors — `<envoy home>/desktop-plugins/<name>/plugin.js`
+ * and the unified agent-plugin half `<envoy home>/plugins/<name>/desktop/
  * plugin.js` — the doors the agent writes through.
  *
  * SECURITY — this is NOT a capability boundary. A loaded plugin is evaluated
@@ -551,7 +551,7 @@ export async function loadRuntimePlugin(
 }
 
 // ---------------------------------------------------------------------------
-// The on-disk plugin door — ONE app-level root, `<hermes home>/desktop-plugins/`:
+// The on-disk plugin door — ONE app-level root, `<envoy home>/desktop-plugins/`:
 //  - `<id>/plugin.js` — a standalone desktop plugin (agent- or user-written);
 //  - `<package>/plugin.js` + `.hermes-package.json` — the desktop HALF of a
 //    unified agent+desktop package, COPIED here by Electron from the package's
@@ -698,7 +698,7 @@ async function readPluginSourceText(file: string): Promise<string> {
 
   if (result.truncated) {
     throw new PluginSourceOversizeError(
-      "plugin.js exceeds this shell's 512 KiB read limit — update Hermes Desktop to load larger plugins"
+      "plugin.js exceeds this shell's 512 KiB read limit — update Envoy Desktop to load larger plugins"
     )
   }
 
@@ -1006,7 +1006,7 @@ export async function uninstallDiskPlugin(pluginId: string): Promise<{ ok: boole
   const remove = window.hermesDesktop?.removeDesktopPlugin
 
   if (!remove) {
-    return { ok: false, error: 'this Hermes Desktop build cannot remove desktop plugins — delete the folder by hand' }
+    return { ok: false, error: 'this Envoy Desktop build cannot remove desktop plugins — delete the folder by hand' }
   }
 
   const result = await remove({ name: record.origin })

@@ -88,19 +88,19 @@ class TestDoctorPlatformHints:
 
         hint = doctor_platform._sqlite_upgrade_hint()
 
-        assert "docker pull nousresearch/hermes-agent:latest" in hint
-        assert "hermes update" not in hint
+        assert "docker pull trevorputbrese/envoy-agent:latest" in hint
+        assert "envoy update" not in hint
 
 
     def test_sqlite_upgrade_hint_apt_stamp_names_termux_external_update(self):
         # The "apt" install method is Termux APT by contract (config.py
         # _UPDATE_COMMAND_BY_METHOD). Deployment kinds are first-class: doctor
         # reports the correct external update command instead of routing an
-        # out-of-place method through the in-place `hermes update` path.
+        # out-of-place method through the in-place `envoy update` path.
         hint = doctor_platform._sqlite_upgrade_hint("apt")
 
         assert "run `pkg upgrade hermes-agent`" in hint
-        assert "hermes update" not in hint
+        assert "envoy update" not in hint
 
     def test_sqlite_upgrade_hint_preserves_nix_guidance_as_prose(self):
         from hermes_cli.config import recommended_update_command_for_method
@@ -110,7 +110,7 @@ class TestDoctorPlatformHints:
 
         assert guidance in hint
         assert f"run `{guidance}`" not in hint
-        assert "hermes update" not in hint
+        assert "envoy update" not in hint
 
 
 class TestProviderEnvDetection:
@@ -139,7 +139,7 @@ class TestDoctorToolAvailabilitySummary:
     def test_image_gen_without_provider_reports_setup_hint_not_system_dependency(self, monkeypatch):
         """image_gen declares no single env var (FAL / managed Nous / plugin providers); an
         unconfigured backend is a setup problem and must say so, and it counts toward the
-        'run hermes setup' summary like any missing key (#9516)."""
+        'run envoy setup' summary like any missing key (#9516)."""
         unavailable = [{"name": "image_gen", "env_vars": [], "tools": ["image_generate"]},
                        {"name": "homeassistant", "env_vars": [], "tools": []}]
         monkeypatch.setattr(doctor_tools, "_enabled_cli_toolsets_for_doctor", lambda: {"image_gen"})
@@ -157,9 +157,9 @@ class TestDoctorToolAvailabilitySummary:
         out = buf.getvalue()
 
         image_line = next(line for line in out.splitlines() if "image_gen" in line)
-        assert "hermes tools" in image_line and "system dependency" not in image_line and "unavailable" in image_line
+        assert "envoy tools" in image_line and "system dependency" not in image_line and "unavailable" in image_line
         assert "system dependency not met" in next(line for line in out.splitlines() if "homeassistant" in line)
-        assert any("hermes setup" in issue for issue in f.issues)
+        assert any("envoy setup" in issue for issue in f.issues)
 
     def test_web_capability_rows_warn_when_selected_provider_not_ready(self, monkeypatch):
         """#78412: selected firecrawl with is_available=False must warn."""
@@ -205,7 +205,7 @@ class TestDoctorToolAvailabilitySummary:
 
 
 class TestDoctorEnvFileEncoding:
-    """Regression for #18637 (bug 3): `hermes doctor` crashed on Windows
+    """Regression for #18637 (bug 3): `envoy doctor` crashed on Windows
     Chinese locale (GBK) because `.env` was read with Path.read_text(encoding="utf-8") which
     defaults to the system locale encoding, not UTF-8."""
 
@@ -885,7 +885,7 @@ def test_doctor_fix_does_not_claim_success_without_published_binary(monkeypatch,
     out = buf.getvalue()
 
     assert "Chromium not installed" in out
-    assert "hermes pm install chromium" in out
+    assert "envoy pm install chromium" in out
 
 
 def test_doctor_fix_reports_pm_install_failure(monkeypatch, tmp_path):
@@ -929,7 +929,7 @@ def test_missing_chromium_is_info_when_config_needs_none(monkeypatch, tmp_path, 
     out = buf.getvalue()
 
     assert "not needed" in out and reason in out
-    assert "hermes pm install chromium" not in out
+    assert "envoy pm install chromium" not in out
 
 
 def test_run_doctor_kimi_cn_env_is_detected_and_probe_is_null_safe(monkeypatch, tmp_path):
@@ -1519,7 +1519,7 @@ def test_run_doctor_warns_when_lightpanda_binary_missing(monkeypatch, tmp_path):
 
     monkeypatch.setattr("tools.browser_lightpanda.using_lightpanda_engine", lambda: True, raising=False)
     monkeypatch.setattr("tools.browser_lightpanda.lightpanda_engine_status",
-                        lambda: (True, "Hermes spawns `lightpanda serve`"), raising=False)
+                        lambda: (True, "Envoy spawns `lightpanda serve`"), raising=False)
     monkeypatch.setattr("tools.browser_lightpanda.find_lightpanda_binary", lambda: None)
     out = helper._run_doctor_and_capture(monkeypatch, tmp_path)
     assert "Lightpanda selected but binary not found" in out
@@ -1566,7 +1566,7 @@ class TestMacOSTCCGrants:
 
     @staticmethod
     def _darwin_bundle(monkeypatch, tmp_path, dr):
-        monkeypatch.setattr(doctor_platform, "_desktop_app_bundle", lambda: tmp_path / "Hermes.app")
+        monkeypatch.setattr(doctor_platform, "_desktop_app_bundle", lambda: tmp_path / "Envoy.app")
         if dr is not ...:
             monkeypatch.setattr(doctor_platform, "_macos_desktop_dr", lambda app: dr)
 
@@ -1583,7 +1583,7 @@ class TestMacOSTCCGrants:
         doctor_platform.check_macos_tcc_grants()
         out = capsys.readouterr().out
         assert "TCC grants will reset after every update" in out
-        assert "hermes update" in out
+        assert "envoy update" in out
         assert "signing identity is stable" not in out
 
     def test_identifier_dr_is_stable_with_upgrade_hint_and_repair_info(self, monkeypatch, capsys, tmp_path):
@@ -1668,8 +1668,8 @@ def test_profile_alias_status_follows_the_wrapper_the_profile_really_has(monkeyp
         (tmp_path / ".hermes" / "profiles" / name / "config.yaml").write_text("model: m\n", encoding="utf-8")
     profiles.create_wrapper_script("dev")
     profiles.create_wrapper_script("w", target="work")
-    (tmp_path / ".local" / "bin" / "old").write_text('#!/bin/sh\nexec hermes -p old "$@"\n', encoding="utf-8")
-    for foreign in ("ops.bat", "old.bat"):  # same-named non-Hermes commands
+    (tmp_path / ".local" / "bin" / "old").write_text('#!/bin/sh\nexec envoy -p old "$@"\n', encoding="utf-8")
+    for foreign in ("ops.bat", "old.bat"):  # same-named non-Envoy commands
         (tmp_path / ".local" / "bin" / foreign).write_text("@echo off\r\nnotepad %*\r\n", encoding="utf-8")
 
     out = io.StringIO()

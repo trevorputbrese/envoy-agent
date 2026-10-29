@@ -110,18 +110,18 @@ function channelRecord(channel: 'stable' | 'canary', sequence: number): FixtureR
   return {
     schema: 1,
     name: channel,
-    repository: 'NousResearch/hermes-agent',
+    repository: 'trevorputbrese/envoy-agent',
     policy: channel === 'stable' ? 'stable-release' : 'canary-release',
     state: 'active',
     revision: 1,
     nextSequence: sequence + 1,
     identity: {
       token: 'b'.repeat(16),
-      displayName: channel === 'stable' ? 'Hermes Stable' : 'Hermes Canary',
-      appNamePascal: 'Hermes',
-      artifactNamePascal: 'Hermes',
+      displayName: channel === 'stable' ? 'Envoy Stable' : 'Envoy Canary',
+      appNamePascal: 'Envoy',
+      artifactNamePascal: 'Envoy',
       appId: 'chat.nous.hermes',
-      msixAppIdWithOrg: 'NousResearch.Hermes',
+      msixAppIdWithOrg: 'NousResearch.Envoy',
       cliName: 'hermes',
       windowsExecutableName: 'hermes'
     },
@@ -143,11 +143,11 @@ function buildManifest(
 ): FixtureManifest {
   const identity: FixtureIdentity = {
     token: 'b'.repeat(16),
-    displayName: channel === 'stable' ? 'Hermes Stable' : 'Hermes Canary',
-    appNamePascal: 'Hermes',
-    artifactNamePascal: 'Hermes',
+    displayName: channel === 'stable' ? 'Envoy Stable' : 'Envoy Canary',
+    appNamePascal: 'Envoy',
+    artifactNamePascal: 'Envoy',
     appId: 'chat.nous.hermes',
-    msixAppIdWithOrg: 'NousResearch.Hermes',
+    msixAppIdWithOrg: 'NousResearch.Envoy',
     cliName: 'hermes',
     windowsExecutableName: 'hermes'
   }
@@ -160,7 +160,7 @@ function buildManifest(
       schema: 1,
       buildId: id,
       channel,
-      repository: 'NousResearch/hermes-agent',
+      repository: 'trevorputbrese/envoy-agent',
       commit: sha,
       sourceVersion: tag.replace(/^v/, '').split('+')[0],
       releaseTag: tag,
@@ -258,16 +258,16 @@ it('carries each install channel from Python publication checks into the source 
         })
       )
       responses.set(`/${manifestKey(channel)}`, body)
-      responses.set(`/repos/NousResearch/hermes-agent/releases/tags/${tags[channel]}`, {
+      responses.set(`/repos/trevorputbrese/envoy-agent/releases/tags/${tags[channel]}`, {
         tag_name: tags[channel],
         draft: false,
         prerelease: channel === 'canary'
       })
-      responses.set(`/repos/NousResearch/hermes-agent/commits/${tags[channel]}`, { sha })
+      responses.set(`/repos/trevorputbrese/envoy-agent/commits/${tags[channel]}`, { sha })
     }
 
     // Stable IS the latest published GitHub release; no R2 record is consulted for it.
-    responses.set('/repos/NousResearch/hermes-agent/releases/latest', {
+    responses.set('/repos/trevorputbrese/envoy-agent/releases/latest', {
       tag_name: tags.stable,
       draft: false,
       prerelease: false
@@ -421,9 +421,9 @@ if not getattr(urllib.request, '_hermes_loopback', False):
         updateAvailable: true
       })
       fs.rmSync(scriptDirectory, { recursive: true, force: true })
-      expect(await strategy.apply()).toMatchObject({ manual: true, command: `hermes update --channel ${channel}` })
+      expect(await strategy.apply()).toMatchObject({ manual: true, command: `envoy update --channel ${channel}` })
       deps.resolveUpdaterBinary = (): string => path.join(temporary, 'frozen-updater')
-      expect(await strategy.apply()).toMatchObject({ manual: true, command: `hermes update --channel ${channel}` })
+      expect(await strategy.apply()).toMatchObject({ manual: true, command: `envoy update --channel ${channel}` })
       expect(spawned).toHaveLength(0)
       fs.mkdirSync(scriptDirectory, { recursive: true })
       fs.writeFileSync(script, '')
@@ -475,7 +475,7 @@ if not getattr(urllib.request, '_hermes_loopback', False):
     )
     fs.rmSync(markerPath(home), { force: true })
     fs.rmSync(scriptDirectory, { recursive: true, force: true })
-    expect(await strategy.apply()).toMatchObject({ manual: true, command: 'hermes update --branch feature/gui' })
+    expect(await strategy.apply()).toMatchObject({ manual: true, command: 'envoy update --branch feature/gui' })
     // main IS the git branch: re-resolving it reads no channel record and makes no
     // GitHub or artifact request, so a WAF that 403s the record can't stop the update.
     expect(requests.slice(count)).toEqual([])

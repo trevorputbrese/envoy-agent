@@ -24,7 +24,7 @@ REPO_ROOT = HELPER.parents[3]
     ],
 )
 def test_source_update_follows_staged_main_if_installed_cli_accepts_branch(tmp_path, help_text, expected):
-    cli = tmp_path / "installed hermes"
+    cli = tmp_path / "installed envoy"
     cli.write_text('''#!/usr/bin/env bash
 if [[ "$*" == *"--branch main"* ]]; then
   printf 'selected staged main: %s\\n' "$*"
@@ -60,7 +60,7 @@ def test_installed_cli_help_drives_explicit_staged_branch(tmp_path):
         check=False,
     )
     assert help_result.returncode == 0, help_result.stderr
-    cli = tmp_path / "installed hermes"
+    cli = tmp_path / "installed envoy"
     cli.write_text('''#!/usr/bin/env bash
 [[ "$1" == update ]] || exit 2
 shift

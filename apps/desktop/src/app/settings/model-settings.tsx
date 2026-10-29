@@ -99,7 +99,7 @@ export function ModelSettingsSkeleton({ subpage }: Pick<ModelSettingsProps, 'sub
 type SpeedTier = 'fast' | 'normal' | 'ultrafast'
 
 // A provider row is "ready" to pick a model from when it reports models. The
-// backend now surfaces the full `hermes model` universe (every canonical
+// backend now surfaces the full `envoy model` universe (every canonical
 // provider), so unconfigured providers come back with `authenticated:false`
 // and an empty `models` list — those need a setup step before a model exists.
 function isProviderReady(p?: ModelOptionProvider): boolean {
@@ -823,7 +823,7 @@ export function ModelSettings({ onMainModelChanged, scopeProfile, subpage }: Mod
       setApiKeyDraft('')
 
       // Pick a sensible default for the freshly-activated provider (mirrors
-      // `hermes model` curation). Best-effort — fall through to the refreshed
+      // `envoy model` curation). Best-effort — fall through to the refreshed
       // model list if it fails.
       let nextModel = ''
 
@@ -1168,7 +1168,7 @@ export function ModelSettings({ onMainModelChanged, scopeProfile, subpage }: Mod
             <p className="mt-2 text-xs text-muted-foreground">
               {selectedProviderRow?.auth_type === 'api_key'
                 ? `${selectedProviderRow?.name} needs an API key — set it up to choose a model.`
-                : `${selectedProviderRow?.name} signs in through your browser — Hermes runs the flow for you.`}
+                : `${selectedProviderRow?.name} signs in through your browser — Envoy runs the flow for you.`}
             </p>
           )}
           {config && mainModel && (reasoningSupported || fastSupported || ultrafastSupported) && (

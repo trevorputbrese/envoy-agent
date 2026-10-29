@@ -9,8 +9,8 @@ fix (an Enter pressed during startup could save it unseen), so that profile is a
 the reason, and any response (Esc or dismiss included) settles it for good. A collect-only answer
 from before the offer dropped that choice stays decided: nothing is sent, and it is not asked again.
 Desktop paints the offer as a composer strip (``consent-strip.tsx`` over the ``shared_metrics.*``
-RPCs). The terminal asks at the end of every ``hermes setup`` flow and, for a profile that never
-answered, once before an interactive ``hermes`` / ``hermes --tui`` chat (which also covers the
+RPCs). The terminal asks at the end of every ``envoy setup`` flow and, for a profile that never
+answered, once before an interactive ``envoy`` / ``envoy --tui`` chat (which also covers the
 dashboard's Chat tab, a PTY-hosted TUI). The messaging gateway never asks: a chat participant is
 not the install owner.
 """
@@ -30,7 +30,7 @@ OFFER_CHOICES = (
     ("No thanks", False, False),
 )
 _NO_THANKS = len(OFFER_CHOICES) - 1
-DOCS_URL = "https://hermes-agent.nousresearch.com/docs/developer-guide/relay-shared-metrics"
+DOCS_URL = "https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/developer-guide/relay-shared-metrics.md"
 _OFFER_DESCRIPTION = "\n".join((
     "Shared metrics are bounded counters: activity, outcomes, error classes (with a",
     "fixed-list reason when a memory write, compression, update or install fails),",
@@ -39,7 +39,7 @@ _OFFER_DESCRIPTION = "\n".join((
     "day. Apart from a one-time install note, data from before you opt in is never",
     "sent.",
     f"Details: {DOCS_URL}",
-    "Change it any time: hermes setup telemetry",
+    "Change it any time: envoy setup telemetry",
 ))
 _REASK_NOTE = "Asking once more: an earlier version could save \"No thanks\" before you saw this question."
 
@@ -126,29 +126,29 @@ def offer_consent(config: dict | None = None, *, reask: bool = False) -> bool:
     from hermes_cli.cli_output import print_info, print_success
     from hermes_cli.curses_ui import curses_radiolist, flush_stdin
 
-    # The offer appears seconds into startup; an Enter typed while Hermes booted would otherwise
+    # The offer appears seconds into startup; an Enter typed while Envoy booted would otherwise
     # answer it ("No thanks") before it was ever on screen, so the user was never really asked.
     flush_stdin()
     idx = curses_radiolist(
-        "Help improve Hermes?", [label for label, _, _ in OFFER_CHOICES], selected=_NO_THANKS, cancel_returns=-1,
+        "Help improve Envoy?", [label for label, _, _ in OFFER_CHOICES], selected=_NO_THANKS, cancel_returns=-1,
         description=f"{_REASK_NOTE}\n{_OFFER_DESCRIPTION}" if reask else _OFFER_DESCRIPTION,
     )
     if idx < 0 and reask:
         save_consent(False, False, config)
-        print_info("Kept \"No thanks\". Change it any time with `hermes setup telemetry`.")
+        print_info("Kept \"No thanks\". Change it any time with `envoy setup telemetry`.")
         return True
     if idx < 0:
-        print_info("Not answered; Hermes will ask again. Decide any time with `hermes setup telemetry`.")
+        print_info("Not answered; Envoy will ask again. Decide any time with `envoy setup telemetry`.")
         return False
     _, enabled, send = OFFER_CHOICES[idx]
     save_consent(enabled, send, config)
     outcome = "sent to Nous once a day" if send else "off"
-    print_success(f"Shared metrics {outcome}. Change it any time with `hermes setup telemetry`.")
+    print_success(f"Shared metrics {outcome}. Change it any time with `envoy setup telemetry`.")
     return True
 
 
 def offer_consent_if_undecided(config: dict | None = None) -> None:
-    """The end-of-setup offer: every ``hermes setup`` flow funnels through the setup-completed
+    """The end-of-setup offer: every ``envoy setup`` flow funnels through the setup-completed
     record, so this one call covers Quick, Full, Blank Slate, Portal and ``--quick``."""
     from hermes_cli.config import is_managed
     from hermes_cli.setup import is_noninteractive

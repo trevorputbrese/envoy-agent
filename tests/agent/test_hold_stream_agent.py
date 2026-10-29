@@ -61,7 +61,7 @@ def test_held_turns_show_only_the_rewritten_final(hold, turn):
 
 
 def test_a_held_guardrail_halt_reply_is_not_streamed_ahead_of_the_rewrite():
-    """A turn the tool-loop guardrail halts ends with Hermes' halt explanation, pushed straight to
+    """A turn the tool-loop guardrail halts ends with Envoy's halt explanation, pushed straight to
     the display callback so SSE/TUI clients see why the agent stopped. Held, it arrives only as the
     final (after ``transform_llm_output``), never as a stream delta first."""
     from hermes_cli import plugins

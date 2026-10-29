@@ -1,4 +1,4 @@
-"""Tests for the browser orphan reaper: Chromium launched by a Hermes process that exited without
+"""Tests for the browser orphan reaper: Chromium launched by an Envoy process that exited without
 cleaning up is found through the launcher's per-profile records and stopped, but only after its
 identity is proven (``tools.browser_launcher.reap_orphaned_browsers``, driven by
 ``browser_session_lifecycle.reap_orphaned_browser_sessions``)."""
@@ -64,7 +64,7 @@ class TestReapOrphanedBrowserSessions:
         copy_dir = tmp_path / "browser-profile" / "chrome"
         copy_dir.mkdir(parents=True)
         rec = _record(records, pid=4242, udd=str(copy_dir), ephemeral=False)
-        monkeypatch.setattr(launcher, "_pid_alive", _alive(4242))  # browser alive, owning hermes gone
+        monkeypatch.setattr(launcher, "_pid_alive", _alive(4242))  # browser alive, owning envoy gone
         monkeypatch.setattr(launcher, "_start_time", lambda pid: 777)
         monkeypatch.setattr(launcher, "_cmdline_names_dir", lambda pid, udd: True)
         monkeypatch.setattr("tools.browser_lightpanda.reap_orphaned_lightpanda", lambda: 0)
@@ -104,7 +104,7 @@ class TestReapOrphanedBrowserSessions:
 
 
 class TestOwnerPidCrossProcess:
-    """Owner-based cross-process safe reaping: concurrent Hermes processes never reap each other's
+    """Owner-based cross-process safe reaping: concurrent Envoy processes never reap each other's
     browsers, so orphans from crashed processes are reaped without touching live ones."""
 
     def test_alive_owner_is_not_reaped_even_when_untracked(self, records, tmp_path, monkeypatch):
@@ -331,7 +331,7 @@ class TestPeriodicOrphanReap:
     """The reaper must run repeatedly, not only at cleanup-thread startup.
 
     A startup-only reap can never recover from a leak that appears *after*
-    boot — which is exactly what happens in a hermes process that stays up
+    boot — which is exactly what happens in a envoy process that stays up
     for days.
     """
 

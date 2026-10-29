@@ -377,7 +377,7 @@ class RaftAdapter(BasePlatformAdapter):
         cmd: list[str] = [raft_bin, "--profile", profile, "agent", "bridge", "--wake-adapter", "wake-channel",
                           "--wake-channel-endpoint", endpoint]
         from tools.environments.local import hermes_subprocess_env
-        # The raft CLI needs its own profile and channel token, never Hermes' credentials.
+        # The raft CLI needs its own profile and channel token, never Envoy's credentials.
         env = {**hermes_subprocess_env(), "RAFT_PROFILE": profile, "RAFT_CHANNEL_TOKEN": self._bridge_token}
         env["HOME"] = env["HERMES_REAL_HOME"]  # the raft CLI's own login lives under the user's HOME
         try:
@@ -447,7 +447,7 @@ class RaftAdapter(BasePlatformAdapter):
             return _error_response("invalid_json", 400)
         if not isinstance(payload, dict):
             return _error_response("invalid_payload", 400)
-        # No payload["schema"] gate: the bridge owns schema evolution; Hermes only checks content-free.
+        # No payload["schema"] gate: the bridge owns schema evolution; Envoy only checks content-free.
         if _has_content_field(payload):
             return _error_response("content_not_allowed", 400)
         not_ready = {"ok": False, "error": "not_ready", "runtimeSession": self._runtime_session}
@@ -487,7 +487,7 @@ class RaftAdapter(BasePlatformAdapter):
         return web.json_response(self._activity_queue.drain(max_events))
 
     async def handle_message(self, event: MessageEvent) -> None:
-        """Accept Raft wake hints without interrupting an active Hermes turn."""
+        """Accept Raft wake hints without interrupting an active Envoy turn."""
         if event.internal:
             # Durable gateway wakes need the base session fence and admission receipt.
             await super().handle_message(event)
@@ -525,7 +525,7 @@ def _env_enablement() -> Optional[dict]:
 
 
 def interactive_setup() -> None:
-    """``hermes gateway setup`` flow: persists ``RAFT_PROFILE`` to the Hermes env file.
+    """``envoy gateway setup`` flow: persists ``RAFT_PROFILE`` to the Envoy env file.
     CLI helpers are lazy-imported so the plugin stays importable in gateway runtime and tests."""
     from hermes_cli.cli_output import print_header, print_info, print_success, print_warning, prompt
     from hermes_cli.config import get_env_value, save_env_value
@@ -535,7 +535,7 @@ def interactive_setup() -> None:
     if declines_reconfigure("Raft", "Reconfigure Raft?", "RAFT_PROFILE"):
         print_info(f"Keeping RAFT_PROFILE={existing_profile}.")
         return
-    for line in ("Connect Hermes to Raft as an external agent.", "Create the External Agent in Raft first, then run:",
+    for line in ("Connect Envoy to Raft as an external agent.", "Create the External Agent in Raft first, then run:",
                  "  raft agent login --server <server-url> --agent <agent-id> --profile-slug <slug>"):
         print_info(line)
     print()
@@ -546,15 +546,15 @@ def interactive_setup() -> None:
     save_env_value("RAFT_PROFILE", profile.strip())
     print()
     print_success("Raft configuration saved")
-    print_info("Restart the gateway for changes to take effect: hermes gateway restart")
+    print_info("Restart the gateway for changes to take effect: envoy gateway restart")
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Envoy plugin system."""
     ctx.register_platform(
         name="raft",
         dashboard_description="Join a Raft workspace as an external agent.",
-        docs_url="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/raft",
+        docs_url="https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/messaging/raft.md",
         label="Raft",
         adapter_factory=RaftAdapter,
         check_fn=check_raft_requirements,

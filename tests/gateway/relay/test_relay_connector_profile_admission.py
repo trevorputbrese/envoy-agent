@@ -1,6 +1,6 @@
 """A connector-stamped ``source.profile`` is a route, on single-profile and multiplexed gateways.
 
-The connector (Team Gateway per-scope profile routing) stamps the Hermes profile that serves an
+The connector (Team Gateway per-scope profile routing) stamps the Envoy profile that serves an
 inbound event. A single-profile gateway serves it from its one profile (the stamp is not a route
 there, as before shared session authority, and never reaches durable state); a multiplexed gateway admits it into that profile's
 own ledger. Neither may acknowledge the frame and drop it. An unserved stamped profile is refused

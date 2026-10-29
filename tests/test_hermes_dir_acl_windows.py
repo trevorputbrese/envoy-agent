@@ -213,7 +213,7 @@ def test_elevated_update_step_makes_a_stranded_home_usable(reporters_parent, mon
     """alt-glitch on #140490: the owed ``windows_home_acl`` step had unit tests only. Here the real
     step runs from this elevated runner over a home whose nested dirs and files carry the reporters'
     Administrators-only DACL, with real grants; the filtered token must use every one afterwards.
-    (The full elevated ``hermes update`` run stays a workflow_dispatch / live retest.)"""
+    (The full elevated ``envoy update`` run stays a workflow_dispatch / live retest.)"""
     from hermes_cli import update_windows_acl
 
     nested = reporters_parent / "sessions" / "2026"
@@ -285,12 +285,12 @@ def _w2(lock_dir):
     assert len(result["warnings"]) == 1, result
 
 
-# ── P2-5: an elevated grant never follows a junction out of the Hermes home ──────────────────────
+# ── P2-5: an elevated grant never follows a junction out of the Envoy home ──────────────────────
 
 
 @pytest.fixture()
 def home_with_junction_out(tmp_path, monkeypatch):
-    """A Hermes home holding a directory junction (what same-user medium-integrity code can plant)
+    """An Envoy home holding a directory junction (what same-user medium-integrity code can plant)
     to a directory outside it, standing in for ``C:\\Program Files\\<app>``."""
     if not _elevated():
         pytest.skip("needs an elevated token: only an elevated run grants")

@@ -78,7 +78,7 @@ def test_remedy_names_the_platform_repair():
     assert "chown" in remedy("/x", windows=False)
 
 
-# ── P2-5: an elevated grant never follows a junction/symlink out of the Hermes home ──────────────
+# ── P2-5: an elevated grant never follows a junction/symlink out of the Envoy home ──────────────
 
 
 @pytest.fixture()

@@ -16,7 +16,7 @@ function logSsh(log: string) {
 }
 
 test('scrapeReadyPort explains a missing remote profile', async () => {
-  const ssh = logSsh("Error: Profile 'operator' does not exist. Create it with: hermes profile create operator\n")
+  const ssh = logSsh("Error: Profile 'operator' does not exist. Create it with: envoy profile create operator\n")
 
   await assert.rejects(
     () =>
@@ -27,7 +27,7 @@ test('scrapeReadyPort explains a missing remote profile', async () => {
     (err: any) => {
       assert.equal(err.kind, 'remote-profile-missing')
       assert.equal(err.profile, 'operator')
-      assert.match(err.message, /remote Hermes profile 'operator' does not exist/)
+      assert.match(err.message, /remote Envoy profile 'operator' does not exist/)
       assert.match(err.message, /hermes profile create operator/)
 
       return true

@@ -1,4 +1,4 @@
-"""Every Hermes process type reads and writes through the remote backend with the same credential
+"""Every Envoy process type reads and writes through the remote backend with the same credential
 (design §4.4 step 6, G3): a CLI ``config set`` in one process is seen by a gateway-boot process
 and a TUI-gateway (dashboard) process, each of which fetched on its own at import time."""
 from __future__ import annotations
@@ -73,7 +73,7 @@ def test_process_exits_non_zero_when_plane_is_down(plane_env, monkeypatch):
     plane.fail_status = 403  # a refusal is not retried, so this is fast
     proc = _run([sys.executable, "-m", "hermes_cli.main", "config", "get", "display.personality"], env)
     assert proc.returncode != 0
-    assert "Hermes does not start without its remote config" in proc.stderr
+    assert "Envoy does not start without its remote config" in proc.stderr
     assert "concise" not in proc.stdout  # no default or cached value was served
 
 

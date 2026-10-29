@@ -119,7 +119,7 @@ def test_profile_models_dev_id_resolves_at_lookup_time(monkeypatch):
     monkeypatch.setattr(md, "_MODELS_DEV_TO_PROVIDER", None)
 
     assert md.models_dev_id_for("zz-hosted") == "zz-catalog"
-    assert md.models_dev_id_for("zzh") is None  # exact Hermes ids only, like the static map
+    assert md.models_dev_id_for("zzh") is None  # exact Envoy ids only, like the static map
     assert md._models_dev_to_hermes_ids("zz-catalog") == ["zz-hosted"]
     assert md.models_dev_provider_map() == {"zz-hosted": "zz-catalog"}
     assert md.PROVIDER_TO_MODELS_DEV == {}  # never merged into the static dict

@@ -1,4 +1,4 @@
-"""Which delegation backend Hermes uses: the public API behind a ``/delegation`` command.
+"""Which delegation backend Envoy uses: the public API behind a ``/delegation`` command.
 
 ``delegation.backend`` in config.yaml is the saved choice. A session routes on the backend its ``delegate_task``
 schema was built from (``agent._delegation_backend``, captured with its tools and pinned with them to the session

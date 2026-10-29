@@ -190,7 +190,7 @@ CASES = {
     # its tests spawn the real script and poll its loopback server. They run
     # when the script, the Electron side that launches it, or their own test
     # files change — not on every hermes_state.py PR. The script runs a real
-    # `hermes update`, and the Windows crash cells that kill it mid-run live in
+    # `envoy update`, and the Windows crash cells that kill it mid-run live in
     # the install + update journey, so it starts e2e_upgrade as well.
     "windows.ps1 → desktop_updater": (
         ["scripts/desktop-update/windows.ps1"],
@@ -368,7 +368,7 @@ CASES = {
     "PM → e2e_upgrade + docker": (["pm/environments.py"], _lanes(python=True, scan=True, e2e_upgrade=True, docker=True)),
     # The update pipeline lives beyond the update_* family too: the entry
     # point, launch-time recovery, the gateway restart/pause surface.
-    # main.py is also `hermes desktop --build-only`, the update's Desktop rebuild.
+    # main.py is also `envoy desktop --build-only`, the update's Desktop rebuild.
     "cmd_update entry → both update suites": (
         ["hermes_cli/main.py"], _lanes(python=True, scan=True, e2e_upgrade=True, e2e_desktop_update=True),
     ),
@@ -476,7 +476,7 @@ def test_every_slow_lane_path_matches_a_tracked_file():
     assert dead == set()
 
 
-# Every file the `hermes update` pipeline runs on the update path (the step
+# Every file the `envoy update` pipeline runs on the update path (the step
 # tables of the updater audit's cli-update and desktop-update code maps). A
 # PR that edits only one of these must start the real-update suite that would
 # catch the regression; before, main.py / _early_recovery.py / relaunch.py /
@@ -660,20 +660,20 @@ def _write_event(tmp_path, number: int | None = 88442) -> Path:
 
 def test_pull_request_changed_files_skips_non_pr_events(monkeypatch):
     monkeypatch.setenv("EVENT_NAME", "push")
-    monkeypatch.setenv("REPO", "NousResearch/hermes-agent")
+    monkeypatch.setenv("REPO", "trevorputbrese/envoy-agent")
     assert pull_request_changed_files() == []
 
 
 def test_pull_request_changed_files_skips_without_pr_number(tmp_path, monkeypatch):
     monkeypatch.setenv("EVENT_NAME", "pull_request")
-    monkeypatch.setenv("REPO", "NousResearch/hermes-agent")
+    monkeypatch.setenv("REPO", "trevorputbrese/envoy-agent")
     monkeypatch.setenv("GITHUB_EVENT_PATH", str(_write_event(tmp_path, number=None)))
     assert pull_request_changed_files() == []
 
 
 def test_pull_request_changed_files_parses_gh_output(tmp_path, monkeypatch):
     monkeypatch.setenv("EVENT_NAME", "pull_request")
-    monkeypatch.setenv("REPO", "NousResearch/hermes-agent")
+    monkeypatch.setenv("REPO", "trevorputbrese/envoy-agent")
     monkeypatch.setenv("GITHUB_EVENT_PATH", str(_write_event(tmp_path)))
 
     def fake_run(*args, **kwargs):
@@ -693,7 +693,7 @@ def test_pull_request_changed_files_parses_gh_output(tmp_path, monkeypatch):
 
 def test_pull_request_changed_files_returns_empty_when_gh_fails(tmp_path, monkeypatch):
     monkeypatch.setenv("EVENT_NAME", "pull_request")
-    monkeypatch.setenv("REPO", "NousResearch/hermes-agent")
+    monkeypatch.setenv("REPO", "trevorputbrese/envoy-agent")
     monkeypatch.setenv("GITHUB_EVENT_PATH", str(_write_event(tmp_path)))
 
     def fake_run(*args, **kwargs):
@@ -745,7 +745,7 @@ def test_pull_request_labels_prefers_the_live_labels_over_the_replayed_event(tmp
     event = tmp_path / "event.json"
     event.write_text(json.dumps({"pull_request": {"number": 7, "labels": []}}), encoding="utf-8")
     monkeypatch.setenv("EVENT_NAME", "pull_request")
-    monkeypatch.setenv("REPO", "NousResearch/hermes-agent")
+    monkeypatch.setenv("REPO", "trevorputbrese/envoy-agent")
     monkeypatch.setenv("GITHUB_EVENT_PATH", str(event))
 
     live = subprocess.CompletedProcess([], 0, stdout="run-e2e\n", stderr="")

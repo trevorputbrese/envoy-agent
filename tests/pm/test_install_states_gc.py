@@ -159,7 +159,7 @@ def test_retention_comes_from_the_store_owner_not_the_active_profile(tmp_path, r
 
 def test_symlinked_installs_reads_retention_from_the_home_not_the_link_target(tmp_path):
     """``installs/`` moved to another disk via a symlink: the opt-out in the home's config still
-    applies, and the link target's parent is not turned into a Hermes home."""
+    applies, and the link target's parent is not turned into an Envoy home."""
     root = tmp_path / "home"
     root.mkdir()
     (root / "config.yaml").write_text("worktrees:\n  install_state_retention_days: 0\n", encoding="utf-8")

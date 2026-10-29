@@ -45,7 +45,7 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   },
   no_reply: {
     title: "The reply didn't finish",
-    body: 'Hermes ended this turn without a reply. Retry to send it again.'
+    body: 'Envoy ended this turn without a reply. Retry to send it again.'
   },
   upstream_blocked: {
     title: 'A firewall blocked the request',
@@ -55,7 +55,7 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   ssl_cert_verification: {
     title: 'Secure connection failed',
     body: provider =>
-      `Hermes could not verify the secure connection to ${provider}. Check your network or proxy settings, or switch provider, then send your message again.`
+      `Envoy could not verify the secure connection to ${provider}. Check your network or proxy settings, or switch provider, then send your message again.`
   },
   context_overflow: {
     title: 'This conversation is too long',
@@ -90,18 +90,18 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   },
   invalid_response: {
     title: 'The AI service sent an unreadable reply',
-    body: provider => `${provider} returned something Hermes could not read. Retry in a moment.`
+    body: provider => `${provider} returned something Envoy could not read. Retry in a moment.`
   },
   empty_response: {
     title: 'The AI service sent an empty reply',
     body: provider => `${provider} returned nothing for this message. Retry in a moment.`
   },
   loop_error: {
-    title: 'Hermes got stuck in a loop',
-    body: 'The reply kept repeating the same steps, so Hermes stopped it. Retry, or start a new chat if it happens again.'
+    title: 'Envoy got stuck in a loop',
+    body: 'The reply kept repeating the same steps, so Envoy stopped it. Retry, or start a new chat if it happens again.'
   },
   SESSION_OWNER_BUSY: {
-    title: 'Hermes is busy in this chat',
+    title: 'Envoy is busy in this chat',
     body: 'Another turn is running here and your message could not join its queue. Nothing was sent. Retry once that turn ends.'
   },
   cron_session_read_only: {
@@ -110,7 +110,7 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   },
   session_read_only: {
     title: 'This chat is read-only',
-    body: 'It is stored history Hermes can show but not continue, so your message was not run. Start a new chat to send it.'
+    body: 'It is stored history Envoy can show but not continue, so your message was not run. Start a new chat to send it.'
   },
   workspace_unavailable: {
     title: "This chat's folder is gone",
@@ -126,16 +126,16 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   },
   SESSION_NOT_OWNED: {
     title: 'This chat is open somewhere else',
-    body: 'This chat is currently open in another Hermes window or terminal. Close it there and send your message again, or start a new chat here.'
+    body: 'This chat is currently open in another Envoy window or terminal. Close it there and send your message again, or start a new chat here.'
   },
   disk_full: {
     title: 'Disk full',
-    body: 'Your disk is full, so Hermes could not save this conversation. Free some space, then retry.'
+    body: 'Your disk is full, so Envoy could not save this conversation. Free some space, then retry.'
   },
   // Nous free tier. The body is normally the backend's own sentence (it names the wait
   // and the way forward); these bodies stand in for an older backend that sent none.
   free_tier_disabled: {
-    title: 'Using Hermes without signing in is switched off right now',
+    title: 'Using Envoy without signing in is switched off right now',
     body: "Sign in with a Nous account to keep chatting, it's free."
   },
   free_tier_rate_limited: {
@@ -148,10 +148,10 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
   },
   free_tier_model_not_free: {
     title: "That model isn't available without signing in",
-    body: "Hermes uses the free model for now. Sign in with a Nous account for more models, it's free."
+    body: "Envoy uses the free model for now. Sign in with a Nous account for more models, it's free."
   },
   free_tier_route: {
-    title: "Hermes couldn't reach the free model on this route",
+    title: "Envoy couldn't reach the free model on this route",
     body: "Sign in with a Nous account, it's free, or check the NOUS_INFERENCE_BASE_URL setting."
   },
   free_tier_outage: {
@@ -159,7 +159,7 @@ export const enErrorCodes: ThreadCopy['errorCodes'] = {
     body: 'Try sending your message again in a minute.'
   },
   free_tier_refused: {
-    title: "Hermes couldn't send that without signing in",
+    title: "Envoy couldn't send that without signing in",
     body: 'Signing in with a Nous account is free.'
   },
   usage_window: {

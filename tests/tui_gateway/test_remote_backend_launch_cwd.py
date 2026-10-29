@@ -1,6 +1,6 @@
 """A TUI/dashboard session on a sandbox backend never sends the gateway's launch directory to the sandbox.
 
-The hosted image runs the gateway with cwd ``/opt/data`` (the Hermes home). A session created with no workspace kept
+The hosted image runs the gateway with cwd ``/opt/data`` (the Envoy home). A session created with no workspace kept
 that host directory as its cwd, and ``_terminal_task_cwd_with_source`` registered it as the terminal cwd of a modal /
 daytona / sprites / plugin sandbox, where it does not exist: every command failed ``cd: /opt/data: No such file or
 directory`` (exit 126). The backend's own default applies instead, as on the messaging gateway.
@@ -173,7 +173,7 @@ def test_docker_keeps_the_host_dir(launch_dir, monkeypatch, mount):
 
 
 def test_sandbox_resume_drops_a_stored_hermes_home_cwd(launch_dir, monkeypatch):
-    """A row persisted before the fix with a launch dir (the Hermes home, its subprocess home) as cwd is not
+    """A row persisted before the fix with a launch dir (the Envoy home, its subprocess home) as cwd is not
     re-adopted as the sandbox workspace. ssh keeps its own rule: a remote ``/`` someone picked survives."""
     hermes_home = server.get_hermes_home()
     (hermes_home / "home").mkdir(exist_ok=True)
@@ -215,7 +215,7 @@ def test_sandbox_resume_drops_a_stored_desktop_launch_dir(launch_dir, monkeypatc
 
 
 def test_sandbox_resume_keeps_a_workspace_picked_under_the_hermes_root(launch_dir, monkeypatch):
-    """A folder the user picked under the Hermes root is a workspace, not a launch dir: it persists and resumes."""
+    """A folder the user picked under the Envoy root is a workspace, not a launch dir: it persists and resumes."""
     picked = server.get_hermes_home() / "projects" / "chosen"
     picked.mkdir(parents=True)
     _backend(monkeypatch, "modal")

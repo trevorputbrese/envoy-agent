@@ -1,4 +1,4 @@
-"""Honcho host-block migration for ``hermes profile rename``.
+"""Honcho host-block migration for ``envoy profile rename``.
 
 Split out of ``hermes_cli.profiles``; the profiles root is late-imported from there so its
 ``_get_default_hermes_home`` seam holds.
@@ -52,7 +52,7 @@ def migrate_honcho_profile_host(old_name: str, new_name: str, new_dir: Path) -> 
             continue
         block = hosts[source_host]
         if isinstance(block, dict) and "aiPeer" not in block:
-            block["aiPeer"] = old_name  # source_host is ``hermes_<old>`` or legacy ``hermes.<old>``
+            block["aiPeer"] = old_name  # source_host is ``hermes_<old>`` or legacy ``envoy.<old>``
         hosts[new_host] = hosts.pop(source_host)
         if _atomic_write_json(path, raw):
             print(f"✓ Honcho host updated: {source_host} → {new_host}")

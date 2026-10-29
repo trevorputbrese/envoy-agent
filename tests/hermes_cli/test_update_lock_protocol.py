@@ -242,7 +242,7 @@ child.wait()
 
 @posix_only
 def test_an_orphaned_delegate_removes_its_killed_owners_marker(tmp_path):
-    """A7 rule 5 / Windows ``orphaned_update``: the hand-off script claims, names its `hermes
+    """A7 rule 5 / Windows ``orphaned_update``: the hand-off script claims, names its `envoy
     update` child as delegate, and is killed alone. Pre-A7 the child adopted the claim without
     writing it, so its exit released nothing: '<dead owner> … delegate:<exited child>' survived
     (native artifact crash-12db). The delegate's release now removes a claim whose owner died."""
@@ -530,7 +530,7 @@ Path(sys.argv[3]).write_text(str(child.pid), encoding="utf-8")
 
 @posix_only
 def test_a_refusal_over_a_dead_updaters_lock_uses_the_held_wording(tmp_path):
-    """m6: `hermes update`, launch repair and source completion refuse through the lock's
+    """m6: `envoy update`, launch repair and source completion refuse through the lock's
     holder record. Its updater is dead and a child it started holds the lock: say so, never
     name the dead process."""
     from hermes_cli import update_lock

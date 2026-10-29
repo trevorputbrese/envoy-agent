@@ -1,7 +1,7 @@
 """Isolation contract for plugin-registered browser-vault login backends.
 
 A password-manager plugin (``ctx.register_login_backend``) shares the ``browser_vault`` tool with the
-built-in Hermes vault, 1Password and Bitwarden. These tests load real plugins from a temp
+built-in Envoy vault, 1Password and Bitwarden. These tests load real plugins from a temp
 ``HERMES_HOME`` through the plugin manager and drive the real tool through the tool registry; only the
 browser's CDP boundary (page origin, input inspection, the secret eval) is faked. Every rule is one test:
 
@@ -244,7 +244,7 @@ def test_plugin_backend_gets_only_its_handle_never_unlock_material(vault_home, p
     assert alpha.calls[1] == ("fill_context", (), {})
     assert all(c[1:] == ("alpha:1", (), {}) for c in alpha.calls if c[0] != "fill_context")
 
-    # A plugin may not drive Hermes' master-password prompt: the user would be typing a password
+    # A plugin may not drive Envoy's master-password prompt: the user would be typing a password
     # into a dialog the plugin labelled (here "1Password").
     assert _backend("gamma") is None
     prompts = []

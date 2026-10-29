@@ -38,7 +38,7 @@ describe('mergePluginPackages', () => {
 
   it('pairs a desktop half with an agent row whose folder differs from its manifest name', () => {
     // Electron names the half after the package FOLDER (plugins/<folder>/desktop);
-    // the agent row is named from its manifest. `hermes plugins install` lands a
+    // the agent row is named from its manifest. `envoy plugins install` lands a
     // package at plugins/<manifest name>, but a self-cloned one (the README's
     // `git clone … ~/.hermes/plugins/hermes-subscription-meter`) keeps the repo
     // name. The join key has to be the folder or it splits into two rows.
@@ -82,8 +82,8 @@ describe('mergePluginPackages', () => {
       [
         desktop({
           id: 'hermes-talk',
-          name: 'Hermes Talk',
-          description: 'GPT-Live subscription or explicit API voice, with Hermes task delegation.',
+          name: 'Envoy Talk',
+          description: 'GPT-Live subscription or explicit API voice, with Envoy task delegation.',
           packageName: 'hermes-talk',
           file: '/Users/me/.hermes/desktop-plugins/hermes-talk/plugin.js'
         })
@@ -94,7 +94,7 @@ describe('mergePluginPackages', () => {
     expect(rows).toHaveLength(1)
     expect(rows[0]).toMatchObject({
       key: 'hermes-talk',
-      name: 'Hermes Talk',
+      name: 'Envoy Talk',
       kind: 'both',
       desktopMissing: false,
       agentMissingInProfile: false
@@ -108,7 +108,7 @@ describe('mergePluginPackages', () => {
       [
         desktop({
           id: 'hermes-talk',
-          name: 'Hermes Talk',
+          name: 'Envoy Talk',
           file: '/Users/me/.hermes/desktop-plugins/hermes-talk/plugin.js'
         })
       ],

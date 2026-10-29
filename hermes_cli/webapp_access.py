@@ -105,7 +105,7 @@ def sign_in_client(home) -> Optional[tuple[str, str]]:
 def registered_lan_origin(home: Path, port: int) -> Optional[str]:
     """``http://<LAN address>:<port>`` when Web Access last registered Nous sign-in for *home*'s
     Webapp on the LAN at that address and *port*, and the address is still this machine's; else None.
-    Sign-in returns only to the callback the Portal has, so ``hermes webapp`` opens this address."""
+    Sign-in returns only to the callback the Portal has, so ``envoy webapp`` opens this address."""
     try:
         parts = urlsplit(_registration(home)["callback"])
         recorded_port = parts.port
@@ -120,7 +120,7 @@ def registered_lan_origin(home: Path, port: int) -> Optional[str]:
 
 def _register_nous_sign_in(callback_url: str) -> None:
     """Register Web Access's own portal client with *callback_url*, or update it in place, as
-    ``hermes dashboard register --redirect-uri`` does for the dashboard's. It never sends the
+    ``envoy dashboard register --redirect-uri`` does for the dashboard's. It never sends the
     dashboard's client id and writes nothing to ``.env``: the Portal may replace a client's redirect
     URI on every registration. The same callback for the same client and Portal is never posted
     twice, so a start with nothing changed asks the Portal nothing."""
@@ -181,7 +181,7 @@ def plan(mode: str, public_url: Optional[str] = None) -> tuple[str, Optional[int
 
 #: How many ports above the default Start tries for a standalone profile's Webapp.
 _PORT_SEARCH = 100
-#: Under the Hermes root every profile shares: one standalone profile's gateway at a time chooses and
+#: Under the Envoy root every profile shares: one standalone profile's gateway at a time chooses and
 #: saves its Webapp port, so a Start in another gateway's process sees that claim before it chooses.
 _PORT_CLAIM_LOCK = Path("webapp") / "port-claim.lock"
 _PORT_CLAIM_HOLDER = threading.local()
@@ -194,7 +194,7 @@ def _port_to_serve(home: Path, host: str) -> tuple[int, Optional[int]]:
     A ``webapp.port`` in *home*'s config is the user's, and so is the default profile's gateway, which
     serves the documented address (9120 unless set): both keep it, and Start writes no port. A standalone
     profile's gateway with no ``webapp.port`` would find the default port taken by the default gateway's
-    Webapp, so it gets the first port above it that no other Hermes home on this machine claims and
+    Webapp, so it gets the first port above it that no other Envoy home on this machine claims and
     nothing listens on now, and Start writes it to that profile's ``webapp.port``: the profile keeps that
     address across restarts, and the gateway, the launcher and the sign-in callback all use it.
 
@@ -213,7 +213,7 @@ def _port_to_serve(home: Path, host: str) -> tuple[int, Optional[int]]:
     _create_user_only(lock)
     try:
         with _file_lock(lock, _PORT_CLAIM_HOLDER, _PORT_CLAIM_TIMEOUT_SECONDS,
-                        "Timed out waiting for another Hermes profile to choose its Webapp port"):
+                        "Timed out waiting for another Envoy profile to choose its Webapp port"):
             claimed = _claimed_ports(home)
             for port in range(DEFAULT_PORT + 1, DEFAULT_PORT + 1 + _PORT_SEARCH):
                 if port not in claimed and _port_free(host, port):
@@ -262,7 +262,7 @@ def _own_port(home: Path) -> Optional[object]:
 
 
 def _claimed_ports(home: Path) -> set[int]:
-    """The Webapp ports the other Hermes homes beside *home* claim: the default profile's (9120 unless
+    """The Webapp ports the other Envoy homes beside *home* claim: the default profile's (9120 unless
     set) and every other profile's own ``webapp.port``, whether or not its gateway runs now. Only that
     setting is read from their configs."""
     from gateway.webapp_listener import DEFAULT_PORT
@@ -295,7 +295,7 @@ def _port_free(host: str, port: int) -> bool:
 
 
 def build_bundle() -> None:
-    """Build the Webapp bundle the gateway serves, with the function ``hermes webapp`` uses (it
+    """Build the Webapp bundle the gateway serves, with the function ``envoy webapp`` uses (it
     reuses a current bundle), so Start never turns on a Webapp with nothing to serve."""
     from hermes_cli.config import get_project_root
     from hermes_cli.webapp import WebappBuildError, prepare_webapp_renderer
@@ -304,7 +304,7 @@ def build_bundle() -> None:
         prepare_webapp_renderer(get_project_root())
     except WebappBuildError as exc:
         raise WebappAccessError(
-            f"{str(exc).rstrip('.')}. Run hermes webapp --build-only to see the full output, then start again.") from exc
+            f"{str(exc).rstrip('.')}. Run envoy webapp --build-only to see the full output, then start again.") from exc
 
 
 def register(callback_url: str) -> None:
@@ -362,7 +362,7 @@ def _gateway_state(home: Path) -> dict:
 
 def _mode(settings) -> Optional[str]:
     """Who the configured Webapp serves: ``public`` (its own URL pins the callback and Host),
-    ``lan`` (a wildcard bind), ``local`` (a loopback bind, as ``hermes webapp`` sets it up), or None
+    ``lan`` (a wildcard bind), ``local`` (a loopback bind, as ``envoy webapp`` sets it up), or None
     when it is off."""
     from gateway.webapp_listener import _is_wildcard
 

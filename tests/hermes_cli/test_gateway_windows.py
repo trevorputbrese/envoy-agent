@@ -47,7 +47,7 @@ def test_exec_schtasks_decodes_ansi_output_under_utf8_mode(monkeypatch):
 def test_registered_task_launchers_reads_each_hermes_task_action(monkeypatch):
     """The install probe's view of the Scheduled Tasks: the launcher each ``Hermes_Gateway*`` task
     starts, as the task XML this module writes names it, and a pre-``wscript`` task's ``.cmd``."""
-    launcher = r"C:\Users\Ann Lee\custom hermes\gateway-service\Hermes_Gateway_work.vbs"
+    launcher = r"C:\Users\Ann Lee\custom envoy\gateway-service\Hermes_Gateway_work.vbs"
     legacy = r"C:\Users\ann\h2\gateway-service\Hermes_Gateway.cmd"
     current = gateway_windows._build_scheduled_task_xml("Hermes_Gateway_work", Path(launcher), "PC\\ann")
     older = current.replace("<Command>wscript.exe</Command>", f"<Command>{legacy}</Command>").replace(
@@ -305,7 +305,7 @@ def test_elevated_gateway_command_uses_hidden_console_python(monkeypatch):
         shell32 = FakeShell32()
 
     monkeypatch.setattr(gateway_windows, "_current_profile_cli_args", lambda: ["--profile", "alice"])
-    monkeypatch.setattr(gateway_windows.sys, "executable", r"C:\Hermes\venv\Scripts\python.exe")
+    monkeypatch.setattr(gateway_windows.sys, "executable", r"C:\Envoy\venv\Scripts\python.exe")
     monkeypatch.setattr(gateway_windows.ctypes, "windll", FakeWindll(), raising=False)
 
     assert gateway_windows._launch_elevated_gateway_command("install", ["--start-now", "--elevated-handoff"])
@@ -313,7 +313,7 @@ def test_elevated_gateway_command_uses_hidden_console_python(monkeypatch):
     assert len(calls) == 1
     _hwnd, verb, executable, params, cwd, show = calls[0]
     assert verb == "runas"
-    assert executable == r"C:\Hermes\venv\Scripts\python.exe"
+    assert executable == r"C:\Envoy\venv\Scripts\python.exe"
     assert "--profile alice gateway install --start-now --elevated-handoff" in params
     assert show == 0
     assert cwd
@@ -377,8 +377,8 @@ def test_gateway_vbs_script_is_console_less(monkeypatch):
     )
     content = gateway_windows._build_gateway_vbs_script(
         r"C:\venv\Scripts\python.exe",
-        r"C:\Hermes",
-        r"C:\Hermes",
+        r"C:\Envoy",
+        r"C:\Envoy",
         "--profile work",
     )
     assert "cmd.exe" not in content.lower()
@@ -470,7 +470,7 @@ def test_scheduled_task_install_removes_startup_entries_that_would_double_launch
 
 
 def test_reconcile_leaves_one_autostart_mechanism(monkeypatch, tmp_path):
-    """#80569: what `hermes update` and `hermes doctor --fix` run. Beside a registered task every
+    """#80569: what `envoy update` and `envoy doctor --fix` run. Beside a registered task every
     Startup entry is redundant; with no task a legacy .cmd next to the .vbs is. After reconcile
     nothing is redundant and exactly one mechanism remains."""
     startup, _script = _startup_with_fallback_and_legacy_entries(monkeypatch, tmp_path)
@@ -651,7 +651,7 @@ _PRE_HARDENING_TASK_XML = """<?xml version="1.0" encoding="UTF-16"?>
 
 def test_scheduled_task_drift_names_missing_hardening_leaves(monkeypatch):
     """A pre-hardening registration is reported leaf by leaf, and the report is what
-    ``hermes gateway status`` prints together with the ``hermes gateway install`` repair hint."""
+    ``envoy gateway status`` prints together with the ``envoy gateway install`` repair hint."""
     launcher = Path(r"C:\Users\me\.hermes\gateway-service\Hermes_Gateway.vbs")
     template = gateway_windows._build_scheduled_task_xml("Hermes_Gateway", launcher, r"PC\me")
     drift = gateway_windows.compare_scheduled_task_drift(_PRE_HARDENING_TASK_XML, template)
@@ -668,7 +668,7 @@ def test_scheduled_task_drift_names_missing_hardening_leaves(monkeypatch):
     monkeypatch.setattr("builtins.print", lambda *a, **k: printed.append(" ".join(map(str, a))))
     gateway_windows._print_scheduled_task_drift("Hermes_Gateway")
     assert printed[0].startswith("⚠ Scheduled Task registration predates the current template (missing: RestartOnFailure")
-    assert "hermes gateway install" in printed[1]
+    assert "envoy gateway install" in printed[1]
 
 
 def test_scheduled_task_drift_is_silent_when_aligned_or_unqueryable(monkeypatch):
@@ -741,7 +741,7 @@ def _arrange_uninstalled_start(monkeypatch):
 
 
 def test_stdin_interactive_only_when_isatty_and_a_console_answers_get_console_mode():
-    """Windows CRT isatty() is True for the NUL device (`hermes gateway start < NUL`, stdin=DEVNULL), so
+    """Windows CRT isatty() is True for the NUL device (`envoy gateway start < NUL`, stdin=DEVNULL), so
     isatty alone must not open the prompt; off Windows (no console-mode fact) isatty decides (#113977)."""
     assert gateway_windows._stdin_is_interactive(isatty=True, console_mode_ok=False) is False   # NUL
     assert gateway_windows._stdin_is_interactive(isatty=True, console_mode_ok=True) is True     # console
@@ -759,7 +759,7 @@ def test_start_with_nul_stdin_starts_the_gateway_but_never_installs_login_persis
     gateway_windows.start()
 
     assert installs == [] and spawns == [1]
-    assert "hermes gateway install" in capsys.readouterr().out
+    assert "envoy gateway install" in capsys.readouterr().out
 
 
 def test_start_with_captured_stdout_never_asks_even_on_a_console_stdin(monkeypatch, capsys):
@@ -773,11 +773,11 @@ def test_start_with_captured_stdout_never_asks_even_on_a_console_stdin(monkeypat
     gateway_windows.start()
 
     assert installs == [] and spawns == [1]
-    assert "hermes gateway install" in capsys.readouterr().out
+    assert "envoy gateway install" in capsys.readouterr().out
 
 
 def test_start_without_tty_starts_the_gateway_but_never_installs_login_persistence(monkeypatch, capsys):
-    """`hermes gateway start < /dev/null` must not answer the persistence question with a default Yes
+    """`envoy gateway start < /dev/null` must not answer the persistence question with a default Yes
     (#113977); it starts the gateway once and points at the explicit install command."""
     installs, spawns = _arrange_uninstalled_start(monkeypatch)
     monkeypatch.setattr(setup, "is_interactive_stdin", lambda: False)
@@ -787,7 +787,7 @@ def test_start_without_tty_starts_the_gateway_but_never_installs_login_persisten
 
     assert installs == [] and spawns == [1]
     out = capsys.readouterr().out
-    assert "hermes gateway install" in out and "did not complete" not in out
+    assert "envoy gateway install" in out and "did not complete" not in out
 
 
 def test_start_on_tty_hands_both_answers_to_install_and_honours_the_env_opt_out(monkeypatch):
@@ -824,7 +824,7 @@ def test_start_on_tty_hands_both_answers_to_install_and_honours_the_env_opt_out(
 #
 # Background: on Windows, asyncio.add_signal_handler raises NotImplementedError,
 # so the gateway's SIGTERM handler (which drains in-flight agents and writes
-# resume_pending=True) never fires when `hermes gateway stop` kills the
+# resume_pending=True) never fires when `envoy gateway stop` kills the
 # process. The fix: stop() writes the planned_stop_marker first, waits for
 # the gateway's marker-watcher thread to drain + exit cleanly, then escalates
 # to taskkill if drain times out.
@@ -841,7 +841,7 @@ def test_start_on_tty_hands_both_answers_to_install_and_honours_the_env_opt_out(
 
 def test_hermes_owns_windows_service_requires_name_or_binary_under_a_hermes_root():
     """Task Scheduler (``Schedule`` in svchost) above a task-launched gateway is never its supervisor;
-    a service is Hermes-owned only by a ``hermes*`` name or a binary under the install (#97208)."""
+    a service is Envoy-owned only by a ``envoy*`` name or a binary under the install (#97208)."""
     roots = (
         r"C:\Users\kaize\AppData\Local\hermes\hermes-agent",
         r"C:\Users\kaize\AppData\Local\hermes\hermes-agent\venv\Scripts",

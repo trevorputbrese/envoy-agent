@@ -73,7 +73,7 @@ def _write_fleet_restart_pending_marker(*, expected_sha: str = "", runtimes: lis
     if runtimes == []:
         # An explicit empty inventory owes no restart (e.g. Desktop-hosted `serve` with no
         # gateway services). Arming the marker here leaves a breadcrumb nothing can discharge:
-        # a no-gateway host would then fail every later ``hermes update`` (#115311).
+        # a no-gateway host would then fail every later ``envoy update`` (#115311).
         return True
     from hermes_cli.update_cmd import _m
     from hermes_cli.update_host_obligation import arm_host_obligation
@@ -152,7 +152,7 @@ def _receipt_looks_unfinished(receipt: dict) -> bool:
 
     The command boundary stamps a ``stop_reason`` on every receipt, including clean
     ones (``completed at command boundary``, ``sys.exit(0)``); it must not make a
-    successful receipt look unfinished, or the next ``hermes update`` retriggers
+    successful receipt look unfinished, or the next ``envoy update`` retriggers
     ``fleet_restart_pending`` from pre-pull plan SHAs (#98022).
     """
     exit_code = receipt.get("exit_code")
@@ -486,7 +486,7 @@ def _update_owes_fleet_restart(*, receipt: dict | None = None, pending_manual: l
     if not _receipt_reports_stale_runtime(receipt):
         return False
     restarted_to = _receipt_restart_phase_completed(receipt)
-    # A fleet an operator has since restarted onto a moved checkout (``hermes gateway restart`` —
+    # A fleet an operator has since restarted onto a moved checkout (``envoy gateway restart`` —
     # the remedy this warning names) has nothing of the update left to owe either.
     if restarted_to and _live_fleet_covers_receipt(restarted_to, receipt, owed, accept_states=("current", "stale")):
         return False
@@ -496,10 +496,10 @@ def _update_owes_fleet_restart(*, receipt: dict | None = None, pending_manual: l
 def _warn_pending_fleet_restart(*, startup: bool = False) -> None:
     """Print the specific interrupted-update fleet-restart warning."""
     stream = sys.stderr if startup else sys.stdout
-    print("⚠ A previous `hermes update` pulled new code but did not restart running gateways.", file=stream)
+    print("⚠ A previous `envoy update` pulled new code but did not restart running gateways.", file=stream)
     print("  Gateways may still be serving pre-update modules (mixed sys.modules).", file=stream)
     if startup:
-        print("  Run `hermes update` or `hermes gateway restart`.", file=stream)
+        print("  Run `envoy update` or `envoy gateway restart`.", file=stream)
 
 
 def _warn_pending_fleet_restart_on_startup() -> None:
@@ -597,7 +597,7 @@ def _restart_systemd_gateway_units_best_effort(failed: list, listings) -> None:
         print(
             f"  • {unit_key} is a legacy per-profile unit sharing one host gateway process with "
             f"{owner_key}; restarting it again would restart that process twice. Fold the units "
-            "together with: hermes gateway migrate"
+            "together with: envoy gateway migrate"
         )
 
     for key in keys:
@@ -642,7 +642,7 @@ def _restart_identity_sha() -> str:
 
     ``_current_checkout_sha()`` is ``None`` on every non-git install (zip, pip, Docker), and an
     empty stamp can never match, so the per-host restart-once guard would be inert exactly on the
-    installs it exists for: each profile's ``hermes update`` would re-kill the one shared
+    installs it exists for: each profile's ``envoy update`` would re-kill the one shared
     multiplexer. The obligation's own ``expected_sha`` — else the receipt's post-update identity —
     names the same pulled code.
     """
@@ -665,9 +665,9 @@ def _fleet_restart_skip_reason(plan) -> str | None:
 
     Every route (pulled, already-current, ZIP) now finishes through the same completion
     tail, so the guards the old catch-up path carried live here: one host runs ONE
-    multiplexing gateway, so a second profile's ``hermes update`` attaches to the restart the
+    multiplexing gateway, so a second profile's ``envoy update`` attaches to the restart the
     first one already stamped (#95294), and a fleet already serving the checkout code (a
-    no-op update, a manual ``hermes gateway restart`` seconds ago) is not re-killed (#117051).
+    no-op update, a manual ``envoy gateway restart`` seconds ago) is not re-killed (#117051).
 
     The second guard needs BOTH the pre-update plan and the live probe: the live matrix only
     lists gateways, so a planned ``serve`` still on pre-update code (or any runtime without a
@@ -710,7 +710,7 @@ def _systemctl_reset_and_restart(manage_cmd: list, svc_name: str, *, scope_cmd: 
 def _systemd_unit_owned_by_update(scope_cmd: list, svc_name: str) -> bool:
     """Gate a unit restart on the unit's home being one this update owns (#93349).
 
-    ``hermes-gateway*`` is an account-wide namespace: a second install's ``hermes update`` used
+    ``hermes-gateway*`` is an account-wide namespace: a second install's ``envoy update`` used
     to drain and restart the account's real ``hermes-gateway.service`` because the unit was
     listed, not because it ran the updated code. Foreign or unreadable ownership prints a notice
     and leaves the unit alone; it is not a failed restart.
@@ -811,13 +811,13 @@ def _warn_incomplete_gateway_fleet_restart(failed_units: list) -> None:
         # See #88848.
         print("  Listed services may be deregistered from launchd, or still")
         print("  running pre-update code (mixed sys.modules). Recover with:")
-        print("    hermes gateway status")
+        print("    envoy gateway status")
         print("    launchctl list | grep <label>")
         print("    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/<label>.plist")
         return
     print("  Skipped units may still be running pre-update code (mixed")
     print("  sys.modules). Restart them manually, then verify:")
-    print("    hermes gateway status")
+    print("    envoy gateway status")
     if any(not name.startswith("ai.hermes.") for name in ordered):
         print("    systemctl --user restart <unit>   # user-scope")
         print("    sudo systemctl restart <unit>     # system-scope")
@@ -864,7 +864,7 @@ def _restart_launchd_gateway_after_update(
             print(
                 f"  ⚠ Gateway restart failed: {stderr}\n"
                 "    The gateway may be DOWN on pre-update code. "
-                "Recover manually: hermes gateway restart"
+                "Recover manually: envoy gateway restart"
             )
             return [], [current_label]
     except (FileNotFoundError, subprocess.TimeoutExpired) as e:
@@ -874,7 +874,7 @@ def _restart_launchd_gateway_after_update(
             # The old code `pass`ed here (#74973's second silent variant); count it and tell the operator.
             "  ⚠ Could not restart the gateway "
             f"({e.__class__.__name__}: {e}).\n"
-            "    Recover manually: hermes gateway restart"
+            "    Recover manually: envoy gateway restart"
         )
         return [], [current_label]
 
@@ -898,7 +898,7 @@ def _restart_launchd_gateway_after_update(
         return [current_label], []
     print(
         f"  ✗ {current_label} restarted but launchd is not supervising a new process for it.\n"
-        "    Check logs, then: hermes gateway restart"
+        "    Check logs, then: envoy gateway restart"
     )
     return [], [current_label]
 
@@ -1100,8 +1100,8 @@ def _warn_gateway_restart_phase_aborted(exc: BaseException, pids) -> None:
         print("  Any gateway still running is serving pre-update code")
         print("  (mixed sys.modules) against the updated checkout.")
     print("  Restart it manually, then verify:")
-    print("    hermes gateway restart")
-    print("    hermes gateway status")
+    print("    envoy gateway restart")
+    print("    envoy gateway status")
 
 
 def _drain_or_signal_gateway_for_update(
@@ -1230,7 +1230,7 @@ def _repair_unit_without_fatal_exit_park(svc_name: str, scope: str) -> None:
     print(
         f"  ⚠ {svc_name} lacks RestartPreventExitStatus={GATEWAY_FATAL_CONFIG_EXIT_CODE}: a permanent refusal "
         f"(exit {GATEWAY_FATAL_CONFIG_EXIT_CODE}) would crash-loop it instead of parking.\n"
-        f"    Repair: {'sudo ' if system else ''}hermes gateway install{' --system' if system else ''}"
+        f"    Repair: {'sudo ' if system else ''}envoy gateway install{' --system' if system else ''}"
     )
 
 
@@ -1304,13 +1304,13 @@ def _restart_one_systemd_gateway_unit(
             f"  ⚠ {svc_name} is a system service and restarting it needs root.\n"
             f"    Restart it manually to load the new version:\n"
             f"      sudo systemctl restart {svc_name}\n"
-            f"    To let `hermes update` restart it automatically, allow\n"
+            f"    To let `envoy update` restart it automatically, allow\n"
             f"    passwordless sudo for systemctl, or run updates with sudo."
         )
         return
 
     # Blunt restart — only when the graceful path failed (no SIGUSR1 wiring, drain over
-    # budget, restart-policy mismatch). Mirrors `hermes gateway restart` (`systemd_restart()`).
+    # budget, restart-policy mismatch). Mirrors `envoy gateway restart` (`systemd_restart()`).
     restart = _systemctl_reset_and_restart(_manage_cmd, svc_name, scope_cmd=scope_cmd)
     if restart.returncode != 0:
         failed_or_stale_units.append(svc_name)
@@ -1360,7 +1360,7 @@ def _restart_systemd_gateway_units(
         print(
             f"  ⚠ systemctl timed out listing {scope}-scope "
             f"gateway units ({exc.cmd if exc.cmd else 'unknown command'}). "
-            f"Check the gateway with: hermes gateway status"
+            f"Check the gateway with: envoy gateway status"
         )
 
     def _on_unit_timeout(svc_name: str, exc: subprocess.TimeoutExpired) -> None:
@@ -1397,7 +1397,7 @@ def _restart_systemd_gateway_units(
         print(
             f"  • {unit_key} is a legacy per-profile unit sharing one host gateway process with "
             f"{owner_key}; restarting it again would restart that process twice. Fold the units "
-            "together with: hermes gateway migrate"
+            "together with: envoy gateway migrate"
         )
 
     from hermes_cli.update_cmd_posix_pause import already_restarted
@@ -1571,9 +1571,9 @@ def _restart_manual_gateways(out: _GatewayRestartOutcome, _drain_budget) -> None
         unmapped_count = (len(out.killed_pids) - len(out.relaunched_profiles) - len(out.externally_supervised_profiles))
         if unmapped_count:
             print(f"  → Stopped {unmapped_count} manual gateway process(es)")
-            print("    Restart manually: hermes gateway run")
+            print("    Restart manually: envoy gateway run")
             if unmapped_count > 1:
-                print("    (or: hermes -p <profile> gateway run  for each profile)")
+                print("    (or: envoy -p <profile> gateway run  for each profile)")
 
 
 def _force_kill_stuck_gateways(killed_pids) -> None:
@@ -1694,7 +1694,7 @@ def _restart_gateway_fleet_after_update(_pre_update_plan, gateway_mode: bool):
     from hermes_cli.update_cmd import _m
     from hermes_cli.update_stage import publish_stage
 
-    publish_stage("Restarting Hermes services")  # also after a failed build: the code is committed
+    publish_stage("Restarting Envoy services")  # also after a failed build: the code is committed
     # All bookkeeping is declared before the try so abort recovery and fleet reconciliation
     # can read it even if the phase raises early. ``pre_restart_gateway_pids`` stays empty
     # until we are about to stop/drain, so an early exception has nothing to fail closed on,

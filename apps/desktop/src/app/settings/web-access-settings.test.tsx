@@ -111,7 +111,7 @@ describe('WebAccessSettings', () => {
   })
 
   it('shows a web app served on this computer only as local, never as your own URL', async () => {
-    // `webapp.enabled: true` on loopback (the `hermes webapp` setup): reachable from this computer only.
+    // `webapp.enabled: true` on loopback (the `envoy webapp` setup): reachable from this computer only.
     renderPane({
       ...OFF,
       enabled: true,
@@ -164,7 +164,7 @@ describe('WebAccessSettings', () => {
     expect(JSON.stringify(toast)).not.toMatch(/Refusing|interrupt|Couldn't change/)
   })
 
-  // `hermes config set webapp.*` (or another window) changes the status while the pane is open.
+  // `envoy config set webapp.*` (or another window) changes the status while the pane is open.
   const EDITED_ELSEWHERE: WebAccessStatus = { ...OFF, enabled: true, mode: 'public', public_url: 'https://hermes.example.org' }
 
   it('picks up a web access change saved elsewhere when the window regains focus', async () => {
@@ -301,14 +301,14 @@ describe('WebAccessSettings', () => {
     const start = await screen.findByRole('button', { name: 'Start' })
     mocked.getWebAccessStatus
       .mockResolvedValueOnce({ ...pending, restart_failure: failure(1111, 'an older restart') })
-      .mockResolvedValue({ ...pending, restart_failure: failure(4242, 'run `hermes pm repair`') })
+      .mockResolvedValue({ ...pending, restart_failure: failure(4242, 'run `envoy pm repair`') })
 
     fireEvent.click(start)
 
     await waitFor(() => expect($notifications.get()).toHaveLength(1), { timeout: 8000 })
     const [toast] = $notifications.get()
     expect(toast.kind).toBe('error')
-    expect(toast.message).toBe("The gateway couldn't restart: run `hermes pm repair`")
+    expect(toast.message).toBe("The gateway couldn't restart: run `envoy pm repair`")
   }, 15_000)
 
   it('names the cause when a Stop restart fails while the gateway could not serve the web app', async () => {
@@ -320,13 +320,13 @@ describe('WebAccessSettings', () => {
     const stop = await screen.findByRole('button', { name: 'Stop' })
     mocked.getWebAccessStatus.mockResolvedValue({
       ...unavailable,
-      restart_failure: { exit_code: 1, pid: 7, reason: 'run `hermes pm repair`' }
+      restart_failure: { exit_code: 1, pid: 7, reason: 'run `envoy pm repair`' }
     })
 
     fireEvent.click(stop)
 
     await waitFor(() => expect($notifications.get()).toHaveLength(1), { timeout: 8000 })
-    expect($notifications.get()[0].message).toBe("The gateway couldn't restart: run `hermes pm repair`")
+    expect($notifications.get()[0].message).toBe("The gateway couldn't restart: run `envoy pm repair`")
   }, 15_000)
 
   it('shows no LAN address under My own URL while the URL is empty', async () => {

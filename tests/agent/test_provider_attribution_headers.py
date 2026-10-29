@@ -25,8 +25,8 @@ def test_ai_gateway_base_url_applies_attribution_headers(mock_openai):
     agent._apply_client_headers_for_base_url("https://ai-gateway.vercel.sh/v1")
 
     headers = agent._client_kwargs["default_headers"]
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"
-    assert headers["X-Title"] == "Hermes Agent"
+    assert headers["HTTP-Referer"] == "https://github.com/trevorputbrese/envoy-agent"
+    assert headers["X-Title"] == "Envoy Agent"
     assert headers["User-Agent"] == f"HermesAgent/{get_version_info().base_version}"
 
 
@@ -55,7 +55,7 @@ def test_nvidia_cloud_base_url_applies_billing_origin_header(mock_openai):
 def test_opencode_go_applies_attribution_via_profile_fallback(mock_openai):
     """OpenCode (Zen/Go) attributes traffic by header like OpenRouter does.
     Without profile.default_headers the relay only sees the OpenAI SDK's
-    generic User-Agent and Hermes Agent traffic shows up unattributed."""
+    generic User-Agent and Envoy Agent traffic shows up unattributed."""
     mock_openai.return_value = MagicMock()
     agent = AIAgent(
         api_key="test-key",
@@ -70,8 +70,8 @@ def test_opencode_go_applies_attribution_via_profile_fallback(mock_openai):
     agent._apply_client_headers_for_base_url("https://opencode.ai/zen/go/v1")
 
     headers = agent._client_kwargs["default_headers"]
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"
-    assert headers["X-Title"] == "Hermes Agent"
+    assert headers["HTTP-Referer"] == "https://github.com/trevorputbrese/envoy-agent"
+    assert headers["X-Title"] == "Envoy Agent"
     assert headers["User-Agent"] == f"HermesAgent/{get_version_info().base_version}"
 
 
@@ -121,7 +121,7 @@ def test_openrouter_headers_include_response_cache_when_enabled(mock_openai):
         agent._apply_client_headers_for_base_url("https://openrouter.ai/api/v1")
 
     headers = agent._client_kwargs["default_headers"]
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"
+    assert headers["HTTP-Referer"] == "https://github.com/trevorputbrese/envoy-agent"
     assert headers["X-OpenRouter-Cache"] == "true"
     assert headers["X-OpenRouter-Cache-TTL"] == "600"
 
@@ -179,6 +179,6 @@ def test_openrouter_headers_no_cache_when_disabled(mock_openai):
         agent._apply_client_headers_for_base_url("https://openrouter.ai/api/v1")
 
     headers = agent._client_kwargs["default_headers"]
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"
+    assert headers["HTTP-Referer"] == "https://github.com/trevorputbrese/envoy-agent"
     assert "X-OpenRouter-Cache" not in headers
     assert "X-OpenRouter-Cache-TTL" not in headers

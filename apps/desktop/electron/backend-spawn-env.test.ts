@@ -17,7 +17,7 @@ test('desktopBackendSpawnEnv keeps the base env and stamps stay_alive last', () 
   assert.equal(env.HERMES_HOME, base.HERMES_HOME)
   assert.equal(env.HERMES_DESKTOP, base.HERMES_DESKTOP)
   assert.equal(env.PATH, base.PATH)
-  // The desktop spawns `hermes serve` with no supervising service manager, so the
+  // The desktop spawns `envoy serve` with no supervising service manager, so the
   // child must stay alive on all-adapters-down instead of exiting EX_TEMPFAIL
   // (#118080). Stamped unconditionally — an inherited value cannot opt the child
   // back into the failure exit.

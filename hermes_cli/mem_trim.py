@@ -1,4 +1,4 @@
-"""Rate-limited heap release for long-lived Hermes gateway processes.
+"""Rate-limited heap release for long-lived Envoy gateway processes.
 
 On Linux/glibc, ``malloc_trim(0)`` can return pages from freed Python/C allocations to the OS. Every
 platform runs the rate-limited ``gc.collect()``; only the page release is glibc-only. Behavior is configured

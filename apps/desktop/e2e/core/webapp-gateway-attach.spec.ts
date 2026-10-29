@@ -2,7 +2,7 @@
  * The browser-hosted Desktop is served by the profile gateway's own listener, exactly like local
  * Electron Desktop talks to that gateway: one process runs every turn and owns the profile's store.
  *
- * `webapp.enabled` in the home's config.yaml turns it on; `hermes webapp` starts the gateway and prints
+ * `webapp.enabled` in the home's config.yaml turns it on; `envoy webapp` starts the gateway and prints
  * a one-use launch link it got over the gateway's control socket. Proof, end to end with a real browser:
  *  - exactly one gateway serves the sandbox, and the browser's socket is that gateway's own;
  *  - a turn's terminal tool runs under the gateway process (its ancestry);
@@ -10,11 +10,11 @@
  *  - reload resumes the chat;
  *  - after the gateway is killed and started again, the same tab is still signed in (the browser
  *    credential is kept in the home) and the next turn works;
- *  - `hermes webapp --sign-out` cuts that tab off.
+ *  - `envoy webapp --sign-out` cuts that tab off.
  *
  * A second test puts the Webapp and Electron Desktop on one chat: Electron answers the approval a
  * Webapp turn raised, and the Webapp stops a turn Electron started. A third puts the Webapp behind
- * the sign-in gate: `hermes webapp --sign-out` signs out a browser that signed in with a password.
+ * the sign-in gate: `envoy webapp --sign-out` signs out a browser that signed in with a password.
  *
  * Linux (the /proc ancestry walk); needs the Webapp renderer (`npm run build:webapp`) and a
  * Chromium Playwright can launch (`npx playwright install chromium`, or HERMES_E2E_CHROMIUM).
@@ -92,19 +92,19 @@ function hermesCli(sandbox: CoreSandbox, args: string[]): { code: number | null;
   return { code: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}` }
 }
 
-/** `hermes webapp <args>` in the sandbox. */
+/** `envoy webapp <args>` in the sandbox. */
 function hermesWebapp(sandbox: CoreSandbox, ...args: string[]): { code: number | null; output: string } {
   return hermesCli(sandbox, ['webapp', ...args])
 }
 
-/** Starts the gateway if needed and returns a one-use launch link for it (`hermes -p <profile> webapp`
+/** Starts the gateway if needed and returns a one-use launch link for it (`envoy -p <profile> webapp`
  * when a profile is named). */
 function launchLink(sandbox: CoreSandbox, profile?: string): string {
   const profileArgs = profile ? ['-p', profile] : []
   const { code, output } = hermesCli(sandbox, [...profileArgs, 'webapp', '--no-open', '--skip-build'])
   const link = /^\s+(http:\/\/127\.0\.0\.1:\d+\/webapp\/launch#\S+)$/m.exec(output)?.[1]
-  expect(code, `hermes webapp --no-open\n${output.replace(/ticket=\S+/g, 'ticket=<redacted>')}`).toBe(0)
-  expect(link, 'hermes webapp printed a one-use launch link').toBeTruthy()
+  expect(code, `envoy webapp --no-open\n${output.replace(/ticket=\S+/g, 'ticket=<redacted>')}`).toBe(0)
+  expect(link, 'envoy webapp printed a one-use launch link').toBeTruthy()
 
   return link!
 }
@@ -200,7 +200,7 @@ test('the gateway serves the Webapp and runs every turn its browser sends', asyn
     await expect(page.getByText(A(1)).first()).toBeVisible({ timeout: 60_000 })
     expect(backendProcesses(sandbox).map(proc => proc.pid)).toEqual([gateway.pid])
 
-    // A gateway killed and started again (here by `hermes webapp`, whose new link this tab never
+    // A gateway killed and started again (here by `envoy webapp`, whose new link this tab never
     // uses): the same tab is still signed in and the next turn runs on the new gateway.
     process.kill(gateway.pid, 'SIGKILL')
     await expect.poll(() => alive(gateway.pid), { timeout: 30_000 }).toBe(false)
@@ -241,7 +241,7 @@ test('the gateway serves the Webapp and runs every turn its browser sends', asyn
 })
 
 /**
- * `hermes -p <profile> webapp` opens the default gateway's Webapp on that profile. The tab's own socket
+ * `envoy -p <profile> webapp` opens the default gateway's Webapp on that profile. The tab's own socket
  * answers for the gateway's profile, so each request for the tab's profile names it: a turn whose tool
  * stays quiet past the 45 s silence probe stays live, and a reload reads the transcript back.
  */
@@ -282,7 +282,7 @@ test('a Webapp tab opened on a named profile runs and reads that profile', async
     await expect.poll(() => storedSessionForMarker(sandbox, 'p2', U(1)), { timeout: 60_000 }).toBe(sessionId)
     expect(storedSessionForMarker(sandbox, 'default', U(1))).toBeNull()
 
-    const ended = page.getByText('Hermes ended this turn without a reply')
+    const ended = page.getByText('Envoy ended this turn without a reply')
     await page.waitForTimeout(50_000)
     await expect(ended).toHaveCount(0)
     await expect(page.getByText(A(1)).first()).toBeVisible({ timeout: 120_000 })
@@ -473,7 +473,7 @@ function python(sandbox: CoreSandbox, code: string, ...args: string[]): string {
 
 /**
  * Behind the sign-in gate the browser signs in with the dashboard's password, not the browser
- * credential `hermes webapp` hands out; `hermes webapp --sign-out` must still sign it out: the open
+ * credential `envoy webapp` hands out; `envoy webapp --sign-out` must still sign it out: the open
  * tab is cut off, a reload lands on the sign-in page, and signing in again works.
  */
 test('signing out of a Webapp behind sign-in signs the browser out', async () => {

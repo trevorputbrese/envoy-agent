@@ -106,13 +106,14 @@ class TestLightModeRemap:
         monkeypatch.setenv("HERMES_LIGHT", "1")
         # Force the detect cache to True for this test.
         cli_mod._LIGHT_MODE_CACHE = True
-        assert cli_mod._maybe_remap_for_light_mode("#FFF8DC") == "#1A1A1A"
-        assert cli_mod._maybe_remap_for_light_mode("#FFD700") == "#9A6B00"
+        for dark, light in cli_mod._LIGHT_MODE_REMAP.items():
+            assert cli_mod._maybe_remap_for_light_mode(dark) == light
 
     def test_remap_case_insensitive(self, cli_mod, monkeypatch):
         cli_mod._LIGHT_MODE_CACHE = True
         # Lowercase input should still remap.
-        assert cli_mod._maybe_remap_for_light_mode("#fff8dc") == "#1A1A1A"
+        dark, light = next((d, lt) for d, lt in cli_mod._LIGHT_MODE_REMAP.items() if d != d.lower())
+        assert cli_mod._maybe_remap_for_light_mode(dark.lower()) == light
 
     def test_remap_unknown_color_passthrough(self, cli_mod, monkeypatch):
         cli_mod._LIGHT_MODE_CACHE = True
@@ -175,13 +176,14 @@ class TestSkinConfigHook:
         from hermes_cli.skin_engine import SkinConfig
 
         cli_mod._LIGHT_MODE_CACHE = True
+        (text_dark, text_light), (border_dark, border_light) = list(cli_mod._LIGHT_MODE_REMAP.items())[:2]
         skin = SkinConfig(
             name="test",
-            colors={"banner_text": "#FFF8DC", "response_border": "#FFD700"},
+            colors={"banner_text": text_dark, "response_border": border_dark},
         )
         # The wrapper kicks in at get_color, not at construction time.
-        assert skin.get_color("banner_text") == "#1A1A1A"
-        assert skin.get_color("response_border") == "#9A6B00"
+        assert skin.get_color("banner_text") == text_light
+        assert skin.get_color("response_border") == border_light
 
     def test_skin_color_passthrough_in_dark_mode(self, cli_mod, monkeypatch):
         from hermes_cli.skin_engine import SkinConfig

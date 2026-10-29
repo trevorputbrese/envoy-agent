@@ -6,15 +6,15 @@
 3. In gateway: `/restart`. In CLI: exit and relaunch.
 
 ### Tool not available
-1. `hermes tools` — check if toolset is enabled for your platform
+1. `envoy tools` — check if toolset is enabled for your platform
 2. Some tools need env vars (check `.env`)
 3. `/reset` after enabling tools
 
 ### Model/provider issues
-1. `hermes doctor` — check config and dependencies
-2. `hermes auth` — re-authenticate OAuth providers (or `hermes auth add <provider>`)
+1. `envoy doctor` — check config and dependencies
+2. `envoy auth` — re-authenticate OAuth providers (or `envoy auth add <provider>`)
 3. Check `.env` has the right API key
-4. **GitHub Copilot** (`copilot` / `copilot-acp`) lives in the `github-copilot` labs plugin (`hermes plugins install github-copilot`); sign in with `hermes auth add copilot` — `gh` CLI logins are not read.
+4. **GitHub Copilot** (`copilot` / `copilot-acp`) lives in the `github-copilot` labs plugin (`envoy plugins install github-copilot`); sign in with `envoy auth add copilot` — `gh` CLI logins are not read.
 
 ### Changes not taking effect
 - **Tools/skills:** `/reset` starts a new session with updated toolset
@@ -49,9 +49,9 @@ Blunt instruments: `web.cache_ttl_minutes: 1` (min) or
 `web.cache_enabled: false` disables both caches entirely.
 
 ### Skills not showing
-1. `hermes skills list` — verify installed
-2. `hermes skills config` — check platform enablement
-3. Load explicitly: `hermes -s name` (or the skill's own `/<name>` slash command)
+1. `envoy skills list` — verify installed
+2. `envoy skills config` — check platform enablement
+3. Load explicitly: `envoy -s name` (or the skill's own `/<name>` slash command)
 
 ### Gateway issues
 Check logs first:
@@ -72,8 +72,8 @@ Common gateway problems:
 ### Auxiliary models not working
 If `auxiliary` tasks (vision, compression, session_search) fail silently, the `auto` provider can't find a backend. Either set `OPENROUTER_API_KEY` or `GOOGLE_API_KEY`, or explicitly configure each auxiliary task's provider:
 ```bash
-hermes config set auxiliary.vision.provider <your_provider>
-hermes config set auxiliary.vision.model <model_name>
+envoy config set auxiliary.vision.provider <your_provider>
+envoy config set auxiliary.vision.model <model_name>
 ```
 
 ### "Reset permissions" / auto-approving everything

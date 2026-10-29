@@ -31,7 +31,7 @@ def docker_task(monkeypatch):
     monkeypatch.setenv("TERMINAL_DOCKER_IMAGE", _IMAGE)
     monkeypatch.setenv("TERMINAL_DOCKER_IMAGE_PINNED", "1")
     # Remove the container at cleanup instead of leaving it for cross-process reuse,
-    # and never sweep the host's other hermes containers.
+    # and never sweep the host's other envoy containers.
     monkeypatch.setenv("TERMINAL_DOCKER_PERSIST_ACROSS_PROCESSES", "false")
     monkeypatch.setenv("TERMINAL_DOCKER_ORPHAN_REAPER", "false")
     monkeypatch.setenv("TERMINAL_CONTAINER_DISK", "0")

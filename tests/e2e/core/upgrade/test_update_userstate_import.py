@@ -117,7 +117,7 @@ def test_import_that_skips_members_reports_incomplete(archive):
     hh = Path(env["HERMES_HOME"])
     locked = hh / "skills" / "demo"
     locked.mkdir(parents=True)
-    locked.chmod(0o555)  # left behind root-owned by an earlier `sudo hermes ...`
+    locked.chmod(0o555)  # left behind root-owned by an earlier `sudo envoy ...`
     try:
         cp = _cli(root, env, "import", str(good), "--force")
     finally:

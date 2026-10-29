@@ -1,5 +1,5 @@
 """Tests that ``model_catalog.excluded_providers`` hides providers from the
-interactive ``hermes model`` CLI picker.
+interactive ``envoy model`` CLI picker.
 
 The CLI picker (``hermes_cli.main.select_provider_and_model``) builds its
 provider menu from ``CANONICAL_PROVIDERS`` via ``group_providers`` — a
@@ -61,7 +61,7 @@ def _capture_provider_labels(config_home):
 
 def test_cli_picker_hides_excluded_provider(config_home):
     """``excluded_providers: [openrouter]`` must remove the OpenRouter row
-    from the ``hermes model`` provider menu."""
+    from the ``envoy model`` provider menu."""
     _write_config(config_home, model_catalog={"excluded_providers": ["openrouter"]})
 
     labels = _capture_provider_labels(config_home)
@@ -75,7 +75,7 @@ def test_cli_picker_hides_excluded_provider_by_alias(config_home):
     """Exclusion by an alias (not the canonical slug) must also hide the
     provider, matching ``list_authenticated_providers``' matching against
     hermes_id / alias names."""
-    # 'openai' is an alias-style hermes id; ensure excluding it hides the
+    # 'openai' is an alias-style envoy id; ensure excluding it hides the
     # canonical openai provider row if present. Use the canonical slug's
     # alias from _PROVIDER_ALIASES to stay robust to renames.
     from hermes_cli.models import _PROVIDER_ALIASES, CANONICAL_PROVIDERS
@@ -117,21 +117,26 @@ def test_cli_picker_hides_excluded_provider_by_alias(config_home):
 
 
 def test_cli_picker_empty_excluded_is_noop(config_home):
-    """An empty ``excluded_providers`` list must not change the menu."""
+    """An empty ``excluded_providers`` list hides nothing; the shipped default
+    (``["nous"]``) differs from it by the Nous Portal row alone."""
+    from hermes_cli.models import _PROVIDER_LABELS
+
     _write_config(config_home, model_catalog={"excluded_providers": []})
-    excluded_labels = _capture_provider_labels(config_home)
+    unfiltered_labels = _capture_provider_labels(config_home)
 
     _write_config(config_home)
-    baseline_labels = _capture_provider_labels(config_home)
+    default_labels = _capture_provider_labels(config_home)
 
-    assert excluded_labels == baseline_labels
+    nous = _PROVIDER_LABELS["nous"]
+    assert any(nous in lbl for lbl in unfiltered_labels), unfiltered_labels
+    assert default_labels == [lbl for lbl in unfiltered_labels if nous not in lbl]
 
 
 # ─── include_unconfigured (in-session TUI ``/model``) path ────────────────────
 # The TUI picker calls ``build_models_payload(include_unconfigured=True)``, which
 # appends ``CANONICAL_PROVIDERS`` skeleton rows via ``_append_unconfigured_rows``.
 # That loop must honor ``excluded_providers`` too, or excluded providers reappear
-# in the TUI ``/model`` picker even though ``hermes model`` hides them (#68816).
+# in the TUI ``/model`` picker even though ``envoy model`` hides them (#68816).
 
 
 def _picker_ctx(excluded=None, *, current_provider="", current_model=""):
@@ -173,7 +178,7 @@ def test_unconfigured_rows_exclusion_is_case_insensitive():
 
 def test_unconfigured_rows_hide_excluded_provider_by_alias():
     """Excluding by an *alias* (not the canonical slug) must also drop the
-    canonical skeleton row, matching ``hermes model`` and
+    canonical skeleton row, matching ``envoy model`` and
     ``list_authenticated_providers``. Comparing the raw exclusion strings
     against ``entry.slug`` alone would leak the canonical row back in."""
     from hermes_cli.inventory import _append_unconfigured_rows

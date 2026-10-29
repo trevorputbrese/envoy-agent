@@ -156,9 +156,9 @@ def is_router_timeout_shim(response: Any) -> bool:
 
 
 def _reasoning_config_for_model(model: str, reasoning_config: dict | None) -> dict | None:
-    """Clamp Hermes' extended effort set (``ultra``) to the OpenAI-compat wire vocabulary.
+    """Clamp Envoy's extended effort set (``ultra``) to the OpenAI-compat wire vocabulary.
 
-    Hermes' internal effort set extends the wire vocabulary with ``ultra`` (the /reasoning command documents
+    Envoy's internal effort set extends the wire vocabulary with ``ultra`` (the /reasoning command documents
     none..xhigh|max|ultra). OpenAI- compatible wires — OpenRouter chief among them — accept exactly
     max|xhigh|high|medium|low|minimal|none and reject the extension with HTTP 400 (#89503). Clamp against
     the declared wire vocabulary via the shared policy in ``agent.reasoning_effort``; provider profiles with
@@ -168,7 +168,7 @@ def _reasoning_config_for_model(model: str, reasoning_config: dict | None) -> di
 
 
 def _build_gemini_thinking_config(model: str, reasoning_config: dict | None) -> dict | None:
-    """Translate Hermes/OpenRouter-style reasoning config to Gemini thinkingConfig."""
+    """Translate Envoy/OpenRouter-style reasoning config to Gemini thinkingConfig."""
     from agent.gemini_native_adapter import gemini_uses_thinking_level
 
     if not isinstance(reasoning_config, dict):
@@ -211,7 +211,7 @@ def _build_gemini_thinking_config(model: str, reasoning_config: dict | None) -> 
     if effort not in {"minimal", "low", "medium", "high", "xhigh", "max", "ultra"}:
         effort = "medium"
     # Gemini 3 Pro is strict (low/high); every other thinking-level model (3.x Flash, Gemini 4 Argon)
-    # documents low/medium/high, and "minimal" is not universal (Argon 400s on it). Clamp Hermes' wider
+    # documents low/medium/high, and "minimal" is not universal (Argon 400s on it). Clamp Envoy's wider
     # effort set to what each family accepts so we never forward an undocumented level verbatim.
     if gemini_uses_thinking_level(normalized_model):
         if "pro" in normalized_model:
@@ -363,10 +363,12 @@ def _pareto_score(raw: Any) -> float | None:
     return score if score is not None and 0.0 <= score <= 1.0 else None
 
 
-def _swap_developer_role(sanitized: list, model_lower: str) -> list:
-    """GPT-5/Codex models take a ``developer`` role instead of ``system``."""
+def _swap_developer_role(sanitized: list, model_lower: str, enabled: bool = True) -> list:
+    """GPT-5/Codex models take a ``developer`` role instead of ``system``. A proxy that serves
+    them but rejects the role (the Tanzu AI Service) declares ``developer_role: false`` in its
+    provider capabilities and keeps ``system``."""
     if (
-        sanitized and isinstance(sanitized[0], dict) and sanitized[0].get("role") == "system"
+        enabled and sanitized and isinstance(sanitized[0], dict) and sanitized[0].get("role") == "system"
         and any(p in model_lower for p in DEVELOPER_ROLE_MODELS)
     ):
         return [{**sanitized[0], "role": "developer"}, *sanitized[1:]]
@@ -580,7 +582,8 @@ class ChatCompletionsTransport(ProviderTransport):
         if _profile:
             return self._build_kwargs_from_profile(_profile, model, sanitized, tools, params)
 
-        sanitized = _swap_developer_role(sanitized, params.get("model_lower", (model or "").lower()))
+        sanitized = _swap_developer_role(sanitized, params.get("model_lower", (model or "").lower()),
+                                         params.get("developer_role", True))
         api_kwargs = _base_kwargs(model, sanitized, tools, params)
 
         is_kimi = params.get("is_kimi", False)
@@ -650,7 +653,8 @@ class ChatCompletionsTransport(ProviderTransport):
 
     def _build_kwargs_from_profile(self, profile, model, sanitized, tools, params):
         """Build API kwargs from a ProviderProfile — every quirk comes from the profile object."""
-        sanitized = _swap_developer_role(profile.prepare_messages(sanitized), (model or "").lower())
+        sanitized = _swap_developer_role(profile.prepare_messages(sanitized), (model or "").lower(),
+                                         params.get("developer_role", True))
         api_kwargs = _base_kwargs(model, sanitized, tools, params, profile=profile)
 
         reasoning_config = _reasoning_config_for_model(model, params.get("reasoning_config"))

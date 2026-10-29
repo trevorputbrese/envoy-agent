@@ -40,7 +40,7 @@ def _consume_detached_handler_exception(task: asyncio.Task) -> None:
 
 
 # Audio exts for native audio delivery; Telegram's narrower sets stay separate (.m2a is audio to
-# Hermes but not to sendAudio).
+# Envoy but not to sendAudio).
 _AUDIO_MIME_TYPES = {
     ".ogg": "audio/ogg", ".opus": "audio/opus", ".mp3": "audio/mpeg", ".m2a": "audio/mpeg",
     ".wav": "audio/wav", ".m4a": "audio/m4a", ".flac": "audio/flac"}
@@ -340,7 +340,7 @@ def resolve_proxy_url(
     process env another profile's ``TELEGRAM_PROXY``/``DISCORD_PROXY``/etc. may hold; the YAML
     value is the same profile's, so a secondary keeps its configured route without any env
     bridge (#108440). The generic ``HTTPS_PROXY``/``HTTP_PROXY``/``ALL_PROXY`` fallback stays a raw
-    process-env read — those are OS/system-level network settings, not a per-profile Hermes concept."""
+    process-env read — those are OS/system-level network settings, not a per-profile Envoy concept."""
     from gateway.platforms._shared import get_scoped_secret as _get_scoped_proxy_var
     value = (_get_scoped_proxy_var(platform_env_var, "") or "").strip() if platform_env_var else ""
     if not value:
@@ -449,11 +449,11 @@ GATEWAY_SECRET_CAPTURE_UNSUPPORTED_MESSAGE = (
 
 # One sentence for every "you may not press/run this" refusal on every platform (slash commands,
 # approval buttons, pickers, prompts). ``{platform}`` is the ``Platform.value`` for the
-# ``hermes pairing approve`` command (hermes_cli/subcommands/pairing.py) that lets the owner fix it.
+# ``envoy pairing approve`` command (hermes_cli/subcommands/pairing.py) that lets the owner fix it.
 # Kept under 200 chars: Telegram's answerCallbackQuery truncates longer text.
 UNAUTHORIZED_ACTION_NOTICE = (
     "This bot is private and you're not on its allowed list. If you own it, run "
-    "`hermes pairing approve {platform} <request-id>` on the host (`hermes pairing list` shows the id).")
+    "`envoy pairing approve {platform} <request-id>` on the host (`envoy pairing list` shows the id).")
 
 
 def unauthorized_action_notice(platform: Any) -> str:
@@ -803,7 +803,7 @@ def _profile_dirs() -> list[Path]:
 
 
 def _credential_home_roots() -> list[Path]:
-    """Every Hermes home whose credential stores the denylist must cover: the ACTIVE home
+    """Every Envoy home whose credential stores the denylist must cover: the ACTIVE home
     (the per-turn HERMES_HOME override under ``gateway.multiplex_profiles``), the shared root
     and every ``<root>/profiles/*``. Enumerated at check time like ``_profile_cache_roots`` on
     the allow side — a denylist frozen at import covers only the launch profile, so a
@@ -965,7 +965,7 @@ def _docker_persistent_active() -> bool:
 
 
 def _cache_dir_container_mounts() -> list[tuple[Path, Path]]:
-    """(host, container) pairs for the auto-mounted Hermes cache dirs (``/root/.hermes/...`` in
+    """(host, container) pairs for the auto-mounted Envoy cache dirs (``/root/.hermes/...`` in
     MEDIA tags); longer prefixes than the ``/root`` home mount, so longest-prefix match wins."""
     if not _docker_env_active():
         return []
@@ -1002,7 +1002,7 @@ def _translate_docker_container_media_path(
     """
     if not candidate.as_posix().startswith("/"):  # POSIX even on Windows gateways (not is_absolute)
         return None
-    # In-process gateways (Desktop, `hermes serve`) may not have bridged terminal.* config into
+    # In-process gateways (Desktop, `envoy serve`) may not have bridged terminal.* config into
     # TERMINAL_* env yet; the bridge is idempotent.
     with contextlib.suppress(Exception):
         from tools.terminal_tool import _ensure_terminal_env_bridged
@@ -1049,7 +1049,7 @@ def validate_media_delivery_path(path: str, session_key: str = "") -> Optional[s
     """Safe absolute file path for native media delivery, else None. Default: any existing
     regular file outside the credential / system denylist (symmetric with inbound). Strict
     (``HERMES_MEDIA_DELIVERY_STRICT=1``, public bots where prompt injection must not exfiltrate
-    host secrets): MUST be under a Hermes cache, an operator root (``HERMES_MEDIA_ALLOW_DIRS``),
+    host secrets): MUST be under an Envoy cache, an operator root (``HERMES_MEDIA_ALLOW_DIRS``),
     or freshly produced within the recency window. Symlinks are resolved before any check."""
     candidate = _normalize_media_tag_path(path)
     if not candidate:
@@ -1072,7 +1072,7 @@ def validate_media_delivery_path(path: str, session_key: str = "") -> Optional[s
         resolved_root = _resolve_path(root, expand=True)
         if resolved_root is not None and _path_is_within(resolved, resolved_root):
             return str(resolved)
-    # Non-strict (default): anything not denylisted (/etc, /proc, ~/.ssh, Hermes-root secrets).
+    # Non-strict (default): anything not denylisted (/etc, /proc, ~/.ssh, Envoy-root secrets).
     from gateway.media_policy import media_delivery_strict
     if not media_delivery_strict():
         return None if _path_under_denied_prefix(resolved) else str(resolved)
@@ -1543,8 +1543,8 @@ class _ExtractedResponse:
 
 _PLAINTEXT_GATEWAY_RESTART_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^(?:please\s+)?restart\s+(?:the\s+)?gateway[.!?\s]*$", re.IGNORECASE),
-    re.compile(r"^(?:please\s+)?restart\s+(?:the\s+)?hermes\s+gateway[.!?\s]*$", re.IGNORECASE),
-    re.compile(r"^(?:please\s+)?restart\s+hermes[.!?\s]*$", re.IGNORECASE))
+    re.compile(r"^(?:please\s+)?restart\s+(?:the\s+)?(?:envoy|hermes)\s+gateway[.!?\s]*$", re.IGNORECASE),
+    re.compile(r"^(?:please\s+)?restart\s+(?:envoy|hermes)[.!?\s]*$", re.IGNORECASE))
 
 
 def coerce_plaintext_gateway_command(event: MessageEvent) -> None:
@@ -1825,7 +1825,7 @@ class BasePlatformAdapter(ABC):
     supports_async_delivery: bool = True
     # ``send()`` chunks natively via ``truncate_message()`` -> the router skips its truncation.
     splits_long_messages: bool = False
-    # Prefix users can always TYPE for Hermes commands ("!" where the client eats a leading "/").
+    # Prefix users can always TYPE for Envoy commands ("!" where the client eats a leading "/").
     typed_command_prefix: str = "/"
     # ``in_channel`` continuable-cron surface: job delivered FLAT, plain replies continue it via
     # the whole-channel bucket ``(platform, chat_id, None)``; needs a flat-reply outbound gate too
@@ -1842,7 +1842,7 @@ class BasePlatformAdapter(ABC):
     interactive_resume: bool = True
     # Port-binding adapter that answers ``/p/<profile>/...`` for every served profile on the default
     # listener under ``gateway.multiplex_profiles``. Declared per adapter (not in a central list) so
-    # ``hermes gateway migrate`` can tell "URL changes" from "this profile would be skipped" as new
+    # ``envoy gateway migrate`` can tell "URL changes" from "this profile would be skipped" as new
     # HTTP-inbound adapters gain the prefix.
     serves_profile_prefix: bool = False
     # Back-reference to the running ``GatewayRunner`` (set by gateway/run.py); ``build_source``
@@ -2154,7 +2154,7 @@ class BasePlatformAdapter(ABC):
             self._set_fatal_error(
                 "lock_dir_unusable",
                 f"{resource_desc} lock cannot be taken: the gateway lock directory {exc.filename} is not "
-                f"usable by this user (likely created by an elevated Hermes). To repair, "
+                f"usable by this user (likely created by an elevated Envoy). To repair, "
                 f"{unusable_dir_remedy(exc.filename)}; the gateway retries on its own.",
                 retryable=True)
             return False
@@ -2180,7 +2180,7 @@ class BasePlatformAdapter(ABC):
         owner_profile = scoped_lock_owner_label(existing)
         pid_part = f" (PID {owner_pid})" if owner_pid else ""
         holder = f" by the '{owner_profile}' profile gateway{pid_part}" if owner_profile else pid_part
-        remedy = (f" Stop that gateway first (hermes --profile {owner_profile} gateway stop)."
+        remedy = (f" Stop that gateway first (envoy --profile {owner_profile} gateway stop)."
                   if owner_profile else " Stop the other gateway first.")
         message = f"{resource_desc} already in use{holder}.{remedy}"
         logger.error('[%s] %s', self.name, message)

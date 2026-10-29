@@ -3,7 +3,7 @@
 The default profile's gateway serves the documented address, 9120 unless ``webapp.port`` says otherwise.
 A standalone profile has a gateway of its own; turning Web Access on there without a ``webapp.port`` used
 to bind 9120 too, which the default gateway's Webapp holds, so nothing was served. Start now gives such a
-profile the first port above 9120 that no other Hermes home claims and nothing listens on, and writes it to
+profile the first port above 9120 that no other Envoy home claims and nothing listens on, and writes it to
 that profile's ``webapp.port``, so the gateway binds it, the launcher prints and opens it, the sign-in
 callback names it, and it stays the same across restarts. A ``webapp.port`` the user set always stays.
 No test binds a real port: what listens is faked, and the probe itself is checked on OS-chosen ports.
@@ -26,7 +26,7 @@ def _write(path: Path, text: str) -> Path:
 
 @pytest.fixture
 def machine(monkeypatch, tmp_path):
-    """A Hermes root with a standalone profile ``solo`` and a sibling ``other`` that claims 9122; 9121 is
+    """An Envoy root with a standalone profile ``solo`` and a sibling ``other`` that claims 9122; 9121 is
     in use by something else. The process runs as ``solo`` (Web Access scopes to its gateway's home)."""
     root = _write(tmp_path / ".hermes", "")
     solo = _write(root / "profiles" / "solo", "gateway:\n  standalone: true\n")

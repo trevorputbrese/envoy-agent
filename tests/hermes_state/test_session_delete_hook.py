@@ -60,7 +60,7 @@ def test_every_delete_and_archive_path_fires_once_after_commit(db, hook):
         db._execute_write(lambda c, t=tip: c.execute(
             "UPDATE sessions SET parent_session_id = ? WHERE id = ?", (f"{t}-root", t)))
 
-    assert db.delete_session("cli")                          # hermes sessions delete, /exit --delete
+    assert db.delete_session("cli")                          # envoy sessions delete, /exit --delete
     assert db.delete_session("missing") is False             # unknown id: silent
     assert db.delete_sessions(["bulk1", "bulk2", "nope"]) == 2   # Desktop/dashboard bulk delete
     assert db.delete_empty_sessions() == 1                   # "Delete empty (N)"

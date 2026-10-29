@@ -78,7 +78,7 @@ def test_guest_identity_shows_free_tier_row_with_only_welcome_model(guest_home, 
     rendered = repr(row).lower()
     assert "guest" not in rendered and "anonymous" not in rendered
 
-    # The `hermes model` provider picker applies the same rule from the same helper.
+    # The `envoy model` provider picker applies the same rule from the same helper.
     cli_rows = _cli_nous_rows({})
     assert len(cli_rows) == 1
     assert "free tier" in cli_rows[0][1]
@@ -97,7 +97,9 @@ def test_guest_identity_with_guest_off_hides_the_nous_row(guest_home, monkeypatc
 
 def test_desktop_picker_payload_never_locks_the_free_tier_row(guest_home, monkeypatch):
     """``model.options`` (the desktop's path) prices rows from caches on a normal open; the free-tier
-    row has no Portal pricing and no entitlement to read, so it must be left alone rather than locked."""
+    row has no Portal pricing and no entitlement to read, so it must be left alone rather than locked.
+    Nous is hidden from pickers by default (``model_catalog.excluded_providers``), so opt it back in."""
+    _write_config(monkeypatch, guest_home, "model_catalog:\n  excluded_providers: []\n")
     from hermes_cli import inventory
     monkeypatch.setattr(inventory, "_prewarm_pricing_async", lambda *a, **k: None)
     payload = inventory.build_model_options_payload(inventory.load_picker_context())

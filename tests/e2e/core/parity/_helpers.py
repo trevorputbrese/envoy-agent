@@ -50,7 +50,7 @@ _PASSTHROUGH_ENV = frozenset({
 
 
 TURN_TIMEOUT = 240.0
-# `hermes gateway stop` waits for the daemon's planned exit (MCP teardown included).
+# `envoy gateway stop` waits for the daemon's planned exit (MCP teardown included).
 STOP_TIMEOUT = 120.0
 
 
@@ -79,11 +79,11 @@ class ParityHome:
     canaries: dict[str, str] = field(default_factory=dict)
 
     def env(self, extra: dict[str, str] | None = None) -> dict[str, str]:
-        """Hermetic env for a subprocess Hermes: fake HOME, no real credentials."""
+        """Hermetic env for a subprocess Envoy: fake HOME, no real credentials."""
         import pwd  # POSIX-only; the suite is Linux-gated
 
         # Refuse only a home the real install would read as live state (its root or a profile).
-        # A tmp_path under ``~/.hermes/cache/scratch`` (TMPDIR when Hermes itself runs the suite)
+        # A tmp_path under ``~/.hermes/cache/scratch`` (TMPDIR when Envoy itself runs the suite)
         # is fine: the child's HOME is the fixture home, so its ``~/.hermes`` never resolves there.
         real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()
         fixture = self.hermes_home.resolve()
@@ -91,7 +91,7 @@ class ParityHome:
             f"fixture HERMES_HOME {self.hermes_home} is the real install's live home")
         assert fixture == (self.home / ".hermes").resolve(), (
             f"fixture HERMES_HOME {self.hermes_home} is not <fixture HOME>/.hermes")
-        # Allowlist, not denylist: the runner may itself be a Hermes process whose
+        # Allowlist, not denylist: the runner may itself be an Envoy process whose
         # TERMINAL_CWD / HERMES_* / credential env would silently reroute the child.
         env = {
             k: v for k, v in os.environ.items()
@@ -460,9 +460,9 @@ def terminate(proc: subprocess.Popen, timeout: float = 30.0) -> int | None:
 
 
 def stop_profile_gateway(ph: ParityHome, timeout: float = STOP_TIMEOUT) -> bool:
-    """The normal stop for the profile's ``gateway run`` daemon: ``hermes gateway stop``.
+    """The normal stop for the profile's ``gateway run`` daemon: ``envoy gateway stop``.
 
-    ``hermes -z``, ``hermes chat -q``, ``hermes acp`` and ``hermes cron run`` are clients of the
+    ``envoy -z``, ``envoy chat -q``, ``envoy acp`` and ``envoy cron run`` are clients of the
     unified gateway runtime: their first connect spawns the profile's daemon (``ensure_gateway_runtime``
     → ``spawn_unmanaged_gateway``), the daemon owns the agent — and with it the MCP server tree — and it
     keeps serving after the client exits (cron, messaging, the next client). So the surface's
@@ -474,7 +474,7 @@ def stop_profile_gateway(ph: ParityHome, timeout: float = STOP_TIMEOUT) -> bool:
         hermes_argv("gateway", "stop"), cwd=ph.project, env=ph.env(), capture_output=True, text=True,
         timeout=timeout, stdin=subprocess.DEVNULL, check=False
     )
-    assert proc.returncode == 0, f"hermes gateway stop exited {proc.returncode}: {proc.stderr[-2000:]}"
+    assert proc.returncode == 0, f"envoy gateway stop exited {proc.returncode}: {proc.stderr[-2000:]}"
     return "Stopped gateway" in proc.stdout
 
 

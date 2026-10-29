@@ -8,8 +8,8 @@
  *    repo. `.js` entries are SDK-consumer plugins adopted from standalone
  *    repos — they keep the plain-ESM plugin.js form so the file stays
  *    loadable by older desktops' runtime door too.
- *  - RUNTIME: the on-disk doors (`<hermes home>/desktop-plugins/<name>/plugin.js`
- *    and the unified-package half `<hermes home>/plugins/<name>/desktop/plugin.js`)
+ *  - RUNTIME: the on-disk doors (`<envoy home>/desktop-plugins/<name>/plugin.js`
+ *    and the unified-package half `<envoy home>/plugins/<name>/desktop/plugin.js`)
  *    — the agent's/user's doors, watched + hot-reloaded by the runtime loader.
  */
 

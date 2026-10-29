@@ -30,7 +30,7 @@ export interface WebAccessChange extends WebAccessStatus {
   restart_started: boolean
 }
 
-/** Start builds the Webapp bundle first, as `hermes webapp` does; that build waits up to 30 minutes
+/** Start builds the Webapp bundle first, as `envoy webapp` does; that build waits up to 30 minutes
  *  for another build of it. */
 const START_REQUEST_TIMEOUT_MS = 35 * 60_000
 

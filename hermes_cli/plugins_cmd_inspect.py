@@ -66,7 +66,7 @@ def _yaml_ships_agent_payload(root: Path, manifest: dict[str, Any]) -> bool:
     if any((root / rel).is_file() for rel in _AGENT_PAYLOAD_FILES):
         return True
     # The loader's manifest-only language pack (``_is_manifest_only_language_pack``), judged the way
-    # ``hermes plugins validate`` does: declared locales plus the folder that holds them.
+    # ``envoy plugins validate`` does: declared locales plus the folder that holds them.
     return bool(manifest.get("provides_locales")) and (root / "locales").is_dir()
 
 
@@ -153,7 +153,7 @@ def _inspect(identifier: str, catalog_name: Optional[str]) -> dict[str, Any]:
         from hermes_cli import plugins_cmd_catalog as catalog
         entry = catalog.get_live_catalog_entry(catalog_name)
         if entry is None:
-            return _failure(f"'{catalog_name}' is not in the Hermes plugin catalog.", [], False)
+            return _failure(f"'{catalog_name}' is not in the Envoy plugin catalog.", [], False)
         identifier, revision, names = entry.install_identifier, entry.sha or None, (entry.name,)
     try:
         git_url, subdir = pc._resolve_git_url(identifier)

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def _slash_command(text):
-    """Canonical Hermes command name ``text`` invokes, or None for ordinary text.
+    """Canonical Envoy command name ``text`` invokes, or None for ordinary text.
 
     Only a registered command (or alias) is a command: ``/etc/hosts is wrong`` or ``/tmp/x``
     (a path, the same rule ``MessageEvent.get_command`` applies) and unknown ``/words`` are
@@ -45,16 +45,16 @@ def _slash_command(text):
 
 def _bypass_route():
     """--safe-mode / --ignore-user-config read no profile default route, so the session freezes the
-    launch's explicit one (``hermes -m <model> --provider <name> --safe-mode acp``). Both, refused at
+    launch's explicit one (``envoy -m <model> --provider <name> --safe-mode acp``). Both, refused at
     session/new: a model alone is accepted by the owner, then its first turn cannot build the agent."""
     model = (os.environ.get("HERMES_MODEL") or os.environ.get("HERMES_INFERENCE_MODEL") or "").strip()
     if not model:
         raise GatewayClientError("--safe-mode / --ignore-user-config read no profile default model: launch "
-                                 "with one, e.g. hermes -m <model> --provider <provider> --safe-mode acp")
+                                 "with one, e.g. envoy -m <model> --provider <provider> --safe-mode acp")
     provider = os.environ.get("HERMES_INFERENCE_PROVIDER", "").strip()
     if not provider:
         raise GatewayClientError("--safe-mode / --ignore-user-config read no profile provider: launch with "
-                                 "--provider too, e.g. hermes -m <model> --provider <provider> --safe-mode acp")
+                                 "--provider too, e.g. envoy -m <model> --provider <provider> --safe-mode acp")
     return {"model": model, "provider": provider}
 
 
@@ -275,7 +275,7 @@ class GatewayACPAgent(GatewayReplyMixin, acp.Agent):
                 or "acp-editor-policy-v1" not in descriptor.get("capabilities", [])):
             raise GatewayClientError("acp_policy_unavailable")
         from hermes_cli.gateway_chat import env_launch_flags
-        # `hermes acp --yolo` / `--safe-mode` / ... reach this process as their env equivalents; the
+        # `envoy acp --yolo` / `--safe-mode` / ... reach this process as their env equivalents; the
         # owner does not inherit them, so they freeze into this session's policy or not at all.
         flags = env_launch_flags()
         if flags.get("safe_mode") or flags.get("ignore_user_config"):

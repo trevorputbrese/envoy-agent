@@ -1355,7 +1355,7 @@ function LegacyGroupChatWorkspace({ group, members, onBack, visible = true }: Gr
 
     // Match this speaker back to its member descriptor so display
     // names and disambiguating handles come from the roster (the
-    // primary "default" profile renders as Hermes, remote dupes
+    // primary "default" profile renders as Envoy, remote dupes
     // carry their @name-device handle) instead of raw profile ids.
     const member = isUser
       ? null

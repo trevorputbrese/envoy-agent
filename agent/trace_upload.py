@@ -1,4 +1,4 @@
-"""Upload a Hermes session transcript to Hugging Face as an agent trace, re-emitted in the **Claude Code
+"""Upload an Envoy session transcript to Hugging Face as an agent trace, re-emitted in the **Claude Code
 JSONL** shape the HF Agent Trace Viewer auto-detects (https://huggingface.co/docs/hub/agent-traces).
 Deterministic, zero LLM turns. Private by default: traces can carry prompts, tool output, local paths and
 secrets, so the dataset is created private and every text body passes the secret redactor (``force=True``)
@@ -31,7 +31,7 @@ _NO_TOKEN_MESSAGE = (
     "   (New token -> type \"Write\" -> copy it).\n"
     "2. Add it to your environment as HF_TOKEN (e.g. in ~/.hermes/.env):\n"
     "     HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxx\n"
-    "3. Run /upload-trace again (or `hermes trace upload`)."
+    "3. Run /upload-trace again (or `envoy trace upload`)."
 )
 _TOKEN_ENV_VARS = ("HF_TOKEN", "HUGGINGFACE_HUB_TOKEN", "HUGGING_FACE_HUB_TOKEN", "HUGGINGFACE_TOKEN")
 
@@ -40,7 +40,7 @@ class TraceRedactionError(RuntimeError):
     """Raised when a trace cannot be safely redacted before upload."""
 
 
-# --- Conversion: Hermes OpenAI-format messages -> Claude Code JSONL ---
+# --- Conversion: Envoy OpenAI-format messages -> Claude Code JSONL ---
 
 def _now_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"

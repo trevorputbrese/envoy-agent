@@ -2,7 +2,7 @@ name: hermes-minimizer
 title: Minimizer
 repo: https://github.com/nosliwhtes/hermes-minimizer
 sha: d209ed0824e2787cd6454bd4b060dbf0381b7b79
-description: "YAGNI coding and code-review guidance for Hermes: reduce over-engineering, reuse existing behavior, and preserve requirements. One static prompt section; no tools or hooks."
+description: "YAGNI coding and code-review guidance for Envoy: reduce over-engineering, reuse existing behavior, and preserve requirements. One static prompt section; no tools or hooks."
 maintainer: nosliwhtes
 tier: community
 category: general

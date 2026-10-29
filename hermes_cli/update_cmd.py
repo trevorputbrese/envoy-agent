@@ -1,4 +1,4 @@
-"""Hermes update pipeline: dispatchers (``_cmd_update_impl``/``_cmd_update_check``) + git plumbing.
+"""Envoy update pipeline: dispatchers (``_cmd_update_impl``/``_cmd_update_check``) + git plumbing.
 
 Each concern lives in ``update_cmd_<concern>.py`` and is re-imported here so
 ``hermes_cli.update_cmd.<name>`` keeps resolving (and stays monkeypatchable). Imports are one-way:
@@ -220,7 +220,7 @@ def _record_update_step(step: str, ok: bool, detail: str = "") -> None:
 
 
 # A fetch whose transport dead-stalls (HTTP/2 to GitHub on some networks, a black-holed proxy)
-# otherwise leaves `hermes update` on "Fetching updates..." forever (#93759, #95777). Five
+# otherwise leaves `envoy update` on "Fetching updates..." forever (#93759, #95777). Five
 # minutes is generous for a scoped single-branch fetch and still ends in a real error.
 NETWORK_GIT_TIMEOUT_SECONDS = 300
 
@@ -351,7 +351,7 @@ def _validate_python_files_syntax(
 def _validate_critical_files_syntax(root) -> tuple[bool, str | None, str | None]:
     """Compile each file in ``_UPDATE_CRITICAL_FILES`` to catch SyntaxErrors.
 
-    These are the files imported on every ``hermes`` startup; if any of them
+    These are the files imported on every ``envoy`` startup; if any of them
     has a syntax error (orphan merge-conflict markers, bad ref to a name
     that no longer exists, etc.) the CLI can't bootstrap at all. We validate
     them after a successful ``git pull`` so we can auto-roll-back instead of
@@ -382,7 +382,7 @@ def _gateway_prompt(prompt_text: str, default: str = "", timeout: float = 300.0)
     Writes a prompt marker file so the gateway can forward the question to the
     user, then polls for a response file.  Falls back to *default* on timeout.
 
-    Used by ``hermes update --gateway`` so interactive prompts (stash restore,
+    Used by ``envoy update --gateway`` so interactive prompts (stash restore,
     config migration) are forwarded to the messenger instead of being silently
     skipped.
     """
@@ -554,7 +554,7 @@ def _filter_non_gateway_concurrent_instances(
 def _log_only_write(text: str) -> None:
     """Write ``text`` to ``~/.hermes/logs/update.log`` only, never the terminal.
 
-    During ``hermes update`` ``sys.stdout`` is an ``_UpdateOutputStream`` that
+    During ``envoy update`` ``sys.stdout`` is an ``_UpdateOutputStream`` that
     mirrors to both the terminal and ``update.log``. Loud, low-signal
     subprocess output (npm installs, the Electron/vite build, the cua-driver
     installer's "Next steps" wall) should be captured and tucked into the log
@@ -630,7 +630,7 @@ def _source_update_channel(args=None, *, channel=None, branch_explicit=False) ->
 
 
 def _cmd_update_check(branch: str = "main", *, branch_explicit: bool = False, channel=None):
-    """Implement ``hermes update --check``: fetch and report without installing.
+    """Implement ``envoy update --check``: fetch and report without installing.
 
     ``branch`` selects which branch the check compares against. Default is
     "main"; callers can pass another branch to ask "are there new commits
@@ -717,9 +717,9 @@ def _print_update_check_result(behind: int | None, compare_branch: str) -> None:
         print("✓ Already up to date.")
         return
     if behind is not None:
-        print(f"☤ Update available: {behind} {'commit' if behind == 1 else 'commits'} behind {compare_branch}.")
+        print(f"◈ Update available: {behind} {'commit' if behind == 1 else 'commits'} behind {compare_branch}.")
     else:
-        print(f"☤ Update available (behind {compare_branch}).")
+        print(f"◈ Update available (behind {compare_branch}).")
     from hermes_cli.config import recommended_update_command
     print(f"  Run '{recommended_update_command()}' to install.")
 
@@ -849,7 +849,7 @@ def _complete_source_update(request: dict | None) -> None:
         from hermes_cli.update_receipt import owe_followup
 
         owe_followup(request["receipt"]["update_id"], "channel_adoption", str(exc) or type(exc).__name__,
-                     retry="the next `hermes update` adopts it again")
+                     retry="the next `envoy update` adopts it again")
 
 
 def _reconcile_diverged_checkout(git_cmd, branch: str, pre_pull_sha, *, target_ref=None) -> None:
@@ -996,7 +996,7 @@ def _roll_back_broken_update(git_cmd, pre_pull_sha, failing_path, syntax_error, 
             interrupted_pull_marker(root).unlink(missing_ok=True)
             _commit.disarm_commit_obligations()  # back on the code this run started from
             print("  ✓ Rollback complete — your install is unchanged.")
-            print("  Try ``hermes update`` again later once a fix lands.")
+            print("  Try ``envoy update`` again later once a fix lands.")
         else:
             print("  ✗ Rollback failed. Recover manually with:")
             print(f"    cd {root} && git {shlex.join(rollback_args)}")
@@ -1004,7 +1004,7 @@ def _roll_back_broken_update(git_cmd, pre_pull_sha, failing_path, syntax_error, 
                 print(f"    ({rollback_result.stderr.strip().splitlines()[0]})")
             if interrupted_pull_marker(root).is_file():
                 _commit.owe_restore_of(root, pre_pull_sha)
-                print(f"  The next `hermes` launch also finishes the rollback to {pre_pull_sha[:10]} on its own.")
+                print(f"  The next `envoy` launch also finishes the rollback to {pre_pull_sha[:10]} on its own.")
     else:
         print("  Could not capture pre-pull SHA — recover manually with:")
         print(f"    cd {_m().PROJECT_ROOT} && git reflog && git reset --hard <prev-sha>")
@@ -1084,7 +1084,7 @@ def _move_checkout_to(git_cmd, branch, merge_ref, target_sha, pre_pull_sha) -> N
         ancestry_detail = (ancestry.stderr or ancestry.stdout or "").strip()
         if ancestry_detail:
             print(f"  {ancestry_detail}")
-    print("  Resolve the Git error and re-run `hermes update`; no reset was attempted.")
+    print("  Resolve the Git error and re-run `envoy update`; no reset was attempted.")
     from hermes_cli.update_receipt import git_output_stop_class
 
     # The shared classifier: an index.lock that EXISTS is another git's; "Permission denied" on it is not.
@@ -1251,7 +1251,7 @@ def _switch_branch_at_commit_point(git_cmd, branch, target_ref, *, pre, stash):
             else:
                 _commit.owe_restore_of(root, pre)
             return subprocess.CompletedProcess(_REF_MOVED, 1, result.stdout, (
-                f"'{branch}' moved to {landed[:10]} during the switch; re-run `hermes update`"))
+                f"'{branch}' moved to {landed[:10]} during the switch; re-run `envoy update`"))
         if result.returncode == 0:
             interrupted_pull_marker(root).unlink(missing_ok=True)  # git exited 0: whole at *target*
             return result
@@ -1288,7 +1288,7 @@ def _exit_after_failed_branch_switch(
     """
     detail = (track_result.stderr or "").strip()
     if interrupted_pull_marker(_m().PROJECT_ROOT).is_file():
-        print(f"✗ Switching to '{branch}' stopped part-way; the next `hermes` launch puts the checkout back.")
+        print(f"✗ Switching to '{branch}' stopped part-way; the next `envoy` launch puts the checkout back.")
         if detail:
             print(f"  {detail.splitlines()[0]}")
         if auto_stash_ref is not None:
@@ -1506,7 +1506,7 @@ def _prepare_checkout_for_update(
 
 @dataclass
 class _UpdateOptions:
-    """Resolved ``hermes update`` inputs (flags, config, pre-update snapshots)."""
+    """Resolved ``envoy update`` inputs (flags, config, pre-update snapshots)."""
 
     pre_update_version: object
     gw_input_fn: object
@@ -1563,7 +1563,7 @@ def _begin_update_receipt_and_plan(args):
 
     # Plan phase: snapshot runtimes/supervisors/version (read-only; probe failure records
     # nothing). Re-read AFTER the restart phase to reconcile — the plan is the worklist.
-    # Plan phase (#91277 Phase 2): snapshot the pre-update fleet — every running Hermes runtime, its
+    # Plan phase (#91277 Phase 2): snapshot the pre-update fleet — every running Envoy runtime, its
     # supervisor, and its running code version — into the receipt, so a post-mortem can compare what the
     # update SAW against what it did. ``_pre_update_plan`` is read again AFTER the restart phase to
     # reconcile every planned runtime against the phase's bookkeeping (restart via declared mechanism — the
@@ -1600,7 +1600,7 @@ def _prepare_git_command(*, checkout_move=None) -> tuple[bool, list, bool]:
     use_zip_update = not git_dir.exists()
     if use_zip_update and sys.platform != "win32":
         print("✗ Not a git repository. Please reinstall:")
-        print("  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash")
+        print("  curl -fsSL https://raw.githubusercontent.com/trevorputbrese/envoy-agent/main/scripts/install.sh | bash")
         _record_stop("not_git_checkout")
         sys.exit(1)
 
@@ -1643,8 +1643,8 @@ def _verify_head_after_pull(
     # Verify HEAD actually moved (issue #79678). ``merge --ff-only`` succeeding only means the merge
     # completed, not that the update applied: a checkout that is pinned to a raw SHA (detached HEAD) can
     # report "N new commit(s)" against origin yet still sit on the old commit afterward (the branch-switch
-    # step re-detaches to the SHA). Before this guard, ``hermes update`` printed "✓ Code updated!" and
-    # reinstalled deps + rebuilt the desktop app against the stale tree — no error, no warning, ``hermes
+    # step re-detaches to the SHA). Before this guard, ``envoy update`` printed "✓ Code updated!" and
+    # reinstalled deps + rebuilt the desktop app against the stale tree — no error, no warning, ``envoy
     # doctor`` healthy. Compare pre-pull and post-pull HEAD; if they match, surface the no-op instead of
     # claiming success.
     post_pull_sha = _capture_head_sha(git_cmd, _m().PROJECT_ROOT)
@@ -1656,7 +1656,7 @@ def _verify_head_after_pull(
             f"origin/{branch} advanced but the working tree stayed put.")
         print(
             "  Reattach to the branch and retry: "
-            f"git -C {_m().PROJECT_ROOT} checkout {branch} && hermes update")
+            f"git -C {_m().PROJECT_ROOT} checkout {branch} && envoy update")
         _commit.disarm_commit_obligations()  # nothing moved: no tail is owed (refused if HEAD did)
         _m()._resume_windows_gateways_after_update(_windows_gateway_resume)
         _record_stop("detached_head")
@@ -1672,7 +1672,7 @@ def _verify_head_after_pull(
             f"'{post_pull_branch}' — not claiming success.")
         print(
             "  Switch to the target branch and retry: "
-            f"git -C {_m().PROJECT_ROOT} checkout {branch} && hermes update")
+            f"git -C {_m().PROJECT_ROOT} checkout {branch} && envoy update")
         _m()._resume_windows_gateways_after_update(_windows_gateway_resume)
         _record_stop("unexpected_branch")
         sys.exit(1)
@@ -1705,10 +1705,10 @@ def _handle_update_called_process_error(
             print(f"✗ {stage} (the code update itself succeeded).")
             _print_called_process_error_tail(e)
             print()
-            print("  Hermes may not start until the dependencies are installed. Fix the error above")
-            print("  (usually network or disk space), then run `hermes update` again.")
+            print("  Envoy may not start until the dependencies are installed. Fix the error above")
+            print("  (usually network or disk space), then run `envoy update` again.")
             if _m()._is_windows():
-                print("  If `hermes update` itself will not start, retry through the venv interpreter:")
+                print("  If `envoy update` itself will not start, retry through the venv interpreter:")
                 print(
                     '    venv\\Scripts\\python.exe -c '
                     '"from hermes_cli.main import main; main()" update --yes')
@@ -1814,7 +1814,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
     if git_operation:
         root = _m().PROJECT_ROOT
         print(f"✗ Cannot update while a Git {git_operation} is in progress in {root}.")
-        print(f"  Finish it or run `git {git_operation} --abort`, then re-run `hermes update`.")
+        print(f"  Finish it or run `git {git_operation} --abort`, then re-run `envoy update`.")
         _record_stop("git_in_progress", without_receipt="failed")  # before the receipt opens: a metrics row only
         sys.exit(1)
 
@@ -1833,7 +1833,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
     opts = _resolve_update_options(args, gateway_mode)
     gw_input_fn, assume_yes = opts.gw_input_fn, opts.assume_yes
 
-    print("☤ Updating Hermes Agent...")
+    print("◈ Updating Envoy Agent...")
     print()
 
     _pre_update_plan = _begin_update_receipt_and_plan(args)
@@ -1852,7 +1852,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         import atexit as _atexit
         _atexit.register(_m()._resume_windows_gateways_after_update, _windows_gateway_resume)
     desktop_dir = _m().PROJECT_ROOT / "apps" / "desktop"
-    # An installed Hermes.app only this update refreshes counts even with no release/ build
+    # An installed Envoy.app only this update refreshes counts even with no release/ build
     # beside it: without one it was never rebuilt, so it never got newer (#52339).
     had_desktop_app_before_update = (
         _m()._desktop_packaged_executable(desktop_dir) is not None
@@ -1922,7 +1922,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         if fetch_result.returncode != 0:
             if is_partial_clone_pack_objects_crash(fetch_result.stderr or ""):
                 print("✗ git still crashed after marking this checkout's packs. See 'Fetch fails with"
-                      " should_include_obj' in https://hermes-agent.nousresearch.com/docs/getting-started/updating")
+                      " should_include_obj' in https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/getting-started/updating.md")
             _print_fetch_failure(fetch_result.stderr, git_cmd=git_cmd, root=_m().PROJECT_ROOT)
             _m()._resume_windows_gateways_after_update(_windows_gateway_resume)
             _record_stop("git_timeout" if fetch_result.returncode == 124 else "disk_full"

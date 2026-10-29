@@ -1,4 +1,4 @@
-"""cloned_memory_provider: a best-effort post-clone notice that never fails ``hermes profile create``."""
+"""cloned_memory_provider: a best-effort post-clone notice that never fails ``envoy profile create``."""
 
 import pytest
 

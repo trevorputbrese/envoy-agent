@@ -1449,7 +1449,7 @@ class TestSecretFileAssignmentRedaction:
 
 
 class TestHermesHomePathClassification:
-    """``_is_secret_file_arg`` must see the RESOLVED Hermes home: a managed Windows home
+    """``_is_secret_file_arg`` must see the RESOLVED Envoy home: a managed Windows home
     (``%LOCALAPPDATA%\\hermes``) has no ``.hermes`` segment and a resolved path never spells
     ``$HERMES_HOME``, so the literal test alone classified its ``config.yaml`` as ordinary YAML."""
 
@@ -1666,10 +1666,10 @@ class TestRedactForEgress:
 
 
 class TestWebappLaunchLinks:
-    """``hermes webapp`` prints a link that signs a browser in as the user: one with the gateway's
+    """``envoy webapp`` prints a link that signs a browser in as the user: one with the gateway's
     browser credential after ``#hermes-session=`` (what older gateways printed on macOS), or a one-use
-    launch ticket after ``/webapp/launch#ticket=``. Either opens the user's Hermes until it is spent or
-    replaced, so when Hermes runs the command through its terminal tool neither reaches the transcript.
+    launch ticket after ``/webapp/launch#ticket=``. Either opens the user's Envoy until it is spent or
+    replaced, so when Envoy runs the command through its terminal tool neither reaches the transcript.
     The rest of the link stays readable."""
 
     CREDENTIAL = "Zq7_" + "k3Lm" * 9 + "x9-"  # the shape secrets.token_urlsafe(32) prints: 43 characters
@@ -1678,7 +1678,7 @@ class TestWebappLaunchLinks:
         from agent.redact import redact_terminal_output
 
         link = "http://127.0.0.1:9120/?profile=work#hermes-session=" + self.CREDENTIAL
-        out = redact_terminal_output(f"Open this link in your browser:\n  {link}\n", "hermes webapp")
+        out = redact_terminal_output(f"Open this link in your browser:\n  {link}\n", "envoy webapp")
         assert self.CREDENTIAL not in out
         assert "http://127.0.0.1:9120/?profile=work#hermes-session=" in out
 
@@ -1686,7 +1686,7 @@ class TestWebappLaunchLinks:
         from agent.redact import redact_terminal_output
 
         link = "http://127.0.0.1:9120/webapp/launch#ticket=" + self.CREDENTIAL + "&query=%3Fprofile%3Dwork"
-        out = redact_terminal_output(f"Open this one-use link:\n  {link}\n", "hermes webapp --no-open")
+        out = redact_terminal_output(f"Open this one-use link:\n  {link}\n", "envoy webapp --no-open")
         assert self.CREDENTIAL not in out
         assert "http://127.0.0.1:9120/webapp/launch#ticket=" in out and "&query=%3Fprofile%3Dwork" in out
         assert self.CREDENTIAL not in redact_sensitive_text(link)

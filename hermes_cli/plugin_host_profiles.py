@@ -99,7 +99,7 @@ def _extract(plugin_dir: Path, module_name: str) -> dict[str, Any]:
                PYTHONPATH=repo_root,
                **{HOST_PROCESS_ENV: "1"})
     # -P and a trusted cwd: ``-m`` otherwise puts the launch directory ahead of PYTHONPATH, so a
-    # ``hermes_cli/`` package in the directory Hermes was started from would run instead of ours.
+    # ``hermes_cli/`` package in the directory Envoy was started from would run instead of ours.
     argv = [*host_launcher(), sys.executable, "-P", "-m", "hermes_cli.plugin_host_child", "--extract-profiles",
             str(plugin_dir.resolve()), module_name]
     try:
@@ -119,7 +119,7 @@ def _host_call(plugin_dir: str, module_name: str, profile: str, attr: str) -> Ca
         from hermes_cli.plugin_isolation import user_plugin_host
         host = user_plugin_host()
         if host is None:
-            raise PluginHostUnavailable("plugins.isolation is no longer 'host'; restart Hermes")
+            raise PluginHostUnavailable("plugins.isolation is no longer 'host'; restart Envoy")
         return host.profile_call(plugin_dir, module_name, profile, attr, args, kwargs)
     return call
 

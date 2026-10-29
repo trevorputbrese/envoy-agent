@@ -62,7 +62,7 @@ def _fake_docker(monkeypatch, security_options: str, fail: str = ""):
     monkeypatch.setattr(docker_env.subprocess, "run", _run)
     monkeypatch.setattr(docker_env, "find_docker", lambda: "/usr/bin/docker")
     monkeypatch.setattr(docker_env.DockerEnvironment, "init_session", lambda self: None)
-    monkeypatch.setattr(os, "geteuid", lambda: 1000)  # Hermes itself is not root
+    monkeypatch.setattr(os, "geteuid", lambda: 1000)  # Envoy itself is not root
     monkeypatch.setattr(os, "getegid", lambda: 1000)
     return calls
 
@@ -121,7 +121,7 @@ def test_root_container_teardown_hands_every_sandbox_mount_back_before_removal(
     if scenario == "persist-reap":
         (tmp_path / "link").symlink_to(real_sandbox)
     monkeypatch.setenv("TERMINAL_SANDBOX_DIR", str(tmp_path / ("link" if scenario == "persist-reap" else "sandboxes")))
-    if scenario == "persist-shared":  # profiles of one Hermes root, each with its default sandbox dir
+    if scenario == "persist-shared":  # profiles of one Envoy root, each with its default sandbox dir
         monkeypatch.delenv("TERMINAL_SANDBOX_DIR")
         monkeypatch.setenv("HERMES_HOME", str(tmp_path / "root" / "profiles" / "creator"))
     caps = any(a in user_args for args in _CAP_ARGS.values() for a in args[-1:])

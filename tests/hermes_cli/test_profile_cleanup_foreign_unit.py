@@ -1,4 +1,4 @@
-"""`hermes profile delete|rename` never removes another install's gateway service.
+"""`envoy profile delete|rename` never removes another install's gateway service.
 
 Service names derive from the profile name and the user unit dir is account-anchored, so a scratch-HOME
 delete of `coder` named the ACCOUNT's real `hermes-gateway-coder` unit and disabled, stopped and unlinked
@@ -22,7 +22,7 @@ def _unit(path, home) -> None:
 
 @pytest.mark.platforms("linux")
 def test_profile_delete_from_scratch_home_leaves_the_accounts_profile_unit(tmp_path, monkeypatch, capsys):
-    """``hermes profile delete|rename coder`` with HOME=<scratch>: the name resolves the ACCOUNT's real
+    """``envoy profile delete|rename coder`` with HOME=<scratch>: the name resolves the ACCOUNT's real
     ``hermes-gateway-coder`` unit (account-anchored unit dir). It pins another home, so cleanup never
     disables, stops or unlinks it."""
     import hermes_constants

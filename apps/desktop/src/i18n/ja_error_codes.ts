@@ -10,7 +10,7 @@ export const jaErrorCodes: Partial<ThreadCopy['errorCodes']> = {
   },
   session_read_only: {
     title: 'このチャットは読み取り専用です',
-    body: 'Hermes が表示はできても続行できない保存済みの履歴のため、メッセージは実行されませんでした。送信するには新しいチャットを開始してください。'
+    body: 'Envoy が表示はできても続行できない保存済みの履歴のため、メッセージは実行されませんでした。送信するには新しいチャットを開始してください。'
   },
   workspace_unavailable: {
     title: 'このチャットのフォルダーが見つかりません',

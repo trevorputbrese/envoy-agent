@@ -68,9 +68,9 @@ def _approval_choice_label(choice: str) -> str:
 def _agent_name() -> str:
     try:
         from hermes_cli.skin_engine import get_active_skin
-        return get_active_skin().get_branding("agent_name", "Hermes")
+        return get_active_skin().get_branding("agent_name", "Envoy")
     except Exception:
-        return "Hermes"
+        return "Envoy"
 
 
 def _tn(key: str, count: int, **kwargs) -> str:
@@ -300,7 +300,7 @@ class CLITuiMixin:
         if self._command_running:
             return _state_fragment("class:prompt-working", self._command_spinner_frame())
         if self._agent_running:
-            return _state_fragment("class:prompt-working", "☤")
+            return _state_fragment("class:prompt-working", "◈")
         if self._voice_mode:
             return _state_fragment("class:voice-prompt", "🎤")
         return [("class:prompt", symbol)]
@@ -1104,7 +1104,7 @@ class CLITuiMixin:
         import signal as _sig
         from prompt_toolkit.application import run_in_terminal
         from hermes_cli.skin_engine import get_active_skin
-        agent_name = get_active_skin().get_branding("agent_name", "Hermes Agent")
+        agent_name = get_active_skin().get_branding("agent_name", "Envoy Agent")
         msg = "\n" + t("cli.tui.suspended", agent_name=agent_name)
 
         def _suspend():
@@ -2273,39 +2273,39 @@ class CLITuiMixin:
             'prompt-working': '#888888 italic',
             'hint': '#888888 italic',
             'status-bar': 'bg:#1a1a2e #C0C0C0',
-            'status-bar-strong': 'bg:#1a1a2e #FFD700 bold',
+            'status-bar-strong': 'bg:#1a1a2e #49AFD9 bold',
             'status-bar-dim': 'bg:#1a1a2e #8B8682',
             'status-bar-good': 'bg:#1a1a2e #8FBC8F bold',
-            'status-bar-warn': 'bg:#1a1a2e #FFD700 bold',
+            'status-bar-warn': 'bg:#1a1a2e #49AFD9 bold',
             'status-bar-bad': 'bg:#1a1a2e #FF8C00 bold',
             'status-bar-critical': 'bg:#1a1a2e #FF6B6B bold',
             'status-bar-yolo': 'bg:#1a1a2e #FF4444 bold',
-            'status-bar-session-title': 'bg:#FFD700 #1a1a2e bold',
-            'input-rule': '#CD7F32',
+            'status-bar-session-title': 'bg:#49AFD9 #1a1a2e bold',
+            'input-rule': '#0072A3',
             'image-badge': '#87CEEB bold',
-            'completion-menu': 'bg:#1a1a2e #FFF8DC',
-            'completion-menu.completion': 'bg:#1a1a2e #FFF8DC',
-            'completion-menu.completion.current': 'bg:#333355 #FFD700',
+            'completion-menu': 'bg:#1a1a2e #E3F5FC',
+            'completion-menu.completion': 'bg:#1a1a2e #E3F5FC',
+            'completion-menu.completion.current': 'bg:#333355 #49AFD9',
             'completion-menu.meta.completion': 'bg:#1a1a2e #888888',
-            'completion-menu.meta.completion.current': 'bg:#333355 #FFBF00',
-            'clarify-border': '#CD7F32',
-            'clarify-title': '#FFD700 bold',
-            'clarify-question': '#FFF8DC bold',
+            'completion-menu.meta.completion.current': 'bg:#333355 #0095D3',
+            'clarify-border': '#0072A3',
+            'clarify-title': '#49AFD9 bold',
+            'clarify-question': '#E3F5FC bold',
             'clarify-choice': '#AAAAAA',
-            'clarify-selected': '#FFD700 bold',
-            'clarify-active-other': '#FFD700 italic',
+            'clarify-selected': '#49AFD9 bold',
+            'clarify-active-other': '#49AFD9 italic',
             'clarify-answer': '#98FB98',
-            'clarify-countdown': '#CD7F32',
+            'clarify-countdown': '#0072A3',
             'sudo-prompt': '#FF6B6B bold',
-            'sudo-border': '#CD7F32',
+            'sudo-border': '#0072A3',
             'sudo-title': '#FF6B6B bold',
-            'sudo-text': '#FFF8DC',
-            'approval-border': '#CD7F32',
+            'sudo-text': '#E3F5FC',
+            'approval-border': '#0072A3',
             'approval-title': '#FF8C00 bold',
-            'approval-desc': '#FFF8DC bold',
+            'approval-desc': '#E3F5FC bold',
             'approval-cmd': '#AAAAAA italic',
             'approval-choice': '#AAAAAA',
-            'approval-selected': '#FFD700 bold',
+            'approval-selected': '#49AFD9 bold',
             'voice-prompt': '#87CEEB',
             'voice-recording': '#FF4444 bold',
             'voice-processing': '#FFA500 italic',

@@ -1,20 +1,20 @@
 /**
  * windows-hermes-path.ts
  *
- * Pure, dependency-injected pieces of Windows `hermes` resolution pulled out
+ * Pure, dependency-injected pieces of Windows `envoy` resolution pulled out
  * of main.ts's findOnPath(), handOffWindowsBootstrapRecovery(), and
  * unwrapWindowsVenvHermesCommand(). Each of the three functions here pins one
  * of the Windows resolution bugs that caused desktop reinstall loops:
  *
  *   1. buildPathExtCandidates() — findOnPath() tried the empty extension
- *      FIRST, so an extensionless Git-Bash `hermes` shim shadowed the real
+ *      FIRST, so an extensionless Git-Bash `envoy` shim shadowed the real
  *      hermes.cmd/hermes.exe; the shim then failed the --version probe and
  *      the desktop fell through to a spurious bootstrap/repair. The fix:
  *      PATHEXT extensions first, empty extension LAST.
  *   2. chooseUpdaterArgs() — handOffWindowsBootstrapRecovery() must separate
  *      install provenance from updater viability. A bootstrap-complete marker
  *      can outlive a deleted venv, while the updater needs BOTH the venv Python
- *      and Hermes launcher. Marker-only or partial runtimes must use --repair;
+ *      and Envoy launcher. Marker-only or partial runtimes must use --repair;
  *      only a runnable pair can use --update.
  *   3. resolveVenvHermesCommand() — unwrapWindowsVenvHermesCommand() returned
  *      the venv python with NO runtime probe (bypassing the caller's
@@ -35,7 +35,7 @@
  * On Windows this MUST try PATHEXT extensions (.COM;.EXE;.BAT;.CMD by
  * default) BEFORE the bare/empty-extension name: a real command resolves via
  * its .exe/.cmd per Windows command-resolution semantics, and an
- * extensionless file (e.g. a Git-Bash shell-script shim named `hermes`) must
+ * extensionless file (e.g. a Git-Bash shell-script shim named `envoy`) must
  * not shadow `hermes.cmd`/`hermes.exe`. The empty entry is kept LAST so
  * callers that already include the extension (py.exe, pwsh.exe,
  * powershell.exe) still resolve.
@@ -58,7 +58,7 @@ export function buildPathExtCandidates(pathext: string | undefined, isWindows: b
 /**
  * Choose the Windows bootstrap-recovery invocation. The gentle in-place
  * updater can only start when both pieces of its runtime contract exist: the
- * venv Python interpreter and the Hermes launcher that drives `hermes update`.
+ * venv Python interpreter and the Envoy launcher that drives `envoy update`.
  * A bootstrap-complete marker proves install provenance, not current runtime
  * usability, and may remain after the venv is removed or quarantined.
  *
@@ -89,7 +89,7 @@ export interface ResolveVenvHermesCommandDeps {
 }
 
 /**
- * If `command` is a Windows venv `hermes`/`hermes.exe` console-script shim
+ * If `command` is a Windows venv `envoy`/`hermes.exe` console-script shim
  * (i.e. `<venvRoot>/Scripts/hermes(.exe)`), resolve it to the underlying
  * venv python invoked as `python -m hermes_cli.main <backendArgs>` — but
  * ONLY after smoke-testing that interpreter with canImportHermesCli(). A
@@ -164,14 +164,14 @@ export async function resolveVenvHermesCommand(
   // cwd at the checkout root, no PYTHONPATH.
   if (!(await canImportHermesCli(python, { cwd: directoryExists(root) ? root : undefined }))) {
     rememberLog?.(
-      `Ignoring venv Hermes at ${python}: runtime import probe failed (broken/partial venv); falling through to bootstrap.`
+      `Ignoring venv Envoy at ${python}: runtime import probe failed (broken/partial venv); falling through to bootstrap.`
     )
 
     return null
   }
 
   return {
-    label: `existing Hermes Python at ${python}`,
+    label: `existing Envoy Python at ${python}`,
     command: python,
     args: ['-m', 'hermes_cli.main', ...backendArgs],
     bootstrap: false,

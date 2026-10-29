@@ -1,7 +1,7 @@
 name: hermes-session-diff
 repo: https://github.com/Adolanium/hermes-session-diff
 sha: 9ed3bf2f6e7d859495589940430782c542bbc4f9
-description: Persistent session file diffs, run comparisons, and individual edit history in Hermes Desktop.
+description: Persistent session file diffs, run comparisons, and individual edit history in Envoy Desktop.
 maintainer: Adolanium
 tier: community
 category: desktop

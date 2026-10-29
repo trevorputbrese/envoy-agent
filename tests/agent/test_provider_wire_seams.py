@@ -131,7 +131,7 @@ def test_user_turn_attribution_is_consumed_by_the_first_call_only(wire_profile):
 
 
 def test_only_the_first_attempt_of_a_user_turn_carries_user_attribution(wire_profile):
-    # A 429/5xx retry (or a fallback activation) rebuilds the payload for the same API call; like Hermes
+    # A 429/5xx retry (or a fallback activation) rebuilds the payload for the same API call; like Envoy
     # always has, it goes out with the route's default attribution (billing parity), not the user's.
     agent = _agent("wirefake", HOST)
     agent._is_user_initiated_turn = True

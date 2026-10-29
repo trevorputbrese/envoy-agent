@@ -44,7 +44,7 @@ def test_manual_run_keeps_the_scheduled_oneshot_and_it_still_fires(clock):
     job = create_job("remind me", "in 30m", name="reminder")
     slot = job["next_run_at"]
 
-    _fire(job["id"], manual=True)  # cronjob(action="run") / hermes cron run
+    _fire(job["id"], manual=True)  # cronjob(action="run") / envoy cron run
 
     after = get_job(job["id"])
     assert (after["state"], after["enabled"], after["next_run_at"]) == ("scheduled", True, slot)

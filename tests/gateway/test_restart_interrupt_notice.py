@@ -75,7 +75,7 @@ def test_a_turn_warning_is_not_overwritten():
 
 
 def test_classic_cli_view_prints_the_restart_notice_for_an_interrupted_turn(capsys):
-    """The attached classic CLI (``hermes chat``) prints the notice on stderr; a completed turn's
+    """The attached classic CLI (``envoy chat``) prints the notice on stderr; a completed turn's
     warning stays unprinted there, as before."""
     from hermes_cli.gateway_chat_view import GatewayChatView
 
@@ -368,7 +368,7 @@ def _notices(db):
                                                ('Gateway shutting down', SHUTDOWN_INTERRUPT_NOTICE)])
 def test_owner_stop_reason_is_in_the_transcript_for_a_viewer_that_reconnects(tmp_path, cause, notice):
     """#134889 GW-21: a viewer that reconnects after the restart reads the transcript, not the live
-    frame. The reason commits as a Hermes notice in the settlement's own write, once; the live
+    frame. The reason commits as an Envoy notice in the settlement's own write, once; the live
     ``message.complete.warning`` stays."""
     from gateway.session_results import finish_result
     db, authority, row, frames, settlement = _settle_on_real_store(tmp_path, cause)
@@ -442,7 +442,7 @@ def _core_closed_turn(tmp_path, monkeypatch, *, principal='person', earlier_fail
 def test_restart_notice_replaces_the_core_failed_turn_boundary_of_the_same_turn(tmp_path, monkeypatch, principal):
     """#134889 GW-21 review (GW-A): the agent's own closer already ended this turn with
     "Send it again"; settlement replaces that boundary with the restart notice in its own write,
-    so the transcript holds one Hermes boundary, and an automation row never keeps resend advice."""
+    so the transcript holds one Envoy boundary, and an automation row never keeps resend advice."""
     from agent.turn_failure_copy import AUTOMATION_INTERRUPTED_NOTICE, FAILED_TURN_NOTICE
     from gateway.session_settlement_recovery import commit_and_publish
     db, authority, live, ref, row, result = _core_closed_turn(tmp_path, monkeypatch, principal=principal)

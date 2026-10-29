@@ -115,7 +115,7 @@ async def test_unknown_automation_settles_interrupted_and_fifo_moves_on(tmp_path
         # The follower ran exactly once; the automation input was never replayed.
         assert executed == ['FOLLOWER']
         assert _statuses(authority.db)[follower_id] == ('terminal', 'completed')
-        # A Hermes notice in the transcript says the automated delivery was interrupted.
+        # An Envoy notice in the transcript says the automated delivery was interrupted.
         messages = authority.db.get_messages('s')
         notices = [m for m in messages if m.get('display_kind') == 'failed_turn']
         assert notices and 'automat' in notices[0]['content'].lower(), messages

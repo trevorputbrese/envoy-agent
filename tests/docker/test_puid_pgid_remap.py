@@ -24,16 +24,16 @@ def test_puid_pgid_remaps_hermes_user(
         timeout=10,
     )
     assert r.stdout.strip() == "1000", (
-        f"expected hermes UID 1000 after PUID remap, got: {r.stdout.strip()}"
+        f"expected envoy UID 1000 after PUID remap, got: {r.stdout.strip()}"
     )
 
     r = docker_exec_sh(
         container_name,
-        "id -g hermes",
+        "id -g envoy",
         timeout=10,
     )
     assert r.stdout.strip() == "1000", (
-        f"expected hermes GID 1000 after PGID remap, got: {r.stdout.strip()}"
+        f"expected envoy GID 1000 after PGID remap, got: {r.stdout.strip()}"
     )
 
     # The remapped user must still be able to write to the data volume.
@@ -54,10 +54,10 @@ def test_nas_low_uid_accepted(
 
     r = docker_exec_sh(container_name, "id -u hermes", timeout=10)
     assert r.stdout.strip() == "99", (
-        f"expected hermes UID 99, got: {r.stdout.strip()}"
+        f"expected envoy UID 99, got: {r.stdout.strip()}"
     )
 
-    r = docker_exec_sh(container_name, "id -g hermes", timeout=10)
+    r = docker_exec_sh(container_name, "id -g envoy", timeout=10)
     assert r.stdout.strip() == "100", (
-        f"expected hermes GID 100, got: {r.stdout.strip()}"
+        f"expected envoy GID 100, got: {r.stdout.strip()}"
     )

@@ -30,7 +30,7 @@ test('platform and marker scripts survive outer-shell parsing as one compressed 
     return calls.length === 1 ? JSON.stringify(runtime) : 'CLEAR'
   } }
 
-  await probeWindowsRemote(ssh, 'C:\\用户\\Hermes\\hermes.exe')
+  await probeWindowsRemote(ssh, 'C:\\用户\\Envoy\\hermes.exe')
   await assertWindowsRemoteInstallUpdateClear(ssh, runtime.hermesHome, runtime.python)
 
   for (const { command, options } of calls) {
@@ -139,7 +139,7 @@ test('Test and Connect share one verdict on a helper too old for a boot-selected
   assert.equal(windowsHelperOwnsRuntime(runtime, { supported: true }), true)
 })
 
-test.runIf(process.platform === 'win32')('the real Windows probe finds a .cmd-only launcher in the Hermes home off PATH', async () => {
+test.runIf(process.platform === 'win32')('the real Windows probe finds a .cmd-only launcher in the Envoy home off PATH', async () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-probe-home-'))
   fs.mkdirSync(path.join(home, 'bin'))
   fs.writeFileSync(path.join(home, 'bin', 'hermes.cmd'), '@echo off\r\n')

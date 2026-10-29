@@ -8,7 +8,7 @@ LEGACY_PREFIX = 'gateway.local_legacy.v1:'
 
 
 # Sources the pre-authority local CLI/TUI/GUI wrote. ``oneshot`` (finite ``chat -q`` / ``-z``) and ``tool``
-# (``chat --source tool``) are CLI runs that printed ``hermes --resume <id>``: adopted for resume like
+# (``chat --source tool``) are CLI runs that printed ``envoy --resume <id>``: adopted for resume like
 # ``cli`` and keeping their label, so human pickers still hide them (INTERNAL_LISTING_SOURCES).
 # ``desktop`` is the label main's Desktop stored; it is adopted as the ``gui`` creation source.
 # ``acp`` is main's in-process editor server (Zed, VS Code, JetBrains): adopted under its own source.
@@ -27,9 +27,9 @@ def legacy_account_label(row):
 def login_owned_by(row, subject):
     """Whether *subject* owns the login stamp a served dashboard put on this row.
 
-    Older ``hermes serve`` builds stamped the WS-upgrade login as ``<provider>:<user id>``
+    Older ``envoy serve`` builds stamped the WS-upgrade login as ``<provider>:<user id>``
     (tui_gateway/session_transports.py), and the gateway stored a Webapp login as its
-    ``auth:v1:[...]`` subject. Hermes is single-user and sign-in is owner-only, so both name the
+    ``auth:v1:[...]`` subject. Envoy is single-user and sign-in is owner-only, so both name the
     machine owner: the host owner's subject adopts them (gateway.owner_identity.same_owner).
     """
     user_id = row.get('user_id')

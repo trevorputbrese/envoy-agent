@@ -331,7 +331,7 @@ def _git_pull_plugin_dir(target: Path) -> tuple[bool, str]:
     Users tweak installed plugins in place (config constants, small patches), and a plain ``pull --ff-only``
     then aborts with "Your local changes ... would be overwritten by merge" — making the plugin permanently
     un-updatable until they hand-run git. Same UX class Factory Droid fixed in v0.188 ("Updating a plugin
-    marketplace now succeeds when its checkout has local changes"), and the same autostash approach ``hermes
+    marketplace now succeeds when its checkout has local changes"), and the same autostash approach ``envoy
     update`` already uses for the main checkout (PR #70161).
     """
     git_exe = _pc()._resolve_git_executable()

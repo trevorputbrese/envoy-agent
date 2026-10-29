@@ -165,7 +165,7 @@ def _systemd_verified_active(profile: str, *, run: Callable[..., Any]) -> bool:
 def _host_state_dir() -> str:
     """The path ``gateway.host_rendezvous.host_state_dir()`` resolves, computed locally.
 
-    This module imports no Hermes code at runtime — importing the freshly pulled tree is exactly
+    This module imports no Envoy code at runtime — importing the freshly pulled tree is exactly
     what aborted the phase that calls us — so the rule is duplicated here rather than shared.
     """
     override = os.environ.get("HERMES_GATEWAY_LOCK_DIR")
@@ -263,7 +263,7 @@ def restart_profiles(
 def _systemctl_scopes() -> list[tuple[str, list[str]]]:
     """``(label, systemctl argv)`` for the user and system scopes (the pair the in-process phase walks), or nothing.
 
-    ``systemctl`` comes from ``shutil.which`` so this module never imports a Hermes platform helper —
+    ``systemctl`` comes from ``shutil.which`` so this module never imports an Envoy platform helper —
     importing the freshly pulled tree is exactly what aborted the phase that called us. Scopes carry
     their label because the same unit name in both managers is two different processes.
     """
@@ -358,7 +358,7 @@ def restart_serve_units(
     """Restart every active ``hermes-serve*``/``hermes-dashboard*`` systemd unit from this process.
 
     Units are enumerated from systemd, never from the update inventory, so a manually launched or
-    Desktop-owned ``hermes serve`` (no unit) structurally cannot be touched here.
+    Desktop-owned ``envoy serve`` (no unit) structurally cannot be touched here.
     """
     skipped_qualified, skipped_legacy = _normalized_skips(skip_units)
     # (scope, base unit) -> replaced?  The same unit name in the user and the system

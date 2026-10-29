@@ -227,7 +227,7 @@ def _cache_dirs() -> tuple:
 
 
 def _is_allowed_bridge_path(url: str) -> bool:
-    """Absolute bridge path resolves (symlinks included) inside a Hermes cache dir — a rogue bridge could hand back /etc/passwd."""
+    """Absolute bridge path resolves (symlinks included) inside an Envoy cache dir — a rogue bridge could hand back /etc/passwd."""
     try:
         resolved = Path(url).resolve()
     except (OSError, ValueError):
@@ -301,7 +301,7 @@ def ensure_aiohttp() -> Optional[tuple[str, bool]]:
         ensure_import("sms")
     except (RuntimeError, OSError, ValueError) as exc:  # InstallError/DownloadError; anything else escapes as transient
         # Only policy or a foreign interpreter is final. A busy dependency lock, a failed download and "installed;
-        # restart Hermes to activate it" stay retryable: as final errors they exit the gateway 78 and keep it down.
+        # restart Envoy to activate it" stay retryable: as final errors they exit the gateway 78 and keep it down.
         return str(exc) or type(exc).__name__, installable
     try:
         _import_aiohttp()
@@ -450,7 +450,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
             print(f"[{self.name}] Failed to install dependencies: {e}")
             detail = f" ({e})"
         self._set_fatal_error("whatsapp_npm_install_failed", f"WhatsApp bridge npm install failed{detail}. "
-                              "Run `hermes whatsapp`, then restart `hermes gateway`.", retryable=False)
+                              "Run `envoy whatsapp`, then restart `envoy gateway`.", retryable=False)
         return False
 
     def _attach_to_bridge(self, managed_process) -> None:
@@ -572,7 +572,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
             if connected is None:
                 print(f"[{self.name}] ⚠ WhatsApp not connected after 30s")
                 print(f"[{self.name}]   Bridge log: {self._bridge_log}")
-                print(f"[{self.name}]   If session expired, re-pair: hermes whatsapp")
+                print(f"[{self.name}]   If session expired, re-pair: envoy whatsapp")
         return True
 
     def _preflight(self) -> bool:
@@ -581,12 +581,12 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
         creds_path = self._session_path / "creds.json"
         checks = (
             (check_whatsapp_requirements, ("[%s] Node.js not found. WhatsApp requires Node.js.", self.name),
-             "whatsapp_node_missing", "Node.js is not installed — install Node.js and re-run `hermes gateway`."),
+             "whatsapp_node_missing", "Node.js is not installed — install Node.js and re-run `envoy gateway`."),
             (bridge_path.exists, ("[%s] Bridge script not found: %s", self.name, bridge_path),
              "whatsapp_bridge_missing", f"WhatsApp bridge script missing at {bridge_path}."),
             (creds_path.exists, ("[%s] WhatsApp is enabled but not paired (no creds.json at %s). Pair from the dashboard or run "
-                                 "`hermes whatsapp`; remove WHATSAPP_ENABLED from your .env to disable.", self.name, creds_path),
-             "whatsapp_not_paired", "WhatsApp enabled but not paired — pair from the dashboard or run `hermes whatsapp`."),
+                                 "`envoy whatsapp`; remove WHATSAPP_ENABLED from your .env to disable.", self.name, creds_path),
+             "whatsapp_not_paired", "WhatsApp enabled but not paired — pair from the dashboard or run `envoy whatsapp`."),
         )
         for ok, warn_args, code, message in checks:
             if not ok():
@@ -596,8 +596,8 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
         if (missing := ensure_aiohttp()) is not None:  # may install it: connect runs this off the event loop
             why, retryable = missing
             message = (f"aiohttp is unavailable ({why}); the WhatsApp bridge client needs it. "
-                       "Run `hermes pm install --extra sms` (it ships aiohttp; `hermes pm repair` for a damaged install), "
-                       "then restart `hermes gateway`.")
+                       "Run `envoy pm install --extra sms` (it ships aiohttp; `envoy pm repair` for a damaged install), "
+                       "then restart `envoy gateway`.")
             logger.warning("[%s] %s", self.name, message)
             self._set_fatal_error("whatsapp_aiohttp_missing", message, retryable=retryable)
             return False
@@ -672,7 +672,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
                         self._set_fatal_error(
                             "whatsapp_bridge_unresponsive",
                             f"Port {self._bridge_port} is held by a process that did not answer /health in time, so "
-                            f"Hermes cannot tell whose WhatsApp bridge it is; nothing on port {self._bridge_port} was "
+                            f"Envoy cannot tell whose WhatsApp bridge it is; nothing on port {self._bridge_port} was "
                             "stopped. Stop that process, or give this profile its own port via "
                             "platforms.whatsapp.extra.bridge_port.",
                             retryable=True,
@@ -686,7 +686,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
             self._bridge_log_fh = bridge_log_fh = open(self._bridge_log, "a", encoding="utf-8")  # noqa: ASYNC230 -- long-lived log handle handed to the bridge subprocess
             node = find_node_executable("node")
             if node is None:
-                raise RuntimeError("Node.js is no longer available; run `hermes pm install`")
+                raise RuntimeError("Node.js is no longer available; run `envoy pm install`")
             self._bridge_process = subprocess.Popen(  # noqa: ASYNC220 -- persistent bridge; callers use the Popen object (pid, poll)
                 [node, str(bridge_path), "--port", str(self._bridge_port), "--session", str(self._session_path),
                  "--mode", _wenv("WHATSAPP_MODE", "self-chat")], stdin=subprocess.DEVNULL, stdout=bridge_log_fh, stderr=bridge_log_fh, env=self._bridge_env(), **windows_detach_popen_kwargs())
@@ -1145,7 +1145,7 @@ async def _standalone_send(pconfig, chat_id, message, *, thread_id=None, media_f
                 if not (health.get("capabilities") or {}).get("outboundMentions"):
                     return {"error": (
                         "WhatsApp bridge does not support native mentions; "
-                        "restart it from the same Hermes version.")}
+                        "restart it from the same Envoy version.")}
 
             async def _post(path, payload, total, error_label=None):
                 """``(messageId, None)`` on 200, else ``(None, error_dict)`` (body read only when labelled)."""
@@ -1260,7 +1260,7 @@ def register(ctx) -> None:
         standalone_send=StandaloneSendPolicy(label="WhatsApp", media=True, captionable=True,
                                              forward_force_document=True, mentions=True, text_direct=True),
         name="whatsapp", label="WhatsApp", adapter_factory=WhatsAppAdapter, check_fn=check_whatsapp_requirements,
-        dashboard_description="Use Hermes through the bundled WhatsApp bridge with QR-based auth.",
+        dashboard_description="Use Envoy through the bundled WhatsApp bridge with QR-based auth.",
         docs_url="https://github.com/tulir/whatsmeow",
         dashboard_env_vars=(
             "WHATSAPP_ENABLED", "WHATSAPP_MODE", "WHATSAPP_DM_POLICY", "WHATSAPP_ALLOWED_USERS",

@@ -29,7 +29,7 @@ ConnectorReturnTarget = Literal["hermes-desktop", "hermes-desktop-dev", "portal"
 # ``execute_link`` and ``portal`` itself; an older gateway ignores the field.
 ConnectorInitiator = Literal["agent_tool", "desktop_page", "card_retry"]
 
-# Hermes dispatch caps batches lower, so client-side chunking is deliberately absent.
+# Envoy dispatch caps batches lower, so client-side chunking is deliberately absent.
 WIRE_BATCH_MAX = 25
 
 # Any string: a gateway newer than this client may add codes, and an unknown code still renders.
@@ -173,7 +173,7 @@ class ConnectorExecuteCall(_Wire):
     connector: str
     tool: str
     arguments: dict[str, Any] = Field(default_factory=dict)
-    # Never sent by hermes: the model picks an account with the ``connector_alias`` argument, which
+    # Never sent by envoy: the model picks an account with the ``connector_alias`` argument, which
     # the gateway strips and resolves itself.
     account: Optional[str] = None
 

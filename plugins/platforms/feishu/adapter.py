@@ -1003,7 +1003,7 @@ def _strip_edge_self_mentions(text: str, mentions: Sequence[FeishuMentionRef]) -
 # --- Multiplex isolation for the lark_oapi WebSocket client ---
 #
 # ``lark_oapi.ws.client`` keeps the asyncio loop in a *module-level global* (``loop``), and
-# Hermes monkey-patches ``websockets.connect`` on the shared module to inject ping settings.
+# Envoy monkey-patches ``websockets.connect`` on the shared module to inject ping settings.
 # In multiplex mode N profiles each run a WS client on their own thread, so they overwrite
 # each other's globals (last-write-wins): tasks land on a sibling's loop ("Future attached
 # to a different loop") or a client binds the wrong loop and goes deaf. Fix: install
@@ -1018,7 +1018,7 @@ def _strip_edge_self_mentions(text: str, mentions: Sequence[FeishuMentionRef]) -
 # lark_oapi WebSocket client (#73779)
 # --------------------------------------------------------------------------- ``lark_oapi.ws.client`` keeps
 # the asyncio loop used by ``Client.start()`` and every coroutine it spawns in a *module-level global*
-# (``loop``), and Hermes also monkey-patches ``websockets.connect`` on the shared ``websockets`` module to
+# (``loop``), and Envoy also monkey-patches ``websockets.connect`` on the shared ``websockets`` module to
 # inject per-adapter ping settings. In multiplex mode every profile runs its own WS client on a dedicated
 # thread, so the N threads overwrite each other's module globals (last-write-wins): a client ends up
 # scheduling tasks on a sibling profile's loop ("Future attached to a different loop" crashes) or binds to
@@ -1519,7 +1519,7 @@ class FeishuAdapter(BasePlatformAdapter):
             if not acquired:
                 owner_pid = existing.get("pid") if isinstance(existing, dict) else None
                 message = (
-                    "Another local Hermes gateway is already using this Feishu app_id"
+                    "Another local Envoy gateway is already using this Feishu app_id"
                     + (f" (PID {owner_pid})." if owner_pid else ".")
                     + " Stop the other gateway before starting a second Feishu websocket client."
                 )
@@ -2133,7 +2133,7 @@ class FeishuAdapter(BasePlatformAdapter):
         )
 
     def _on_message_read_event(self, data: P2ImMessageMessageReadV1) -> None:
-        """Ignore read-receipt events that Hermes does not act on."""
+        """Ignore read-receipt events that Envoy does not act on."""
         message = getattr(getattr(data, "event", None), "message", None)
         logger.debug("[Feishu] Ignoring message_read event: %s", getattr(message, "message_id", None) or "")
 
@@ -2889,7 +2889,7 @@ class FeishuAdapter(BasePlatformAdapter):
             return self._webhook_reject(remote_ip, "401-sig", 401, "Invalid signature")
 
         if payload.get("encrypt"):
-            logger.error("[Feishu] Encrypted webhook payloads are not supported by Hermes webhook mode")
+            logger.error("[Feishu] Encrypted webhook payloads are not supported by Envoy webhook mode")
             return self._webhook_reject(
                 remote_ip, "400-encrypted", 400, json_msg="encrypted webhook payloads are not supported",
             )
@@ -4311,7 +4311,7 @@ def _qr_register_inner(*, initial_domain: str, timeout_seconds: int) -> Optional
         print(f"\n  Scan the QR code above, or open this URL directly:\n  {qr_url}")
     else:
         print(f"  Open this URL in Feishu / Lark on your phone:\n\n  {qr_url}\n")
-        print("  Tip: from the Hermes environment, run: "
+        print("  Tip: from the Envoy environment, run: "
               f"{install_hint('messaging')} "
               "to display a scannable QR code here next time")
     print()
@@ -4345,7 +4345,7 @@ _MIGRATION_AUDIO_EXTS = {".ogg", ".opus", ".mp3", ".wav", ".m4a", ".flac"}
 async def _standalone_send(pconfig, chat_id, message, *, thread_id=None, media_files=None, force_document=False):
     """standalone_sender_fn: out-of-process delivery (cron without gateway) via a transient adapter."""
     if not await asyncio.to_thread(_load_lark_oapi):
-        return send_error("Feishu dependencies not installed. Run `hermes setup` to install Feishu support.")
+        return send_error("Feishu dependencies not installed. Run `envoy setup` to install Feishu support.")
     try:
         adapter = FeishuAdapter(pconfig)
         adapter._client = adapter._build_lark_client(_sdk_domain(getattr(adapter, "_domain_name", "feishu")))
@@ -4470,7 +4470,7 @@ def interactive_setup() -> None:
         save_env_value("FEISHU_ALLOWED_USERS", "")
         if access_idx == 0:
             print_success("DM pairing enabled.")
-            print_info("Unknown users can request access; approve with `hermes pairing approve`.")
+            print_info("Unknown users can request access; approve with `envoy pairing approve`.")
         else:
             print_warning("Open DM access enabled for Feishu / Lark.")
 
@@ -4510,7 +4510,7 @@ def _is_connected(config) -> bool:
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Envoy plugin system."""
     from .adapter_hint import PLATFORM_HINT
     from .send_targets import SEND_ENTRY_KWARGS
     from .dashboard_card import DASHBOARD_CARD
@@ -4522,7 +4522,7 @@ def register(ctx) -> None:
         check_fn=feishu_deps_present, ensure_deps_fn=check_feishu_requirements,
         is_connected=_is_connected, validate_config=_is_connected,
         required_env=["FEISHU_APP_ID", "FEISHU_APP_SECRET"],
-        install_hint="Run `hermes setup` to install Feishu support.", setup_fn=interactive_setup,
+        install_hint="Run `envoy setup` to install Feishu support.", setup_fn=interactive_setup,
         apply_yaml_config_fn=_apply_yaml_config, cron_deliver_env_var="FEISHU_HOME_CHANNEL",
         standalone_sender_fn=_standalone_send, max_message_length=8000, emoji="🪽",
         allow_update_command=True,

@@ -4,8 +4,8 @@ import * as path from 'node:path'
 import { seedInstall, UPDATE_ROOT } from './harness'
 
 /**
- * Refuse to run where an update could reach the developer's own Hermes. The
- * cells run `hermes update --gateway`, which stops gateways it can see; CI
+ * Refuse to run where an update could reach the developer's own Envoy. The
+ * cells run `envoy update --gateway`, which stops gateways it can see; CI
  * runners have none, and locally the suite must run in its own PID namespace
  * (e.g. `bwrap --dev-bind / / --unshare-pid --proc /proc ...` with the user
  * bus hidden), where PID 1 is not the host's init.
@@ -25,7 +25,7 @@ function assertIsolated(): void {
 
   if (init === 'systemd' || init === 'init') {
     throw new Error(
-      'The Desktop update suite runs real `hermes update --gateway` hand-offs. Run it on CI, or locally inside ' +
+      'The Desktop update suite runs real `envoy update --gateway` hand-offs. Run it on CI, or locally inside ' +
         'its own PID namespace with the user bus hidden (PID 1 here is the host init).'
     )
   }

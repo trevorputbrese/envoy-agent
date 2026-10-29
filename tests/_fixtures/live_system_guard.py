@@ -1,4 +1,4 @@
-"""The autouse live-system guard: no real kills, Hermes-unit systemctl writes, gateway spawns or checkout writes.
+"""The autouse live-system guard: no real kills, Envoy-unit systemctl writes, gateway spawns or checkout writes.
 
 Imported into ``tests/conftest.py`` so pytest registers the fixture there;
 ``pytest_plugins`` is not an option because ``tests/conftest.py`` is not the
@@ -30,9 +30,9 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 #    instead of silently murdering the real gateway.
 #  • ``subprocess.run`` / ``subprocess.Popen`` / ``call`` / ``check_call`` /
 #    ``check_output`` reject any ``systemctl ... <verb> <unit>`` invocation
-#    that would mutate ANY live Hermes unit — ``hermes-gateway[-<profile>]``,
+#    that would mutate ANY live Envoy unit — ``hermes-gateway[-<profile>]``,
 #    ``hermes-dashboard[-<profile>]``, ``hermes-serve[-<profile>]`` and every
-#    other ``hermes``/``hermes-*`` unit. Read-only systemctl calls
+#    other ``envoy``/``hermes-*`` unit. Read-only systemctl calls
 #    (``status``, ``show``, ``list-units``, ``is-active``) still pass through.
 #
 # We intentionally do NOT stub ``find_gateway_pids`` / ``_scan_gateway_pids``
@@ -65,8 +65,8 @@ def _live_system_guard(request, monkeypatch):
       • os.system / os.popen
       • pty.spawn
       • asyncio.create_subprocess_exec / create_subprocess_shell
-    A mutating systemctl verb is refused against every Hermes unit
-    (``hermes``/``hermes-*``: gateway, dashboard, serve, any profile).
+    A mutating systemctl verb is refused against every Envoy unit
+    (``envoy``/``hermes-*``: gateway, dashboard, serve, any profile).
     Subprocess inspection looks at the WHOLE command string (not just
     tokens[0]), so ``bash -c "systemctl restart hermes-dashboard"``,
     ``sudo systemctl ...``, ``env systemctl ...``, ``setsid systemctl ...``
@@ -190,7 +190,7 @@ def _live_system_guard(request, monkeypatch):
         "hermes_cli.main gateway",
         "hermes_cli/main.py gateway",
         "gateway/run.py",
-        "hermes gateway",
+        "envoy gateway",
     )
     _MUTATING_VERBS = (
         "restart", "start", "stop", "kill", "reload",
@@ -253,7 +253,7 @@ def _live_system_guard(request, monkeypatch):
         return words
 
     def _is_hermes_unit(word: str) -> bool:
-        # ``hermes`` / ``hermes-<anything>`` once any path and unit suffix are
+        # ``envoy`` / ``hermes-<anything>`` once any path and unit suffix are
         # stripped: hermes-gateway[-<profile>], hermes-dashboard[-<profile>],
         # hermes-serve[-<profile>], ... — never ``myhermes-dashboard`` or ``nginx``.
         name = word.rsplit("/", 1)[-1].lower()
@@ -314,7 +314,7 @@ def _live_system_guard(request, monkeypatch):
         probes) launch the bare ``python -m gateway.run`` module entry with an explicit ``env``
         that re-homes BOTH ``HERMES_HOME`` and ``HOME`` away from the developer's account. Such a
         child resolves no developer unit or config, holds no live port, and is reaped by its
-        test: the orphan class the guard exists for is the ``hermes gateway run|start|restart``
+        test: the orphan class the guard exists for is the ``envoy gateway run|start|restart``
         CLI spawn against the real home, which the fixtures never use."""
         if not isinstance(env, dict):
             return False
@@ -334,7 +334,7 @@ def _live_system_guard(request, monkeypatch):
             real_home = Path(pwd.getpwuid(_os.getuid()).pw_dir).resolve()
         except (ImportError, KeyError):
             real_home = Path.home().resolve()
-        # The child must not resolve the REAL Hermes root. Comparing HERMES_HOME against the whole
+        # The child must not resolve the REAL Envoy root. Comparing HERMES_HOME against the whole
         # account home refused every Windows sandbox: %TEMP% lives under %USERPROFILE%.
         from hermes_state_guard import _real_platform_state_root
         real_root = _real_platform_state_root() or real_home / ".hermes"
@@ -357,7 +357,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — would mutate a live "
-                "Hermes systemd unit (hermes-gateway*, hermes-dashboard*, "
+                "Envoy systemd unit (hermes-gateway*, hermes-dashboard*, "
                 "hermes-serve*, ...). Mock "
                 "subprocess.run / _run_systemctl in the test, or "
                 "mark with @pytest.mark.live_system_guard_bypass."
@@ -370,7 +370,7 @@ def _live_system_guard(request, monkeypatch):
                 "Mark with @pytest.mark.live_system_guard_bypass if "
                 "intentional."
             )
-        # Block any subprocess that would run `hermes update` (or the
+        # Block any subprocess that would run `envoy update` (or the
         # equivalent `python -m hermes_cli.main update`).  These commands
         # run `git fetch origin + git pull` against the REAL checkout,
         # overwriting files like pyproject.toml mid-test-run and corrupting
@@ -383,7 +383,7 @@ def _live_system_guard(request, monkeypatch):
         cmd_str = _cmd_to_string(cmd)
         low = cmd_str.lower()
         if "update" in low and (
-            # hermes update / hermes update --gateway / setsid bash -c ... hermes update
+            # envoy update / envoy update --gateway / setsid bash -c ... envoy update
             ("hermes" in low and "update" in low.split())
             or
             # python -m hermes_cli.main update --gateway
@@ -395,7 +395,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this command would run "
-                "`hermes update` against the real checkout, fetching "
+                "`envoy update` against the real checkout, fetching "
                 "from origin and overwriting repo files (e.g. "
                 "pyproject.toml) mid-test-run. This corrupts every "
                 "subsequent subprocess in the same runner. "
@@ -415,7 +415,7 @@ def _live_system_guard(request, monkeypatch):
         # sibling refactor moved the spawn seam and left tests patching the
         # facade. The canonical matcher, never an argv substring.
         from gateway.status import gateway_spawn_intent_subcommand
-        # A gateway launched INSIDE a container (`docker exec … hermes gateway start`) cannot
+        # A gateway launched INSIDE a container (`docker exec … envoy gateway start`) cannot
         # reach the host's systemd unit or webhook port; tests/docker/ exists to exercise it.
         in_container = _first_token_basename(cmd_str) in _CONTAINER_RUNTIMES
         if (
@@ -427,7 +427,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this would spawn a REAL "
-                "hermes gateway runtime that outlives the test (it is "
+                "envoy gateway runtime that outlives the test (it is "
                 "detached), restarts the developer's live gateway, and "
                 "holds the webhook port. Patch the spawn seam where "
                 "production reads it (hermes_cli.web_server_gateway."

@@ -238,7 +238,7 @@ def _get_endpoint_metadata_cache_path() -> Path:
 
 def _endpoint_disk_cache_get(normalized: str) -> Optional[dict[str, dict[str, Any]]]:
     """Fresh cross-process memo of a remote ``/models`` probe (same TTL as in-memory): one-shot
-    runs (``hermes -q``, cron) start cold and Nous bypasses the persistent context cache, so
+    runs (``envoy -q``, cron) start cold and Nous bypasses the persistent context cache, so
     without this every launch paid the live probe. Local endpoints are never memoized."""
     models = _ttl_memo_get(_get_endpoint_metadata_cache_path(), normalized, _ENDPOINT_MODEL_CACHE_TTL, ts_key="at", value_key="models")
     return models if isinstance(models, dict) else None
@@ -1909,7 +1909,7 @@ def _resolve_codex_oauth_context_length_with_source(model: str, access_token: st
             return bumped, source
         return ctx, source
     # The Codex catalog only knows the base slug (no -900k, no vendor/).
-    # ``-900k`` variants are Hermes picker aliases — the Codex catalog only knows the base slug, so resolve
+    # ``-900k`` variants are Envoy picker aliases — the Codex catalog only knows the base slug, so resolve
     # against the stripped id. Also drop any ``vendor/`` namespace (``openai/gpt-5.6-sol-900k``): the
     # main-agent path normalizes it away before reaching here, but display/auxiliary callers pass it through
     # (#92797 review).

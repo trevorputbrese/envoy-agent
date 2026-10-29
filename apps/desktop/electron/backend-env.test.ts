@@ -45,7 +45,7 @@ test('POSIX backend PATH keeps the inherited PATH first and appends missing sane
 })
 
 test('backend runs the store toolchain even after the login-shell PATH is merged in front of it', async () => {
-  // `hermes desktop` hands Electron a PATH with the PM store first; the
+  // `envoy desktop` hands Electron a PATH with the PM store first; the
   // login-shell merge then puts nvm/Homebrew ahead of it in process.env.
   const env: Record<string, string> = {
     PATH: '/Users/u/.hermes/tools/node-26.7.0-darwin-arm64/bin:/Users/u/.hermes/tools/uv-0.12.3-darwin-arm64:/usr/bin:/bin'
@@ -73,8 +73,8 @@ test('backend runs the store toolchain even after the login-shell PATH is merged
   ])
 })
 
-test('HERMES_RUNTIME_DIR names the store; look-alike prefixes are not Hermes-owned', () => {
-  const store = '/Applications/Hermes.app/Contents/Resources/agent-payload/tools'
+test('HERMES_RUNTIME_DIR names the store; look-alike prefixes are not Envoy-owned', () => {
+  const store = '/Applications/Envoy.app/Contents/Resources/agent-payload/tools'
 
   const backend = buildDesktopBackendEnv({
     currentEnv: {
@@ -135,7 +135,7 @@ test('normalizeHermesHomeRoot expands a literal leading ~ against the home direc
   assert.equal(normalizeHermesHomeRoot('~', { pathModule: path.posix, homedir: '/Users/test' }), '/Users/test')
 })
 
-test('normalizeHermesHomeRoot maps profile homes back to the global Hermes root', () => {
+test('normalizeHermesHomeRoot maps profile homes back to the global Envoy root', () => {
   assert.equal(
     normalizeHermesHomeRoot('/Users/test/.hermes/profiles/oracle', { pathModule: path.posix }),
     '/Users/test/.hermes'
@@ -158,7 +158,7 @@ test('appendUniquePathEntries flattens, dedupes, and preserves first occurrence'
   assert.equal(appendUniquePathEntries(['/a:/b', ['/b', '/c'], '', null], { delimiter: ':' }), '/a:/b:/c')
 })
 
-// `hermes desktop` loads its launch profile's .env/.op.env into os.environ and
+// `envoy desktop` loads its launch profile's .env/.op.env into os.environ and
 // hands that env to Electron; these cover what a profile backend inherits (#68367).
 function withHermesRoot(files: Record<string, string>, run: (root: string) => void) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-profile-env-'))
@@ -263,7 +263,7 @@ test('Windows matches profile homes and dotenv names case-insensitively', () => 
   }
 
   const currentEnv = {
-    HERMES_HOME: 'c:\\users\\test\\appdata\\local\\HERMES',
+    HERMES_HOME: 'c:\\users\\test\\appdata\\local\\ENVOY',
     Path: 'C:\\Windows',
     Telegram_Bot_Token: 'root-token'
   }

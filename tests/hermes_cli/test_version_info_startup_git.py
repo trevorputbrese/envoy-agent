@@ -1,4 +1,4 @@
-"""A Hermes start from a git checkout must not walk git for the release it never uses.
+"""An Envoy start from a git checkout must not walk git for the release it never uses.
 
 Each case runs in a fresh interpreter (the suite's conftest pre-seeds the version cache) with a
 ``git`` shim on PATH that logs every invocation before running the real git.

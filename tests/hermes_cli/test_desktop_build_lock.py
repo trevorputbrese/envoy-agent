@@ -175,16 +175,16 @@ def test_gui_releases_lock_before_packaged_electron_handoff(tmp_path, monkeypatc
     desktop_dir = root / "apps" / "desktop"
 
     if sys.platform == "darwin":
-        executable = desktop_dir / "release" / "mac-arm64" / "Hermes.app" / "Contents" / "MacOS" / "Hermes"
+        executable = desktop_dir / "release" / "mac-arm64" / "Envoy.app" / "Contents" / "MacOS" / "Envoy"
     elif sys.platform == "win32":
-        executable = desktop_dir / "release" / "win-unpacked" / "Hermes.exe"
+        executable = desktop_dir / "release" / "win-unpacked" / "Envoy.exe"
     else:
         executable = desktop_dir / "release" / "linux-unpacked" / "hermes"
     executable.parent.mkdir(parents=True)
     executable.write_text("", encoding="utf-8")
 
     monkeypatch.setattr("hermes_cli.main.PROJECT_ROOT", root, raising=False)
-    # The lock is checkout-keyed via the profile-common Hermes root; pin it so
+    # The lock is checkout-keyed via the profile-common Envoy root; pin it so
     # the holder and the handoff probe agree regardless of the runner's home.
     monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes-home"))
     # The fake executable has no Electron sandbox helper; the platform launch
@@ -211,7 +211,7 @@ def test_gui_releases_lock_before_packaged_electron_handoff(tmp_path, monkeypatc
 
 
 def test_gui_releases_lock_after_build_failure(tmp_path, monkeypatch, capsys):
-    """A failed build must not deadlock the next `hermes desktop`."""
+    """A failed build must not deadlock the next `envoy desktop`."""
     root = _checkout(tmp_path)
     monkeypatch.setattr("hermes_cli.main.PROJECT_ROOT", root, raising=False)
 
@@ -237,7 +237,7 @@ def test_gui_releases_lock_after_build_failure(tmp_path, monkeypatch, capsys):
 
 
 def test_update_path_waits_for_a_held_lock(tmp_path, monkeypatch, capsys):
-    """`hermes update`'s desktop rebuild queues behind a holder instead of failing the update."""
+    """`envoy update`'s desktop rebuild queues behind a holder instead of failing the update."""
     from hermes_cli import source_build as source_build_mod
     from hermes_cli.main_desktop import _refresh_installed_desktop_apps
 
@@ -292,7 +292,7 @@ _UPDATE_HOLDER = (
 
 
 def test_a_held_desktop_build_lock_keeps_an_updater_off_the_checkout(tmp_path):
-    """C5: a direct ``hermes desktop`` build holds DesktopBuildLock while npm writes the
+    """C5: a direct ``envoy desktop`` build holds DesktopBuildLock while npm writes the
     checkout; an updater (UpdateLock over the same checkout) must be refused meanwhile."""
     root = _checkout(tmp_path)
     build = DesktopBuildLock(root)

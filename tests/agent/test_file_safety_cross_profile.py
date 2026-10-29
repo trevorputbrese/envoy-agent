@@ -7,14 +7,14 @@ import pytest
 
 
 # ---------------------------------------------------------------------------
-# Helpers — set up a fake Hermes root with two profiles, monkeypatch the
+# Helpers — set up a fake Envoy root with two profiles, monkeypatch the
 # resolver helpers so the classifier sees the test layout.
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture
 def fake_hermes(tmp_path, monkeypatch):
-    """Build a fake Hermes layout:
+    """Build a fake Envoy layout:
 
         <tmp>/
           skills/foo/SKILL.md           # default profile

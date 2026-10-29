@@ -1,10 +1,10 @@
-"""``hermes`` must survive git operations on the checkout (launcher layout).
+"""``envoy`` must survive git operations on the checkout (launcher layout).
 
-The Windows ``hermes`` command is a staged launcher whose canonical home is
+The Windows ``envoy`` command is a staged launcher whose canonical home is
 the managed binary dir ``HERMES_HOME\\bin`` — OUTSIDE the git checkout —
 because the earlier in-checkout home (``hermes-agent\\bin``) was swept by
-``hermes update``'s autostash (``git stash push --include-untracked``) and,
-with the desktop updater's ``--keep-stash``, never restored: ``hermes``
+``envoy update``'s autostash (``git stash push --include-untracked``) and,
+with the desktop updater's ``--keep-stash``, never restored: ``envoy``
 stopped resolving in every new terminal (``venv\\Scripts`` itself must stay
 off PATH — it shadows the user's ``python``, #83797).
 
@@ -13,10 +13,10 @@ launchers that boot the pm STORE python with ``PYTHONPATH=repo;site-packages``
 — never ``venv\\Scripts\\python.exe`` (``pyvenv.cfg`` is inert dead config).
 When the store interpreter has not materialized yet, a runtime-resolving
 ``.cmd`` delegator is staged that finds the store python at boot and fails
-with a clear message until ``hermes pm install`` lands it; legacy copied
+with a clear message until ``envoy pm install`` lands it; legacy copied
 venv trampolines (detected by their embedded interpreter path) are replaced.
 ``migrate_windows_bin_path`` moves an existing install's PATH to the
-canonical layout from the ``hermes update`` tail. Platform verdict, PATH
+canonical layout from the ``envoy update`` tail. Platform verdict, PATH
 values, and registry I/O are injected parameters (same pattern as
 ``hermes_constants.venv_bin_dir``), so these tests are host-independent
 input→output checks, not host fakes.
@@ -181,7 +181,7 @@ def test_healthy_canonical_layout_with_placeholder_cmds_gets_upgraded(
     tmp_path, monkeypatch
 ):
     """Placeholder .cmd delegators from the fresh install are upgraded to
-    store-python launchers once `hermes pm install` materialized the store."""
+    store-python launchers once `envoy pm install` materialized the store."""
     home, root = _make_managed(tmp_path, monkeypatch)
     bin_dir = home / "bin"
     bin_dir.mkdir()
@@ -242,7 +242,7 @@ def test_noop_on_posix(managed_install):
 
 
 def test_profile_session_still_heals_the_shared_bin(tmp_path, monkeypatch):
-    """Under ``hermes -p <name>`` HERMES_HOME points inside profiles/<name>;
+    """Under ``envoy -p <name>`` HERMES_HOME points inside profiles/<name>;
     the launcher dir is per-machine, so the heal must anchor on the default
     root and fire anyway — a habitual profile user gets the same repair."""
     home = tmp_path / "hermes"
@@ -271,7 +271,7 @@ def test_no_staging_litter_left_behind(managed_install):
 
 
 # ---------------------------------------------------------------------------
-# migrate_windows_bin_path — the `hermes update` tail migration
+# migrate_windows_bin_path — the `envoy update` tail migration
 # ---------------------------------------------------------------------------
 
 
@@ -422,7 +422,7 @@ def test_migration_noop_on_posix(managed_install):
 def test_normalize_windows_path_equivalences():
     assert (
         _normalize_windows_path(r"C:\Users\Me\AppData\Local\hermes\bin")
-        == _normalize_windows_path("c:/users/me/appdata/local/HERMES/BIN/")
+        == _normalize_windows_path("c:/users/me/appdata/local/ENVOY/BIN/")
     )
 
 
@@ -430,7 +430,7 @@ def test_repo_gitignores_the_legacy_bin_dir():
     """Transition safety: legacy in-checkout launchers must not be stash-swept.
 
     Until every install has migrated, pre-migration checkouts still carry
-    launchers at ``<checkout>/bin``. ``hermes update`` autostashes with
+    launchers at ``<checkout>/bin``. ``envoy update`` autostashes with
     ``git stash push --include-untracked``; anything untracked and NOT
     ignored inside the checkout gets swept off disk. Exercises git's real
     ignore machinery rather than reading .gitignore text.
@@ -467,6 +467,6 @@ def test_repo_gitignores_the_legacy_bin_dir():
         check=False,
     )
     assert result.returncode == 0, (
-        "bin/hermes.exe is not gitignored — hermes update's autostash "
+        "bin/hermes.exe is not gitignored — envoy update's autostash "
         "(--include-untracked) would sweep pre-migration launchers off disk"
     )

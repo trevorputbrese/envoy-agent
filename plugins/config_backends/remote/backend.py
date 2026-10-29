@@ -181,7 +181,7 @@ class RemoteBackend:
         name = profile_name_for_home(home)
         if not name or not PROFILE_ID_RE.match(name):
             raise ConfigBackendUnavailable(
-                f"Remote Config: {home} is not a Hermes profile home, so it has no remote config "
+                f"Remote Config: {home} is not an Envoy profile home, so it has no remote config "
                 "(HERMES_CONFIG_BACKEND=remote serves profile homes only).")
         return name
 
@@ -215,8 +215,8 @@ class RemoteBackend:
         profile = self._profile_for(home)
         if not client.instance_id():
             raise ConfigBackendUnavailable(
-                f"Remote Config: {client.INSTANCE_ENV} is not set, so Hermes cannot identify this agent "
-                "to the config plane. Hermes does not start without its remote config.")
+                f"Remote Config: {client.INSTANCE_ENV} is not set, so Envoy cannot identify this agent "
+                "to the config plane. Envoy does not start without its remote config.")
         st = _ProfileState(home=home, profile=profile)
         delays = list(BOOT_RETRY_DELAYS)
         while True:
@@ -232,7 +232,7 @@ class RemoteBackend:
                     continue
                 raise ConfigBackendUnavailable(
                     f"Remote Config: cannot load the config for profile {profile!r} from "
-                    f"{client.shown_url()}: {exc}. Hermes does not start without its remote config "
+                    f"{client.shown_url()}: {exc}. Envoy does not start without its remote config "
                     "(HERMES_CONFIG_BACKEND=remote has no local fallback).") from exc
 
     def _fetch_into(self, st: _ProfileState, *, conditional: bool) -> bool:
@@ -344,7 +344,7 @@ class RemoteBackend:
         for key in sorted(set(doc) - _known_top_level_keys() - {"_config_version"}):
             if key not in self._unknown_warned:
                 self._unknown_warned.add(key)
-                logger.warning("Remote Config: unknown config key %r is ignored by this Hermes version", key)
+                logger.warning("Remote Config: unknown config key %r is ignored by this Envoy version", key)
         latest = _latest_config_version()
         if SUPPORT_FLOOR_VERSION <= current < latest:
             self._migrate_in_memory(st, seen, current, doc)

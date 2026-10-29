@@ -2,8 +2,8 @@
 
 ``hermes_cli.main`` skips eager plugin discovery at argparse-setup time
 when the invocation is clearly targeting a known built-in subcommand.
-This saves 500-650ms on ``hermes --help``, ``hermes --version``,
-``hermes logs``, etc., by not importing ``google.cloud.pubsub_v1``,
+This saves 500-650ms on ``envoy --help``, ``envoy --version``,
+``envoy logs``, etc., by not importing ``google.cloud.pubsub_v1``,
 ``aiohttp``, ``grpc``, and friends.
 
 Invariants: ``_plugin_cli_discovery_needed()`` classifies flag/positional argv
@@ -53,7 +53,7 @@ def test_deferred_platform_loader_registers_cli_command_before_parser_table():
 
     def _fake_loader():
         # Mirrors what a real platform adapter does on import: register its
-        # top-level hermes <name> CLI command via PluginContext.
+        # top-level envoy <name> CLI command via PluginContext.
         ctx = PluginContext(manifest, mgr)
         ctx.register_cli_command(
             name=command_name,

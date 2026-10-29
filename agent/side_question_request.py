@@ -29,7 +29,7 @@ SIDE_QUESTION_ORIGIN = "side_question"
 PLUGIN_SIDE_QUESTION_TASK = "plugin_side_question"
 
 # Tool entries the client executes; any other ``type`` (Responses ``web_search``, Anthropic
-# ``web_search_20250305``, ...) runs server-side and could act without Hermes seeing it.
+# ``web_search_20250305``, ...) runs server-side and could act without Envoy seeing it.
 _CLIENT_TOOL_TYPES = frozenset({"function", "custom"})
 # OpenRouter request plugins that only pick the model; anything else (``web``, ...) executes.
 _ROUTING_ONLY_OPENROUTER_PLUGINS = frozenset({"pareto-router"})

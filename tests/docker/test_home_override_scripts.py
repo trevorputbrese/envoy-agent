@@ -38,7 +38,7 @@ def test_dashboard_service_resets_home(
     # /proc/<pid>/environ (the real runtime environment, not the script text).
     ok, out = poll_container(
         container_name,
-        'pid=$(pgrep -f "hermes dashboard" | head -1); '
+        'pid=$(pgrep -f "envoy dashboard" | head -1); '
         '[ -n "$pid" ] && tr "\\0" "\\n" < /proc/$pid/environ | grep "^HOME="',
         deadline_s=60.0,
     )
@@ -90,7 +90,7 @@ def test_stage2_repairs_profiles_and_cron_ownership(
     # Restart — stage2 hook runs again and repairs ownership.
     restart_container(container_name)
 
-    # Verify files are now owned by hermes.
+    # Verify files are now owned by envoy.
     r = docker_exec_sh(
         container_name,
         'stat -c "%U" /opt/data/profiles/testprof/marker '

@@ -261,7 +261,7 @@ def test_boot_migrates_legacy_conveniences_to_selected_runtime(tmp_path, monkeyp
                    f'exec "{repo}/venv/bin/hermes" "$@"\n')
     (out / "hermes").write_text(old_wrapper, encoding="utf-8")
     (out / "hermes-acp").write_text(
-        '#!/usr/bin/env bash\n# Hermes Agent — ACP launcher (written by `hermes update`).\n'
+        '#!/usr/bin/env bash\n# Envoy Agent — ACP launcher (written by `envoy update`).\n'
         f'exec "{out}/hermes" acp "$@"\n', encoding="utf-8")
     # Mentions this install only in a comment and runs another checkout's venv.
     foreign = f'#!/bin/sh\n# user note about {repo}/venv/bin/hermes\nexec "{tmp_path}/other/venv/bin/hermes" "$@"\n'
@@ -269,8 +269,8 @@ def test_boot_migrates_legacy_conveniences_to_selected_runtime(tmp_path, monkeyp
 
     result = _launchers.expose_cli()
     assert result["ok"], result
-    assert set(result["written"]) == {"hermes", "hermes-acp"}
-    for name in ("hermes", "hermes-acp"):
+    assert set(result["written"]) == {"envoy", "envoy-acp", "hermes", "hermes-acp"}
+    for name in ("envoy", "envoy-acp", "hermes", "hermes-acp"):
         run = subprocess.run([str(out / name), "quoted argument"], cwd=tmp_path,
                              capture_output=True, text=True, timeout=30, encoding="utf-8", check=False)
         assert run.returncode == 7, run.stderr
@@ -415,7 +415,7 @@ def test_repin_without_distlib_retires_stale_native_launcher(tmp_path, monkeypat
     process = None
     try:
         if running:
-            # The launcher a repin retires is the one running `hermes update`.
+            # The launcher a repin retires is the one running `envoy update`.
             process = subprocess.Popen([str(original)], cwd=tmp_path, stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE, text=True, encoding="utf-8")
             first = queue.Queue()

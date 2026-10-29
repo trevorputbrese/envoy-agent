@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def _child_env(**values: str) -> dict[str, str]:
-    """A fresh env for a child of THIS interpreter: same dependency path, no hermes state."""
+    """A fresh env for a child of THIS interpreter: same dependency path, no envoy state."""
     env = {key: value for key, value in os.environ.items() if not key.startswith(("HERMES_", "PYTEST_"))}
     # The test runner may provide dependencies through sys.path rather than site-packages.
     env["PYTHONPATH"] = os.pathsep.join(path for path in sys.path if path)

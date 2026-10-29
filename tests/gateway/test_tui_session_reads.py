@@ -2,7 +2,7 @@
 every local session's /cron reads run main's handler on the owner, and its writes run there only when
 the classic CLI sends them on its own command socket (a viewer's connection keeps main's refusal).
 
-Main's TUI answered these itself (``session.status``: ``Hermes TUI Status``; ``/context``:
+Main's TUI answered these itself (``session.status``: ``Envoy TUI Status``; ``/context``:
 ``_format_live_context_output`` with the category table; ``/cron``: the classic CLI's overview in
 the slash worker). Through the owner a TUI session got the messaging gateway's markdown instead
 (FINDINGS rows 17 / 19 / 21). Other surfaces keep the gateway's handlers.
@@ -51,7 +51,7 @@ async def test_tui_status_is_main_tui_status(owner):
     sid = (await owner.call('session.create', request_id='t', source='tui', cwd=str(owner.workdir)))['session_id']
     out = await _exec(owner, sid, 'status')
     lines = out.splitlines()
-    assert lines[0] == 'Hermes TUI Status' and lines[1] == '', out
+    assert lines[0] == 'Envoy TUI Status' and lines[1] == '', out
     assert lines[2].startswith('Session ID: ') and lines[3].startswith('Path: ')
     labels = [line.split(':')[0] for line in lines[4:]]
     assert labels == ['Model', 'Created', 'Last Activity', 'Tokens', 'Agent Running'], out

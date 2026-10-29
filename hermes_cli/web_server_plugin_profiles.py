@@ -5,7 +5,7 @@ request scoped to another served profile (its native grant, a ``?profile=`` sele
 profile's own plugins: discovered under its own home and the root, gated by its own ``plugins.enabled`` /
 ``plugins.disabled``, and run in its own plugin host (bound to its home and secret scope) whatever
 its ``plugins.isolation`` says, so another profile's plugin code never enters this process. Bundled
-plugins are Hermes code and stay in-process. The host protocol is request/response, so a secondary
+plugins are Envoy code and stay in-process. The host protocol is request/response, so a secondary
 profile's plugin websockets are refused by name until it carries them.
 """
 
@@ -67,7 +67,7 @@ def secondary_profile_home() -> Optional[Path]:
 
 def _scan_profile_plugins(home: Path) -> list:
     """The profile at ``home``'s dashboard plugins, read from disk: its own ``plugins/``, then the
-    root's (as a standalone ``hermes --profile <name> serve`` scanned them; the profile's own copy
+    root's (as a standalone ``envoy --profile <name> serve`` scanned them; the profile's own copy
     wins a same-name conflict), then the bundled ones."""
     from hermes_cli.plugins import get_bundled_plugins_dir
     from hermes_cli.profiles import _get_default_hermes_home

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run a Hermes instance in an isolated sandbox — separate HERMES_HOME,
+# Run an Envoy instance in an isolated sandbox — separate HERMES_HOME,
 # separate Electron userData, and a distinct Desktop app name so it doesn't compete
 # with your main desktop instance's single-instance lock.
 #
@@ -9,21 +9,21 @@
 #
 # Usage:
 #   scripts/dev-sandbox.sh python -m hermes_cli.main
-#   scripts/dev-sandbox.sh hermes desktop
+#   scripts/dev-sandbox.sh envoy desktop
 #   scripts/dev-sandbox.sh electron .
 #   scripts/dev-sandbox.sh -- npm run dev   # from apps/desktop/
-#   scripts/dev-sandbox.sh --persistent hermes desktop
+#   scripts/dev-sandbox.sh --persistent envoy desktop
 #   scripts/dev-sandbox.sh --persistent -- npm run dev
 #
 # Seed the sandbox HERMES_HOME from an existing directory (e.g. your main
 # ~/.hermes) so config, sessions, skills, etc. are pre-populated:
-#   scripts/dev-sandbox.sh --from ~/.hermes hermes desktop
+#   scripts/dev-sandbox.sh --from ~/.hermes envoy desktop
 #
 # Override the app name (default: HermesSandbox):
-#   HERMES_DEV_SANDBOX_NAME=Staging scripts/dev-sandbox.sh hermes desktop
+#   HERMES_DEV_SANDBOX_NAME=Staging scripts/dev-sandbox.sh envoy desktop
 #
 # Override the persistent sandbox dir name (default: .hermes-sandbox):
-#   HERMES_DEV_SANDBOX_DIR=.staging-sandbox scripts/dev-sandbox.sh --persistent hermes desktop
+#   HERMES_DEV_SANDBOX_DIR=.staging-sandbox scripts/dev-sandbox.sh --persistent envoy desktop
 
 set -euo pipefail
 
@@ -44,7 +44,7 @@ print_help() {
   cat <<EOF
 Usage: $ENTRYPOINT [--persistent] [--from DIR] [--] <command...>
 
-Run a Hermes instance in an isolated sandbox.
+Run an Envoy instance in an isolated sandbox.
 
 Options:
   --persistent    Keep the sandbox dir across restarts (under the worktree
@@ -62,9 +62,9 @@ Environment:
   HERMES_DEV_SANDBOX_DIR   Override the persistent dir name (default: $DEFAULT_DIR)
 
 Examples:
-  $ENTRYPOINT hermes desktop
-  $ENTRYPOINT --persistent hermes desktop
-  $ENTRYPOINT --from ~/.hermes hermes desktop
+  $ENTRYPOINT envoy desktop
+  $ENTRYPOINT --persistent envoy desktop
+  $ENTRYPOINT --from ~/.hermes envoy desktop
   $ENTRYPOINT -- npm run dev
 EOF
 }

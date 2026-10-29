@@ -1,7 +1,7 @@
-"""Dashboard embedded chat: the ``/api/pty`` WebSocket drives a REAL ``hermes --tui`` end to end.
+"""Dashboard embedded chat: the ``/api/pty`` WebSocket drives a REAL ``envoy --tui`` end to end.
 
 Issue class: the dashboard Chat tab talking to the wrong profile, or losing the conversation on a
-reconnect. Every cell runs the real ``hermes dashboard``, which
+reconnect. Every cell runs the real ``envoy dashboard``, which
 spawns the real Ink TUI (``ui-tui/dist/entry.js``) and its ``tui_gateway`` under a real PTY; the
 client is what the browser's xterm does (raw PTY bytes, the ``\\x1b[RESIZE:c;r]`` control frame, the
 SPA's ``?attach=`` keep-alive token, ``?profile=`` and a per-(profile) ``?channel=``). Each profile
@@ -116,7 +116,7 @@ class Chat:
 
     def wait_composer(self, term: WsTerm) -> None:
         """The TUI painted its composer prompt and session banner, and its status bar no longer
-        reports a boot phase ("summoning hermes…", "starting agent…"). Profile-agnostic on purpose:
+        reports a boot phase ("summoning envoy…", "starting agent…"). Profile-agnostic on purpose:
         which profile answered is judged by the provider/state.db assertions, not by this wait."""
         def ready() -> bool:
             s = term.text()

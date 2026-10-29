@@ -5,7 +5,7 @@ crash; these prove the guard that turns it into a clear "restart the gateway"
 message before a model switch can hit it.  The dashboard mirror (#86207) lives
 here too: ``web_server_config._dashboard_code_skew_guard`` and the
 ``/api/model/options`` 503 guard, which protect the Models page from the same
-stale-module ImportError after ``hermes update``.
+stale-module ImportError after ``envoy update``.
 """
 
 import asyncio
@@ -60,7 +60,7 @@ class TestModelSwitchSkewGuard:
         assert msg is not None
         assert "abc1234567" in msg
         assert "def4567890" in msg
-        assert "hermes gateway restart" in msg
+        assert "envoy gateway restart" in msg
 
 
 class TestDashboardCodeSkewGuard:

@@ -47,7 +47,7 @@ def test_a_proxy_the_users_dotenv_sets_survives_the_restore(tmp_path, monkeypatc
 
 
 def _desktop_injected_env(monkeypatch, tmp_path, dotenv: str, own_no_proxy: str | None = None):
-    """The env the Desktop hands `hermes update` (system proxy in both spellings), then the .env load."""
+    """The env the Desktop hands `envoy update` (system proxy in both spellings), then the .env load."""
     from hermes_cli import env_loader
 
     monkeypatch.setattr(env_loader, "_DOTENV_PUBLISHED", {})
@@ -70,7 +70,7 @@ def _desktop_injected_env(monkeypatch, tmp_path, dotenv: str, own_no_proxy: str 
 
 def test_hermes_update_sends_the_update_to_the_users_dotenv_proxy(tmp_path, monkeypatch):
     """S1: the .env load replaces only the spelling the file uses, and urllib (like curl) prefers the
-    lower-case one. Once `hermes update` applied its .env, the .env proxy and NO_PROXY must win."""
+    lower-case one. Once `envoy update` applied its .env, the .env proxy and NO_PROXY must win."""
     import urllib.request
 
     from hermes_cli.update_proxy_env import prefer_dotenv_proxy_env

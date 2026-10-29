@@ -86,7 +86,7 @@ def mint_launch_ticket(state) -> str:
 def mint_printed_launch_ticket(state) -> str:
     """Ticket for a launch link the user opens by hand where nothing identifies the redeeming
     connection's owner (macOS, the BSDs, WSL): it spends without that check, as a window ticket does, so
-    ``hermes webapp`` prints it and never passes it to a browser launcher."""
+    ``envoy webapp`` prints it and never passes it to a browser launcher."""
     return _mint_handoff_ticket(state, LAUNCH_TICKET_TTL_SECONDS, launch=False)
 
 
@@ -138,7 +138,7 @@ def _peer_is_server_user(request: Request, platform: str = sys.platform) -> bool
     launcher's command line, which only its own user, SYSTEM and elevated administrators can read.
     Elsewhere (macOS, the BSDs) every local user can read the launcher's argv and nothing here
     identifies the connection's owner, so an argv-carried launch ticket cannot be redeemed; WSL
-    never mints one. Authenticated child-window tickets and the launch tickets ``hermes webapp``
+    never mints one. Authenticated child-window tickets and the launch tickets ``envoy webapp``
     prints for the user to open by hand (``mint_printed_launch_ticket``) do not use this launcher
     channel.
     """
@@ -340,7 +340,7 @@ async def launch_page(request: Request):
     fragment (never sent to the server), keeps the credential it receives in this tab's
     sessionStorage and enters the Webapp at an address that carries neither."""
     _require_private_webapp(request)
-    return _handoff_page(request, "Opening Hermes", "Opening Hermes Webapp…", _LAUNCH_SCRIPT)
+    return _handoff_page(request, "Opening Envoy", "Opening Envoy Webapp…", _LAUNCH_SCRIPT)
 
 
 # No credential appears in this public page or in its URL. The fragment
@@ -352,7 +352,7 @@ history.replaceState(null, '', location.pathname);
 const id = params.get('channel') || '';
 const status = document.getElementById('status');
 if (!/^[a-f0-9-]{36}$/.test(id)) {
-  status.textContent = 'Open this window from an authorized Hermes Webapp tab.';
+  status.textContent = 'Open this window from an authorized Envoy Webapp tab.';
 } else {
   const channel = new BroadcastChannel(`hermes.webapp.window:${id}`);
   let receiving = false;
@@ -402,4 +402,4 @@ if (!/^[a-f0-9-]{36}$/.test(id)) {
 @router.get("/webapp/window")
 async def child_window_page(request: Request):
     _require_private_webapp(request)
-    return _handoff_page(request, "Opening Hermes", "Authorizing this Hermes window…", _WINDOW_SCRIPT)
+    return _handoff_page(request, "Opening Envoy", "Authorizing this Envoy window…", _WINDOW_SCRIPT)

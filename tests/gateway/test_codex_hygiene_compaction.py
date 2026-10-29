@@ -11,8 +11,8 @@ history and each turn submits only the new user message), so:
 * the fix routes hygiene and manual /compress to the LIVE cached agent's
   ``thread/compact/start`` (asserted here at the compact_thread RPC-stub
   boundary) and keeps that agent cached;
-* ``compression.codex_app_server_auto`` semantics hold: only ``hermes``
-  lets Hermes' threshold start a compaction; ``native``/``off`` skip
+* ``compression.codex_app_server_auto`` semantics hold: only ``envoy``
+  lets Envoy's threshold start a compaction; ``native``/``off`` skip
   cleanly, and no mode ever runs the local transcript compressor.
 """
 
@@ -107,7 +107,7 @@ def _gateway(tmp_path, session_key="tg:123", agent=None):
 
 
 # ---------------------------------------------------------------------------
-# Core no-op regression: hermes mode + live thread => thread/compact runs
+# Core no-op regression: envoy mode + live thread => thread/compact runs
 # ---------------------------------------------------------------------------
 
 def test_hermes_mode_compacts_live_thread_at_rpc_boundary(tmp_path):
@@ -240,7 +240,7 @@ def test_force_compacts_thread_never_local_fallback(mode):
 
 @pytest.mark.parametrize("mode", ["native", "off"])
 def test_force_without_live_thread_does_not_run_local_compressor(mode):
-    # The #73715 branch let force=True fall through to the local Hermes
+    # The #73715 branch let force=True fall through to the local Envoy
     # compressor in native/off when no thread existed. That is wrong on this
     # runtime in every mode: rewriting the mirror cannot shrink the thread.
     agent = LiveCodexAgent(mode=mode, session=None)

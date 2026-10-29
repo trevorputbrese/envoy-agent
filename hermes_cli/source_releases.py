@@ -14,7 +14,7 @@ from hermes_cli.update_channel import STABLE_TAG_RE, is_canary_tag
 
 logger = logging.getLogger(__name__)
 _PUBLIC_BASE = "https://hermes-assets.nousresearch.com"
-OFFICIAL_REPOSITORY = "NousResearch/hermes-agent"
+OFFICIAL_REPOSITORY = "trevorputbrese/envoy-agent"
 _GITHUB_ORIGIN = re.compile(
     r"^(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
     r"([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?/?$", re.IGNORECASE,
@@ -61,7 +61,7 @@ class SourceTarget:
     def label(self) -> str:
         if self.ahead:
             return (f"{self.channel} v{self.version}; this checkout is newer and waits for the next release"
-                    " (`hermes update --set-channel main` follows every commit)")
+                    " (`envoy update --set-channel main` follows every commit)")
         return f"{self.channel} v{self.version} ({self.commit[:12]})" if self.commit else self.channel
 
 

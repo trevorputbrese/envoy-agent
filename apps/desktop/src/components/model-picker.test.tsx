@@ -177,7 +177,7 @@ const WINDOW_USAGE = {
   top_tier_model_ids: ['example/model-b']
 }
 
-// The gateway's per-plan words, passed through by the backend (Hermes never computes them).
+// The gateway's per-plan words, passed through by the backend (Envoy never computes them).
 const WINDOW_LEVELS = {
   'example/model-d': 'medium',
   'example/model-b': 'top_tier',

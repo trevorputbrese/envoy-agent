@@ -1,10 +1,10 @@
 /**
  * Desktop attaching to a local gateway that was already running (#134889 W3).
  *
- * The shape every Windows login item, `hermes gateway run` console and CLI
+ * The shape every Windows login item, `envoy gateway run` console and CLI
  * session leaves behind: the profile's gateway is up BEFORE the Desktop opens.
  * Desktop must attach to that process through the real main-process path
- * (electron/local-gateway.ts `hermes gateway ensure`, then the ticket mint:
+ * (electron/local-gateway.ts `envoy gateway ensure`, then the ticket mint:
  * the SID-checked named pipe through the installed runtime's helper on
  * Windows, the private control socket elsewhere), never start a second one,
  * and serve a turn on it. Quitting leaves the gateway it did not start
@@ -67,7 +67,7 @@ function alive(pid: number): boolean {
   }
 }
 
-/** `hermes gateway run`, detached and windowless, as a login item / console starts it. */
+/** `envoy gateway run`, detached and windowless, as a login item / console starts it. */
 async function startGatewayFirst(sandbox: CoreSandbox): Promise<{ pid: number; log: string }> {
   const log = path.join(sandbox.root, 'gateway-run.log')
   const out = fs.openSync(log, 'a')
@@ -206,7 +206,7 @@ test(`Desktop${PACKAGED_EXE ? ' (packaged)' : ''} attaches to the gateway alread
     const stopped = stopSandboxGateway(sandbox)
     expect(stopped.code, stopped.output).toBe(0)
     await expect
-      .poll(() => alive(gateway.pid), { timeout: 90_000, message: 'hermes gateway stop ends the gateway' })
+      .poll(() => alive(gateway.pid), { timeout: 90_000, message: 'envoy gateway stop ends the gateway' })
       .toBe(false)
   } finally {
     if (live) {

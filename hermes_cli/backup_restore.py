@@ -199,7 +199,7 @@ def _restore_destination_epoch(dst: Path) -> int:
     except (OSError, sqlite3.Error, ValueError) as exc:
         raise OSError(
             f"Cannot read the canonical runtime epoch at {dst}; refusing in-place restore. "
-            "Use `hermes sessions recover --source <snapshot> --output <separate-path>` "
+            "Use `envoy sessions recover --source <snapshot> --output <separate-path>` "
             "to salvage transcripts into a separate output."
         ) from exc
 
@@ -356,7 +356,7 @@ def _restore_db_pages(src: Path, dst: Path) -> bool:
         except LiveConnectionError as exc2:
             logger.error(
                 "Refusing unlink+move restore of %s: %s Close the in-process "
-                "database handles (or restart Hermes) and retry.",
+                "database handles (or restart Envoy) and retry.",
                 dst, exc2,
             )
             return False
@@ -366,7 +366,7 @@ def _restore_db_pages(src: Path, dst: Path) -> bool:
 
 
 def _validate_backup_zip(zf: zipfile.ZipFile) -> tuple[bool, str]:
-    """Check that a zip looks like a Hermes backup.
+    """Check that a zip looks like an Envoy backup.
 
     Returns (ok, reason).
     """
@@ -374,7 +374,7 @@ def _validate_backup_zip(zf: zipfile.ZipFile) -> tuple[bool, str]:
     if not names:
         return False, "zip archive is empty"
 
-    # Look for telltale files that a hermes home would have
+    # Look for telltale files that a envoy home would have
     markers = {"config.yaml", ".env", "state.db"}
     found = set()
     for n in names:
@@ -385,7 +385,7 @@ def _validate_backup_zip(zf: zipfile.ZipFile) -> tuple[bool, str]:
 
     if not found:
         return False, (
-            "zip does not appear to be a Hermes backup "
+            "zip does not appear to be an Envoy backup "
             "(no config.yaml, .env, or state databases found)"
         )
 
@@ -409,7 +409,7 @@ def _detect_prefix(zf: zipfile.ZipFile) -> str:
     first_parts = {p[0] for p in parts_list if len(p) > 1}
     if len(first_parts) == 1:
         prefix = first_parts.pop()
-        # Only strip if it looks like a hermes dir name
+        # Only strip if it looks like a envoy dir name
         if prefix in {".hermes", "hermes"}:
             return prefix + "/"
 
@@ -497,7 +497,7 @@ def _extract_member_atomically(
         # Carrying the elevated bits across would let archive-controlled bytes
         # take over an existing setuid/setgid file, so ``hermes import`` would
         # hand whoever produced the zip the identity that file runs as.  Nothing
-        # constrains that to Hermes' own state either: the ``_external/`` branch
+        # constrains that to Envoy's own state either: the ``_external/`` branch
         # of ``run_import`` publishes members anywhere under ``$HOME``.  The
         # sticky bit is kept — it is inert on a regular file.
         mode &= ~(stat.S_ISUID | stat.S_ISGID)
@@ -542,7 +542,7 @@ def _count_session_rows(path: Path) -> Optional[tuple[int, int]]:
     """Return ``(sessions, messages)`` stored in the session database *path*.
 
     Read-only and best effort.  ``None`` means "unknown" — a missing file, a
-    database that is not a Hermes session store, or one that cannot be read.
+    database that is not an Envoy session store, or one that cannot be read.
     Callers must never read ``None`` as "zero rows": acting on an unreadable
     database would mask the very loss this count exists to surface.  Same
     contract as :func:`_count_cron_jobs`.

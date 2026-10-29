@@ -23,7 +23,7 @@ def _streams_llamacpp(agent) -> bool:
     """True when this agent's chat requests go to llama-server: the managed server, or a
     ``llamacpp`` provider endpoint. These requests always stream and ask for prompt progress
     (unless the user turned streaming off in config). A non-streamed request can't be cancelled
-    through the router, so it would keep the server busy after Hermes gives up on it."""
+    through the router, so it would keep the server busy after Envoy gives up on it."""
     if getattr(agent, "api_mode", "") not in ("", "chat_completions"):
         return False
     from hermes_cli.local_runtime.capabilities import is_managed_provider

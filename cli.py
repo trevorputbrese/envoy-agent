@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hermes Agent CLI — interactive terminal interface (``python cli.py --help`` for usage)."""
+"""Envoy Agent CLI — interactive terminal interface (``python cli.py --help`` for usage)."""
 
 # Must be the very first import (UTF-8 stdio on Windows). Missing only mid-``hermes update``.
 try:
@@ -455,7 +455,7 @@ def _arm_exit_watchdog_on_shutdown_signal() -> None:
     several wedge points BEFORE ``_run_cleanup`` arms the normal watchdog: a main thread parked in a syscall
     that never observes the unwind, a prompt_toolkit teardown that never returns, or an agent worker
     blocking the ``finally``. When that happens the process has NO backstop and a "dead" CLI lingers
-    (observed: ``hermes --tui`` alive ~47 min at 4% CPU after terminal close — the #65998 class).
+    (observed: ``envoy --tui`` alive ~47 min at 4% CPU after terminal close — the #65998 class).
     """
     global _signal_watchdog_armed
     if _signal_watchdog_armed:
@@ -878,7 +878,7 @@ _PASTE_REF_RE = re.compile(r'\[Pasted text #\d+: \d+ lines \u2192 (.+?)\]')
 
 
 class HermesCLI(CLIInitMixin, CLITuiRuntimeMixin, CLIProcessNotificationsMixin, CLIAgentSetupMixin, CLICommandsMixin, CLIBillingMixin, CLITuiMixin, CLIStatusBarMixin, CLIVoiceMixin, CLIModelSwitchMixin, CLISessionMixin, CLIStreamMixin, CLIModalMixin, CLITerminalMixin, CLIInfoMixin, CLILoopsMixin, CLIChatTurnMixin):
-    """Interactive REPL for the Hermes Agent."""
+    """Interactive REPL for the Envoy Agent."""
 
     # Seeded -q first message (see _should_seed_interactive); run() re-creates
     # _pending_input, so it is enqueued only after the fresh queue exists.
@@ -1004,7 +1004,7 @@ class HermesCLI(CLIInitMixin, CLITuiRuntimeMixin, CLIProcessNotificationsMixin, 
             # A typo'd name must not crash a kanban worker; only a fully-missing set fails loudly.
             if not loaded_skills:
                 raise ValueError(format_missing_skills(missing_skills))
-            logger.warning("Skipping %s. Continuing with: %s. List available skills with `hermes skills list`.",
+            logger.warning("Skipping %s. Continuing with: %s. List available skills with `envoy skills list`.",
                            format_missing_skills(missing_skills), ", ".join(loaded_skills))
         if skills_prompt:
             self.system_prompt = "\n\n".join(p for p in (self.system_prompt, skills_prompt) if p).strip()
@@ -1619,7 +1619,7 @@ def _start_worktree_setup(list_tools, list_toolsets, worktree, w):
     if list_tools or list_toolsets or not (worktree or w or CLI_CONFIG.get("worktree", False)):
         return None
     # Overlap tool discovery with the I/O-bound worktree setup so show_banner() hits a warm
-    # cache (~0.4s). Only on the -w path: plain `hermes` has no I/O wait to hide.
+    # cache (~0.4s). Only on the -w path: plain `envoy` has no I/O wait to hide.
     def _prewarm_tools() -> None:
         try:
             import model_tools as _mt
@@ -1696,7 +1696,7 @@ def main(
     ignore_rules: bool = False,
 ):
     """
-    Hermes Agent CLI - Interactive AI Assistant
+    Envoy Agent CLI - Interactive AI Assistant
     
     Args:
         query: Query to run. On a real TTY this seeds an interactive session
@@ -1755,7 +1755,7 @@ def main(
 
     _join_worktree = _start_worktree_setup(list_tools, list_toolsets, worktree, w)
     query = query or q
-    # ``hermes chat`` already validated this; the direct Fire entry point gets the same contract.
+    # ``envoy chat`` already validated this; the direct Fire entry point gets the same contract.
     if output_format == "stream-json":
         if not query:
             raise ValueError("--format stream-json requires -q/--query")

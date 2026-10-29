@@ -20,7 +20,7 @@ import uuid
 
 from hermes_cli.gateway_client import GatewayClientError
 
-PARITY_DOC = "https://hermes-agent.nousresearch.com/docs/developer-guide/gateway-command-parity"
+PARITY_DOC = "https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/developer-guide/gateway-command-parity.md"
 
 # Registry command (canonical name) -> how the classic view answers it itself. Every other
 # registry command goes to the owner through ``slash.exec``. Read by the parity inventory
@@ -176,7 +176,7 @@ async def _tools(view, rest):
     if isinstance(toolsets, list) and toolsets:
         print("Toolsets frozen at launch: " + ", ".join(map(str, toolsets)))
     else:
-        print("This session runs the profile's CLI toolsets as they were at launch (`hermes tools list`).")
+        print("This session runs the profile's CLI toolsets as they were at launch (`envoy tools list`).")
     print("Changing toolsets mid-session (/tools enable|disable) " + refusal("tools").split(" ", 1)[1])
 
 

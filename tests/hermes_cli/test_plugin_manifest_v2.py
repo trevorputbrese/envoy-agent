@@ -350,7 +350,7 @@ class TestPythonDependenciesSeam:
             mgr.discover_and_load()
         assert mgr._plugins["pipful"].enabled
         assert "definitely-not-a-real-package-64165" in caplog.text
-        assert "hermes pm repair" in caplog.text
+        assert "envoy pm repair" in caplog.text
         assert calls == []
 
     def test_satisfied_pip_dep_is_quiet(self, hermes_home, caplog):
@@ -431,7 +431,7 @@ class TestRequiresHermes:
             mgr = PluginManager()
             mgr.discover_and_load()
             assert not hasattr(sys, "_rh_future")
-            assert "requires hermes >=99.0" in (mgr._plugins["future"].error or "")
+            assert "requires envoy >=99.0" in (mgr._plugins["future"].error or "")
             assert getattr(sys, "_rh_current", False) is True
         finally:
             for attr in ("_rh_future", "_rh_current"):
@@ -513,7 +513,7 @@ class TestLoadIsolation:
 class TestBundledKeyShadowing:
     def test_impostor_dir_cannot_claim_a_bundled_key(self, tmp_path, monkeypatch, caplog):
         """``~/.hermes/plugins/impostor_dir/plugin.yaml`` with ``name: <bundled key>`` used to displace the
-        bundled plugin silently, so ``hermes plugins enable <key>`` enabled unrelated code. The bundled
+        bundled plugin silently, so ``envoy plugins enable <key>`` enabled unrelated code. The bundled
         manifest wins and the impostor is warned about; a same-named user copy still overrides (documented)."""
         home = tmp_path / "home"
         (home / "plugins").mkdir(parents=True)

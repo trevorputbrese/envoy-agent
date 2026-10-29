@@ -134,7 +134,7 @@ class TestParser:
         assert parse_credits_headers({**h, "x-nous-credits-window-gauges": json.dumps(top_only)}) is None
 
     def test_the_server_list_decides_which_allowances_exist(self):
-        """A new allowance (here a 5-hour window) parses and binds with no Hermes release; an entry with an
+        """A new allowance (here a 5-hour window) parses and binds with no Envoy release; an entry with an
         unknown scope, a repeated id or a bad percent is dropped, never misread."""
         gauges = [{"id": "five_hour", "scope": "all", "label": "Next 5 hours", "used_bp": 10_000,
                    "resets_at_ms": NOW_MS + 3600_000},
@@ -168,7 +168,7 @@ class TestParser:
         assert s is not None and s.paused_reason == "payment_past_due" and s.paid_access is False
 
     def test_top_up_setting_header(self):
-        """``on`` / ``off`` is the account's top-up-for-Hermes setting; absent or unrecognised = an older server."""
+        """``on`` / ``off`` is the account's top-up-for-Envoy setting; absent or unrecognised = an older server."""
         on = parse_credits_headers(_window_headers(purchased=5.0, **{"x-nous-credits-keep-going-on-credits": "on"}))
         off = parse_credits_headers(_window_headers(purchased=5.0, **{"x-nous-credits-keep-going-on-credits": "OFF"}))
         old = parse_credits_headers(_window_headers(purchased=5.0))
@@ -629,7 +629,7 @@ def _plan_state(day_bp: int, week_bp: int, *, top_tier_bp: int = 0, purchased: s
                 auto_top_up: bool = False, paused: str | None = None, paid: bool = True,
                 keep_going: bool | None = None) -> CreditsState:
     """A header-shaped window state: percents in bp, resets 6h / 3d out from now, a top-up wallet, the
-    last spend source, auto top-up, a pause and the account's top-up-for-Hermes setting."""
+    last spend source, auto top-up, a pause and the account's top-up-for-Envoy setting."""
     from decimal import Decimal
 
     from agent.usage_gauges import SCOPE_ALL, SCOPE_TOP_TIER, WindowGauge
@@ -655,7 +655,7 @@ _PLAN_STATES = {
     "healthy": lambda: _plan_state(1_200, 900, source="included"),  # 12% today → no notice
     "75pct": lambda: _plan_state(7_600, 4_000, source="included"),  # 75%: quiet (no band on a window plan)
     "week_90pct": lambda: _plan_state(3_000, 9_100, source="included"),  # the week's 90% heads-up
-    # window used up, $5.00 top-up but top-up for Hermes turned off → the stop names the setting
+    # window used up, $5.00 top-up but top-up for Envoy turned off → the stop names the setting
     "keep_going_off": lambda: _plan_state(10_000, 6_000, purchased="5.00", keep_going=False),
     "keep_going_off_no_balance": lambda: _plan_state(10_000, 6_000, keep_going=False),
     # window used up, $5.00 top-up → PAYG one-shot
@@ -682,7 +682,7 @@ class TestPlanStates:
         ("top_tier_blocked", [CREDITS_WINDOW_LIMIT_KEY], "You've hit your monthly large-model limit · resets"),
         ("top_tier_blocked_autotopup", [CREDITS_WINDOW_LIMIT_KEY], "auto top-up is on"),
         ("exhausted", [CREDITS_WINDOW_LIMIT_KEY], "/topup to add credits"),
-        # A balance, but top-up for Hermes is off: the stop names the account setting, not /topup.
+        # A balance, but top-up for Envoy is off: the stop names the account setting, not /topup.
         ("keep_going_off", [CREDITS_WINDOW_LIMIT_KEY], "turn on Keep going in /topup"),
         # No balance and the setting off (the default): the gateway refuses either way, so both steps.
         ("keep_going_off_no_balance", [CREDITS_WINDOW_LIMIT_KEY], "add credits and turn on Keep going in /topup"),
@@ -924,7 +924,7 @@ class TestClassifier:
     def test_window_402_is_billing_and_not_retryable(self):
         from agent.error_classifier import FailoverReason, classify_api_error
         c = classify_api_error(self._err(402, "usage_window_and_credits_exhausted",
-                                         "Your included Hermes usage for today is used up and you have no top-up credits. It resets at 18:00."),
+                                         "Your included Envoy usage for today is used up and you have no top-up credits. It resets at 18:00."),
                                provider="nous", model="example/model-c")
         assert c.reason == FailoverReason.billing and not c.retryable
         assert c.error_context.get("usage_window") is True
@@ -941,7 +941,7 @@ class TestClassifier:
 
     def test_window_402_carries_the_server_wording_when_sent(self):
         from agent.error_classifier import classify_api_error
-        err = self._err(402, "usage_window_and_credits_exhausted", "Your included Hermes usage for today is used up.")
+        err = self._err(402, "usage_window_and_credits_exhausted", "Your included Envoy usage for today is used up.")
         assert "display_message" not in classify_api_error(err, provider="nous", model="m").error_context
         err.body = {"status": 402, "code": "usage_window_and_credits_exhausted", "message": "m",
                     "display_message": "Daily limit hit. Back at 4pm."}
@@ -1167,7 +1167,7 @@ class TestPicker:
             "paid_service_access": {"allowed": True},
             "usage_window": {"gauges": _gauges(1200, 900), "auto_top_up_enabled": False,
                              "paused_reason": "payment_past_due",
-                             # The fixed per-window fields older clients read: Hermes ignores them.
+                             # The fixed per-window fields older clients read: Envoy ignores them.
                              "day_used_bp": 9999, "week_used_bp": 9999},
         }
         info = na._info_from_account_payload(payload, state={}, portal_base_url=None)
@@ -1270,7 +1270,7 @@ class TestRefusalReadsAsTheStopLine:
 
     def test_the_server_wording_replaces_the_stop_line_when_sent(self):
         """``display_message`` on the 402: shown verbatim (a reword ships with the API); the retry clock
-        still comes from the gauges. Absent: Hermes's own stop line, as above."""
+        still comes from the gauges. Absent: Envoy's own stop line, as above."""
         from agent.conversation_loop import _usage_window_refusal
         agent = self._agent()
         server = SimpleNamespace(error_context={"usage_window": True, "display_message": "  Daily limit hit. Back at 4pm.  "})
@@ -1288,8 +1288,8 @@ class TestRefusalReadsAsTheStopLine:
         quiet = SimpleNamespace(_credits_state=_state(), _credits_latch=new_credits_latch(), model="example/model-b",
                                 base_url="https://inference-api.nousresearch.com/v1")
         refused = SimpleNamespace(error_context={"usage_window": True},
-                                  message="Your included Hermes usage for this week is used up.")
-        assert _usage_window_refusal(quiet, refused)[0] == "Your included Hermes usage for this week is used up."
+                                  message="Your included Envoy usage for this week is used up.")
+        assert _usage_window_refusal(quiet, refused)[0] == "Your included Envoy usage for this week is used up."
         assert _usage_window_refusal(quiet, SimpleNamespace(error_context={"usage_window": True}))[0] == ""
 
     def test_the_refusal_names_the_plans_recommended_model(self, monkeypatch):

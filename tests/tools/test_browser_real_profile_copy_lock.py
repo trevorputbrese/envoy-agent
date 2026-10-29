@@ -1,5 +1,5 @@
 """The real-profile snapshot (the overlay of the user's Cookies / Login Data onto the profile copy) is part of the
-launch step under the copy dir's cross-process launcher lock: two Hermes processes of one profile never copy into
+launch step under the copy dir's cross-process launcher lock: two Envoy processes of one profile never copy into
 the same snapshot dir at once, nor over a copy-browser that just came up (the later one attaches instead), and a
 different profile's copy never waits on it (``tools/browser_session_real_profile.py``).
 """
@@ -23,7 +23,7 @@ pytestmark = pytest.mark.platforms("linux")
 
 _REPO = Path(__file__).resolve().parents[2]
 
-# One Hermes process resolving its real-profile browser. The snapshot is the real copier on a fixture profile,
+# One Envoy process resolving its real-profile browser. The snapshot is the real copier on a fixture profile,
 # wrapped only to log when it runs and to stay inside long enough for a rival process to show up.
 _SESSION = textwrap.dedent("""\
     import json, os, sys, time

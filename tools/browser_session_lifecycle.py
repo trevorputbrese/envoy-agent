@@ -63,7 +63,7 @@ def _best_effort(label: str, fn) -> None:
 
 
 def update_session_activity(cache_key: str) -> None:
-    """Touch the activity timestamp and record the owning Hermes home on first sight (#86402)."""
+    """Touch the activity timestamp and record the owning Envoy home on first sight (#86402)."""
     bs = _bs()
     with bs._cleanup_lock:
         bs._session_last_activity[cache_key] = time.time()
@@ -72,7 +72,7 @@ def update_session_activity(cache_key: str) -> None:
 
 @contextlib.contextmanager
 def _session_owner_scope(cache_key: str):
-    """Run under the Hermes home + secret scope owning ``cache_key``'s session (no-op when unrecorded); the
+    """Run under the Envoy home + secret scope owning ``cache_key``'s session (no-op when unrecorded); the
     janitor is process-global, so each teardown re-enters ITS profile, never ``os.environ``."""
     owner_home = _bs()._session_owner_homes.get(cache_key)
     if owner_home is None:
@@ -235,7 +235,7 @@ def cleanup_all_browsers() -> None:
 
 
 def emergency_cleanup_all_sessions() -> None:
-    """atexit: close this process's browsers, then reap orphans left by crashed Hermes processes (every
+    """atexit: close this process's browsers, then reap orphans left by crashed Envoy processes (every
     clean exit sweeps accumulated orphans). Idempotent."""
     bs = _bs()
     if bs._cleanup_done:
@@ -253,7 +253,7 @@ def emergency_cleanup_all_sessions() -> None:
 
 
 def reap_orphaned_browser_sessions() -> int:
-    """Stop Chromium / ``lightpanda serve`` processes whose owning Hermes process is gone (Chromium: in every
+    """Stop Chromium / ``lightpanda serve`` processes whose owning Envoy process is gone (Chromium: in every
     profile this process serves, incl. each live session's owning home)."""
     from tools.browser_launcher import reap_orphaned_browsers
     from tools.browser_lightpanda import reap_orphaned_lightpanda

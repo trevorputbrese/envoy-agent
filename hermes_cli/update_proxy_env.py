@@ -2,14 +2,14 @@
 
 The Desktop resolves the OS proxy (PAC included) and gives it to the update's
 git, urllib, npm and uv children as HTTPS_PROXY/HTTP_PROXY with an extended
-NO_PROXY (apps/desktop/electron/updater/system-proxy-env.ts). ``hermes update``
+NO_PROXY (apps/desktop/electron/updater/system-proxy-env.ts). ``envoy update``
 then restarts gateways and backends that inherit that env; for them it is not
 the user's setting, and every host the PAC sends direct (LAN model servers,
 internal names) would go through the proxy. ``HERMES_UPDATE_SYSTEM_PROXY`` names
 the variables the Desktop added and ``HERMES_UPDATE_USER_<KEY>`` holds a user's
 own NO_PROXY it extended; a long-lived process restores its env from them at
 start. Same algorithm as restoreUserProxyEnv, posix.sh and windows.ps1, plus one
-rule only a Hermes process needs: a value the user's ``.env`` set wins. ``hermes
+rule only an Envoy process needs: a value the user's ``.env`` set wins. ``envoy
 update`` and the restarted process load ``~/.hermes/.env`` with override before
 this runs, so a marked key holding the value a dotenv load published is the
 user's own setting (same value as the Desktop's or not) and is kept. The Desktop
@@ -46,7 +46,7 @@ def restore_user_proxy_env(environ: MutableMapping[str, str] | None = None) -> N
 
 
 def prefer_dotenv_proxy_env(environ: MutableMapping[str, str] | None = None) -> None:
-    """In ``hermes update``, after its ``.env`` load: the user's ``.env`` proxy beats the system one.
+    """In ``envoy update``, after its ``.env`` load: the user's ``.env`` proxy beats the system one.
 
     The Desktop injects every case variant (``HTTPS_PROXY`` and ``https_proxy``) but the ``.env``
     load replaces only the spelling the file uses, and urllib and curl prefer the lower-case one, so

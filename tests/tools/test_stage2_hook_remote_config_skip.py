@@ -60,7 +60,7 @@ def _run(home: Path, backend_env: str | None) -> str:
 
 
 def _runtime_selects(home: Path, backend_env: str | None) -> str:
-    """The backend a real Hermes start selects: the first config read (``hermes_cli.config`` reads
+    """The backend a real Envoy start selects: the first config read (``hermes_cli.config`` reads
     at import time) or ``load_hermes_dotenv``'s boot, whichever selects first, reports the backend
     and ends the process right there (there is no plane in this test)."""
     code = ("import os, sys\n"

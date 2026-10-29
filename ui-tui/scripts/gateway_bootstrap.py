@@ -2,8 +2,8 @@
 
 ``--start`` ensures the owner (first launch). A reconnect discovers only, except ``--recover``
 (a bounded slot, ``gatewayClient.ts`` ``OWNER_RECOVERY_LIMIT`` per window) re-ensures whenever the
-owner is not ready: it crashed, ended by its idle exit, was stopped with ``hermes gateway stop``
-while this TUI was open, or an older Hermes's gateway answers (ensure replaces that one). Main's TUI
+owner is not ready: it crashed, ended by its idle exit, was stopped with ``envoy gateway stop``
+while this TUI was open, or an older Envoy's gateway answers (ensure replaces that one). Main's TUI
 ran its own sidecar and never depended on an external daemon, so an open TUI comes back on its own.
 """
 import contextlib
@@ -23,7 +23,7 @@ sys.path.insert(0, str(python_root()))
 
 # The terminal verdict's next step: the client stops retrying on it, so the user needs one. A
 # verdict line like the rest, so the TUI echoes it inline (userMessages.ts STDERR_PROBLEM_RE).
-BOOTSTRAP_REMEDY = "gateway unavailable: run `hermes pm repair`, then restart the TUI"
+BOOTSTRAP_REMEDY = "gateway unavailable: run `envoy pm repair`, then restart the TUI"
 
 
 def failure_message(receipt) -> str:
@@ -60,7 +60,7 @@ def bootstrap(start: bool, recover: bool = False) -> dict:
 
     home = get_hermes_home().resolve()
     # Launch policy travels in session.create, not into daemon-wide defaults. That includes the
-    # Kanban board `hermes --tui` pins at launch (_pin_kanban_board_env): a daemon started from
+    # Kanban board `envoy --tui` pins at launch (_pin_kanban_board_env): a daemon started from
     # here would otherwise resolve every later chat's, Desktop window's and cron job's board to
     # this terminal's launch-time board instead of the profile's `kanban/current`.
     for key in ("HERMES_MODEL", "HERMES_INFERENCE_MODEL", "HERMES_TUI_PROVIDER",
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # bad JSON (ValueError), rejected grants (RuntimeError), malformed reply shapes. Anything else
     # still exits 1, with a traceback.
     except ImportError as exc:
-        # This interpreter cannot load Hermes at all: no reconnect fixes that, so name it
+        # This interpreter cannot load Envoy at all: no reconnect fixes that, so name it
         # (gatewayClient.ts stops retrying on this verdict).
         print(f"gateway unavailable: bootstrap_dependencies\n{exc}\n{BOOTSTRAP_REMEDY}", file=sys.stderr)
         raise SystemExit(1)

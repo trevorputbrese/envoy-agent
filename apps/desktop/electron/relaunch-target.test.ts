@@ -28,7 +28,7 @@ describe('ownAppImage', () => {
       fs.symlinkSync(path.join(root, 'var-home'), path.join(root, 'home'))
       fs.symlinkSync(path.join(root, 'other'), path.join(root, 'elsewhere'))
       const exe = fs.realpathSync(path.join(mount, 'hermes'))
-      const appImage = '/home/u/Apps/Hermes.AppImage'
+      const appImage = '/home/u/Apps/Envoy.AppImage'
 
       expect(ownAppImage(exe, { APPIMAGE: appImage, APPDIR: path.join(root, 'home', '.mount_HermesQ7x2Lp') })).toBe(
         appImage
@@ -58,7 +58,7 @@ describe('spawnRelaunch', () => {
     async () => {
       const saved = { ...process.env }
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-relaunch-fds-'))
-      const image = path.join(dir, 'Hermes.AppImage')
+      const image = path.join(dir, 'Envoy.AppImage')
       const report = path.join(dir, 'fds')
       const held = path.join(dir, 'held')
       const events: string[] = []
@@ -136,7 +136,7 @@ describe('spawnRelaunch', () => {
       return { on: () => undefined, unref: () => undefined } as unknown as ChildProcess
     }) as typeof spawn)
     const mount = '/run/user/1000/.mount_HermesQ7x2Lp'
-    const image = '/home/u/Apps/Hermes.AppImage'
+    const image = '/home/u/Apps/Envoy.AppImage'
 
     spawnRelaunch(
       image,
@@ -157,7 +157,7 @@ describe('spawnRelaunch', () => {
   // and uninstall unable to find the image file.
   it.skipIf(process.platform !== 'linux')('keeps APPDIR for an executable inside it', async () => {
     const appDir = path.join(os.tmpdir(), 'appimage_extracted_0123abcd')
-    const env: NodeJS.ProcessEnv = { APPDIR: appDir, APPIMAGE: '/apps/Hermes.AppImage', PATH: `${appDir}/usr/bin:/bin` }
+    const env: NodeJS.ProcessEnv = { APPDIR: appDir, APPIMAGE: '/apps/Envoy.AppImage', PATH: `${appDir}/usr/bin:/bin` }
     const realSpawn = (await vi.importActual<typeof childProcess>('node:child_process')).spawn
     let childEnv: NodeJS.ProcessEnv | undefined
     vi.mocked(spawn).mockImplementationOnce((_file, _args, options) => {
@@ -188,7 +188,7 @@ describe('spawnRelaunch', () => {
 
         const env: NodeJS.ProcessEnv = {
           APPDIR: appDir,
-          APPIMAGE: '/apps/Hermes.AppImage',
+          APPIMAGE: '/apps/Envoy.AppImage',
           PATH: `${appDir}/usr/bin:/bin`
         }
 
@@ -200,18 +200,18 @@ describe('spawnRelaunch', () => {
           return realSpawn('true', [], { stdio: 'pipe' })
         })
 
-        expect(ownAppImage(exe, env)).toBe('/apps/Hermes.AppImage')
+        expect(ownAppImage(exe, env)).toBe('/apps/Envoy.AppImage')
         spawnRelaunch(exe, [], env).stdin!.end()
 
         expect(childEnv).toMatchObject(env)
-        expect(ownAppImage(exe, childEnv!)).toBe('/apps/Hermes.AppImage')
+        expect(ownAppImage(exe, childEnv!)).toBe('/apps/Envoy.AppImage')
       } finally {
         fs.rmSync(root, { recursive: true, force: true })
       }
     }
   )
 
-  // Started from another app's AppImage (an AppImage terminal), Hermes inherits
+  // Started from another app's AppImage (an AppImage terminal), Envoy inherits
   // that app's APPDIR/APPIMAGE and its mount on PATH and EDITOR; app.relaunch
   // kept them, so a restart must not strip half of that env.
   it.skipIf(process.platform !== 'linux')("keeps another app's AppImage env intact", async () => {
@@ -232,7 +232,7 @@ describe('spawnRelaunch', () => {
       return realSpawn('true', [], { stdio: 'pipe' })
     })
 
-    spawnRelaunch('/opt/Hermes/hermes', [], env).stdin!.end()
+    spawnRelaunch('/opt/Envoy/hermes', [], env).stdin!.end()
 
     expect(childEnv).toEqual(env)
   })

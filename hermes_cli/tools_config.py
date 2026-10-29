@@ -1,4 +1,4 @@
-"""Unified tool configuration for Hermes Agent."""
+"""Unified tool configuration for Envoy Agent."""
 
 import json as _json
 import logging
@@ -109,7 +109,7 @@ def gui_toolset_label(label: str) -> str:
 # toolsets (catalog / bundled plugin) that stay opt-in once installed.
 _DEFAULT_OFF_TOOLSETS = {"spotify", "discord", "discord_admin", "video", "video_gen", "x_search", "a2a", "kanban"}
 
-# Config-only capabilities: provider setup in `hermes tools` (TOOL_CATEGORIES) but not model toolsets — zero
+# Config-only capabilities: provider setup in `envoy tools` (TOOL_CATEGORIES) but not model toolsets — zero
 # schemas, own switch (``stt.enabled``), never in ``platform_toolsets`` or the per-platform checklist.
 _CONFIG_ONLY_TOOLSETS = {"stt"}
 
@@ -182,7 +182,7 @@ def _get_plugin_toolset_keys() -> set:
 
 
 def _checklist_toolset_keys(platform: str) -> set[str]:
-    """Toolset keys the ``hermes tools`` checklist offers for ``platform`` (mirrors ``_prompt_toolset_checklist``);
+    """Toolset keys the ``envoy tools`` checklist offers for ``platform`` (mirrors ``_prompt_toolset_checklist``);
     read-time-resolved toolsets (recovered composites, MCP names) are NOT here."""
     return {
         ts_key for ts_key, _, _ in _get_effective_configurable_toolsets()
@@ -319,7 +319,7 @@ TOOL_CATEGORIES = {
     "x_search": {
         "name": "X (Twitter) Search", "setup_title": "Select xAI Credential Source",
         "setup_note": (
-            "Hermes routes X searches through xAI's built-in x_search Responses tool for read-only public X "
+            "Envoy routes X searches through xAI's built-in x_search Responses tool for read-only public X "
             "discovery. Use the xurl skill for authenticated X API reads and account actions. Both credential "
             "sources hit the same https://api.x.ai/v1/responses endpoint — pick whichever you already have. "
             "SuperGrok OAuth is preferred when both are set (uses your subscription quota instead of API spend)."
@@ -342,7 +342,7 @@ TOOL_CATEGORIES = {
         "providers": [
             _row("Local Browser", "★ recommended · free", "Headless Chromium, no API key needed", browser_provider="local",
                  browser_engine="auto", post_setup="chromium"),
-            _row("Lightpanda", "free · local · no Chromium", "Zig headless browser spawned by Hermes, text-only (no screenshots)",
+            _row("Lightpanda", "free · local · no Chromium", "Zig headless browser spawned by Envoy, text-only (no screenshots)",
                  browser_provider="local", browser_engine="lightpanda", post_setup="lightpanda"),
             # Browser Use hosts its own Chromium, so the local-Chromium install and readiness gate must not
             # apply (with "chromium" this row read "needs setup" forever on machines without a local build).
@@ -422,7 +422,7 @@ def enabled_mcp_server_names(config: dict) -> set[str]:
 
 
 #: Toolsets young enough that absence from a saved ``platform_toolsets`` list means "never offered", not
-#: "declined": saving ``hermes tools`` freezes a platform's composite into an explicit list nothing adds to, so
+#: "declined": saving ``envoy tools`` freezes a platform's composite into an explicit list nothing adds to, so
 #: a later toolset stays off forever for picker users while ``[hermes-cli]`` users inherit it.
 #: MUST ship in the same release as the toolset and be emptied in the next: once a released build has put the
 #: toolset on a checklist, an unchecking user's config is byte-identical to one saved before it existed and this
@@ -536,7 +536,7 @@ def _context_engine_active(config: dict) -> bool:
 def _coerce_platform_toolsets_value(value, platform: str):
     """Read a list-literal string saved for ``platform_toolsets.<platform>`` as the list it encodes.
 
-    The parser is shared with ``hermes doctor`` and ``hermes plugins`` (``toolset_validation``
+    The parser is shared with ``envoy doctor`` and ``envoy plugins`` (``toolset_validation``
     ``parse_platform_toolsets_value``) so every surface agrees on the user's selection (#115866).
     Any other non-list value is warned about once (naming the expected shape) and left as-is, so
     the default fallback below is loud rather than silent.
@@ -551,7 +551,7 @@ def _coerce_platform_toolsets_value(value, platform: str):
         logger.warning(
             "platform_toolsets.%s is %r, expected a YAML list of toolset names "
             "(e.g. [terminal, file, web]) - falling back to the platform default. "
-            "Run `hermes tools` to reconfigure.", platform, value)
+            "Run `envoy tools` to reconfigure.", platform, value)
     return value
 
 
@@ -582,7 +582,7 @@ def _get_platform_tools(config: dict, platform: str, *, include_default_mcp_serv
     # YAML may parse bare numeric names (``12306:``) as int; normalise so sorted() never mixes types.
     toolset_names = [str(ts) for ts in toolset_names]
 
-    # Expand legacy toolset aliases.  Older Hermes versions and clients used
+    # Expand legacy toolset aliases.  Older Envoy versions and clients used
     # bare ``"hermes"`` as a composite toolset covering both the CLI and the
     # API-server surface.  Modern code expects ``"hermes-cli"`` (and
     # ``"hermes-api-server"`` for the HTTP endpoint), so configs persisted
@@ -634,7 +634,7 @@ def _get_platform_tools(config: dict, platform: str, *, include_default_mcp_serv
         enabled_toolsets.add("kanban")
 
     # agent.disabled_toolsets is a global suppression list (#86661) and runs LAST so it overrides everything
-    # above. It may arrive as a JSON-array string ("['memory']") from `hermes config set` or a JSON-mode editor.
+    # above. It may arrive as a JSON-array string ("['memory']") from `envoy config set` or a JSON-mode editor.
     disabled_toolsets = (config.get("agent") or {}).get("disabled_toolsets")
     if disabled_toolsets:
         from agent.skill_utils import parse_config_string_list
@@ -651,7 +651,7 @@ def _prune_toolsets_stripped_by_disabled(enabled_toolsets: set[str], disabled_na
 
     The agent subtracts ``agent.disabled_toolsets`` at TOOL granularity (``model_tools._select_tool_names``),
     so disabling a composite like ``debugging`` removes the terminal/web/file tools even though those names
-    never appear in the list. A name-only subtraction here left inspection surfaces (``hermes tools
+    never appear in the list. A name-only subtraction here left inspection surfaces (``envoy tools
     --summary``, banner, ``/tools``) showing toolsets as enabled that no session could call (#97015).
     Passthrough entries (MCP server names) and toolsets with no static tools (``context_engine``) are kept.
     """
@@ -682,7 +682,7 @@ def toolsets_partially_stripped(config: dict, enabled_toolsets: set[str]) -> dic
     that ``agent.disabled_toolsets`` cuts down without removing (``web`` minus ``web_search`` via ``search``,
     #134593). ``_prune_toolsets_stripped_by_disabled`` keeps such a toolset "enabled" because some of its
     tools survive, so inspection surfaces need this to say which ones did not. The hint offers
-    ``hermes tools enable`` only when that save clears every entry (``_save_platform_tools`` coverage)."""
+    ``envoy tools enable`` only when that save clears every entry (``_save_platform_tools`` coverage)."""
     from agent.skill_utils import parse_config_string_list
     from model_tools import _apply_toolset_selection
     from toolsets import resolve_toolset, validate_toolset
@@ -700,7 +700,7 @@ def toolsets_partially_stripped(config: dict, enabled_toolsets: set[str]) -> dic
         if by:
             entries = sorted(by)
             clears = all(_disabled_entry_tools(e) <= tools for e in entries)
-            hint = (f"run `hermes tools enable {name}` to restore" if clears
+            hint = (f"run `envoy tools enable {name}` to restore" if clears
                     else f"remove {', '.join(entries)} from agent.disabled_toolsets to restore")
             report[name] = (sorted(set().union(*by.values())), entries, hint)
     return report
@@ -754,9 +754,9 @@ def _merge_mcp_servers(
 
 
 def _warn_all_invalid_platform_toolsets(platform: str, explicit: list, config: dict) -> None:
-    """Warn once when an explicit platform list has only invalid names (``hermes`` for ``hermes-cli`` → no
+    """Warn once when an explicit platform list has only invalid names (``envoy`` for ``hermes-cli`` → no
     native tools), at session tool resolution rather than only in update/doctor. Names are judged the way
-    ``hermes config check`` judges them, and a known platform's own ``hermes-<platform>`` bundle always
+    ``envoy config check`` judges them, and a known platform's own ``hermes-<platform>`` bundle always
     counts (``is_known_platform_bundle``): a plugin platform has no sessions to leave toolless until its
     plugin loads, and once it loads the registry resolves the bundle.
     The own-bundle and registered-toolset checks run first because this is reached on every schema build
@@ -775,7 +775,7 @@ def _warn_all_invalid_platform_toolsets(platform: str, explicit: list, config: d
         _warned_invalid_platform_toolsets.add(platform)
         logger.warning(
             "platform '%s' has no valid toolsets configured (unknown "
-            "name(s): %s) - tools will be unavailable. Run `hermes tools` "
+            "name(s): %s) - tools will be unavailable. Run `envoy tools` "
             "to reconfigure. See issue #38798.",
             platform, ", ".join(named))
 
@@ -1035,9 +1035,9 @@ def _platform_menu_label(config: dict, pkey: str) -> str:
 
 
 def _print_tools_summary(config: dict, enabled_platforms: list[str]) -> None:
-    """``hermes tools --summary``: enabled toolsets per platform, non-interactive."""
+    """``envoy tools --summary``: enabled toolsets per platform, non-interactive."""
     total = len(_get_effective_configurable_toolsets())
-    print(color("☤ Tool Summary", Colors.CYAN, Colors.BOLD))
+    print(color("◈ Tool Summary", Colors.CYAN, Colors.BOLD))
     print()
     for pkey, enabled in _platform_toolset_summary(config, enabled_platforms).items():
         print(color(f"  {PLATFORMS[pkey]['label']}", Colors.BOLD) + color(f"  ({len(enabled)}/{total})", Colors.DIM))
@@ -1134,7 +1134,7 @@ def _configure_platforms(config: dict, platform_keys: list[str], *, all_platform
 
 
 def tools_command(args=None, first_install: bool = False, config: dict | None = None):
-    """Entry point for `hermes tools` / `hermes setup tools`. ``first_install`` skips the menu (checklist + key
+    """Entry point for `envoy tools` / `envoy setup tools`. ``first_install`` skips the menu (checklist + key
     prompts); a wizard-passed ``config`` receives platform_toolsets so its final save_config() keeps them."""
     if config is None:
         config = load_config()
@@ -1144,10 +1144,10 @@ def tools_command(args=None, first_install: bool = False, config: dict | None = 
     if getattr(args, "summary", False):
         _print_tools_summary(config, enabled_platforms)
         return
-    print(color("☤ Hermes Tool Configuration", Colors.CYAN, Colors.BOLD))
+    print(color("◈ Envoy Tool Configuration", Colors.CYAN, Colors.BOLD))
     print(color("  Enable or disable tools per platform.", Colors.DIM))
     print(color("  Tools that need API keys will be configured when enabled.", Colors.DIM))
-    print(color("  Guide: https://hermes-agent.nousresearch.com/docs/user-guide/features/tools", Colors.DIM))
+    print(color("  Guide: https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/features/tools.md", Colors.DIM))
     print()
     if first_install:
         _first_install_flow(config, enabled_platforms)

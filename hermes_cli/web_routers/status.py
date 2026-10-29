@@ -77,7 +77,7 @@ def _safe_call(mod, fn_name: str, default):
 
 def _count_status_active_sessions() -> int:
     """Best-effort status garnish. Opens read-only (via the shared stale-schema heal) so
-    /api/status never routinely writes to state.db while another Hermes process uses it."""
+    /api/status never routinely writes to state.db while another Envoy process uses it."""
     from hermes_state import _default_db_path
     # The heal helper bootstraps a missing store; this garnish must not — on a fresh install
     # /api/status polls would otherwise create state.db before the user's first session.
@@ -132,18 +132,18 @@ async def get_health():
 
 @router.get("/api/host/identity")
 async def get_host_identity(request: Request):
-    """Prove to an attaching `hermes serve`/`dashboard` WHO owns this port.
+    """Prove to an attaching `envoy serve`/`dashboard` WHO owns this port.
 
     The host rendezvous record names a (pid, port) owner, but a record cannot say whether that
     owner still holds the port: a graceful-shutdown window or an unrelated listener that
     inherited the port both look identical on disk. The attaching side dials this endpoint with
     the owner's 0600 token and attaches only when pid+role match. ``servesSpa`` is false for
-    headless ``serve``, so a `hermes dashboard` user is never routed to a backend with no UI.
+    headless ``serve``, so a `envoy dashboard` user is never routed to a backend with no UI.
     """
     _require_token(request)
     # ``role`` is the host ROLE this process published (gateway/host_rendezvous.ROLE_SERVE, or
-    # ROLE_DESKTOP_SERVE for a Desktop-owned child), not the launch mode: `hermes serve` and
-    # `hermes dashboard` are one host role that differ in SPA.
+    # ROLE_DESKTOP_SERVE for a Desktop-owned child), not the launch mode: `envoy serve` and
+    # `envoy dashboard` are one host role that differ in SPA.
     return {"ok": True, "protocolVersion": 1, "pid": os.getpid(),
             "role": getattr(app.state, "host_role", None) or "serve",
             "servesSpa": bool(getattr(app.state, "serves_spa", False))}
@@ -313,7 +313,7 @@ async def _resolve_gateway_status(profile_dir: Optional[Path], health_url) -> di
     runtime = local_runtime
     if runtime is None and remote_health_body and remote_health_body.get("gateway_state"):
         runtime = remote_health_body
-    # Unscoped, the profile is the process's own home (a pooled ``hermes --profile X serve``).
+    # Unscoped, the profile is the process's own home (a pooled ``envoy --profile X serve``).
     own_home = profile_dir or get_process_hermes_home()
     if liveness.runtime is not None:
         # Served by the multiplexer: its record is this profile's runtime, with the profile's own
@@ -355,7 +355,7 @@ async def _resolve_gateway_status(profile_dir: Optional[Path], health_url) -> di
         elif gateway_state in {"running", "degraded", "starting"} and runtime_status_is_stale(runtime):
             # Alive PID, but housekeeping stopped re-stamping the heartbeat: the loop or the
             # housekeeping thread wedged while the file still says 'running' (#113372). Same arm
-            # as ``hermes gateway status`` so the sidebar strip and the CLI agree.
+            # as ``envoy gateway status`` so the sidebar strip and the CLI agree.
             gateway_heartbeat_stale_s = runtime_status_heartbeat_age_s(runtime)
         gateway_platforms = _project_gateway_platforms(
             runtime.get("platforms") or {}, configured, gateway_running, gateway_state)
@@ -502,7 +502,7 @@ def _fts_rebuild_status() -> Optional[dict[str, Any]]:
 #: What the gateway's Webapp answers a caller who has not signed in: liveness, version and the
 #: sign-in shape (the native-app login probe and uptime checks read nothing else). Profile names,
 #: the install id and host figures wait for sign-in, since a Webapp on a wildcard bind is reachable
-#: by everyone on the network. The standalone dashboard keeps its public body: Hermes Cloud reads
+#: by everyone on the network. The standalone dashboard keeps its public body: Envoy Cloud reads
 #: the profile list there without a session (#60585).
 _WEBAPP_SIGNED_OUT_STATUS_KEYS = frozenset({
     "version", "release_date", "gateway_running", "gateway_state", "overall", "components",
@@ -610,7 +610,7 @@ async def get_status(profile: Optional[str] = None,
                              else "degraded")
         await _advisory_pressure(status, profile_dir if profile_dir else get_hermes_home())
 
-        # Profile NAMES and ``gateway_mode`` are low-sensitivity product surface (Hermes Cloud
+        # Profile NAMES and ``gateway_mode`` are low-sensitivity product surface (Envoy Cloud
         # renders the profile list over a gated bind) so they survive the auth gate; the
         # per-gateway ``gateways[]`` carries host ports and stays gated below.
         status["profiles"] = topology["profiles"]
@@ -638,7 +638,7 @@ async def get_status(profile: Optional[str] = None,
 @router.get("/api/system/stats")
 def get_system_stats():  # sync: FastAPI runs it on a worker (psutil.cpu_percent blocks 100 ms)
     """Host + process system stats for the System page (stdlib identity; psutil CPU/memory/
-    disk/uptime when available). Non-sensitive: no env values, no paths beyond hermes home."""
+    disk/uptime when available). Non-sensitive: no env values, no paths beyond envoy home."""
     import platform as _platform
 
     info: dict[str, Any] = {
@@ -725,7 +725,7 @@ async def set_curator_paused(body: CuratorPause, profile: Optional[str] = None):
 
 
 def _spawn_action(argv: list, name: str, prefix: str, profile: Optional[str] = None) -> dict:
-    """Spawn a background ``hermes -p <profile> <argv>`` action; a spawn failure is
+    """Spawn a background ``envoy -p <profile> <argv>`` action; a spawn failure is
     ``500 "<prefix>: <exc>"``."""
     try:
         proc = _spawn_hermes_action(_profile_cli_args(profile) + argv, name)

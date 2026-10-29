@@ -1,5 +1,5 @@
 """``browser_exec``: drive a real browser through the Browser Use CLI engine (browser-harness,
-https://browser-use.com), Hermes' only core browser tool.
+https://browser-use.com), Envoy's only core browser tool.
 
 The harness speaks CDP to whatever ``tools.browser_session`` resolved for the call: an operator
 ``BU_CDP_*`` endpoint, a ``/browser connect`` override, a cloud provider's session, or a local browser
@@ -181,7 +181,7 @@ def _base_subprocess_env() -> dict:
     from tools.browser_session import build_browser_env
     env = build_browser_env()
     env.update(_harness_credentials())
-    # The harness runs on Hermes's own interpreter, but a bundled Desktop install boots that
+    # The harness runs on Envoy's own interpreter, but a bundled Desktop install boots that
     # interpreter with its site dir on PYTHONPATH (no venv to activate), and the harness's daemon
     # re-runs sys.executable. Point PYTHONPATH at the harness's site dir, replacing whatever the
     # agent process inherited, so both the CLI and its daemon import the same packages.
@@ -220,7 +220,7 @@ def _read_browser_cfg() -> dict:
 
 
 def _use_gateway(browser_cfg: dict) -> bool:
-    """True when the browser section selects the Nous Tool Gateway — by the current ``hermes tools``
+    """True when the browser section selects the Nous Tool Gateway — by the current ``envoy tools``
     picker row (``cloud_provider: nous``) or the pre-picker ``use_gateway: true`` flag. Reading only
     the legacy flag missed every picker-configured gateway, and the direct-API branch it fell into
     holds no credentials in managed mode (#108310)."""
@@ -245,14 +245,14 @@ def is_legacy_browser_use_cloud_config(browser_cfg: dict) -> bool:
 
 
 def _browser_use_api_key_set() -> bool:
-    """BROWSER_USE_API_KEY for the served profile: the only credential Hermes autospawns BU cloud with.
+    """BROWSER_USE_API_KEY for the served profile: the only credential Envoy autospawns BU cloud with.
     Profile-scoped so a multiplexed secondary never inherits the default's cloud mode."""
     from agent.secret_scope import get_secret
     return bool(get_secret("BROWSER_USE_API_KEY", ""))
 
 
 def _harness_site_dir() -> Optional[str]:
-    """The site dir Hermes's interpreter imports ``browser_harness`` from, or None."""
+    """The site dir Envoy's interpreter imports ``browser_harness`` from, or None."""
     spec = importlib.util.find_spec("browser_harness")
     if spec is None or not spec.origin:
         return None
@@ -260,7 +260,7 @@ def _harness_site_dir() -> Optional[str]:
 
 
 def _find_cli() -> Optional[list[str]]:
-    """The Browser Use CLI's engine (browser-harness) is a core dependency of Hermes's own venv,
+    """The Browser Use CLI's engine (browser-harness) is a core dependency of Envoy's own venv,
     so every install, the Desktop bundle included, runs it on the current interpreter."""
     if _harness_site_dir() is None:
         return None
@@ -381,10 +381,10 @@ def _resolve_local_cdp(env: dict, task_id: Optional[str], session_name: str = ""
 
     if _quiet(using_lightpanda_engine, False):
         fail = lambda e: (f"Lightpanda could not be started: {e} Set browser.engine to auto "
-                          "to use local Chrome, or switch backends via `hermes tools` → Browser Automation.")
+                          "to use local Chrome, or switch backends via `envoy tools` → Browser Automation.")
     else:
         fail = lambda e: (f"The local browser could not be started: {e} "
-                          "Run `hermes tools` → Browser Automation to (re)install Chromium, or switch backends.")
+                          "Run `envoy tools` → Browser Automation to (re)install Chromium, or switch backends.")
     err = _export_session_cdp(env, _session_info, key, fail, "The local browser session returned no CDP endpoint.")
     if err is None:
         _mark_local_browser(env, session, key)
@@ -398,7 +398,7 @@ def _resolve_backend_cdp(env: dict, task_id: Optional[str], session_name: str = 
     Precedence: (1) ``BU_CDP_WS``/``BU_CDP_URL`` already in env (operator override); (2) ``BROWSER_CDP_URL``
     env / ``browser.cdp_url`` (``/browser connect``); (3) a cloud provider via ``browser_session.get_session_info``
     (per-key cache, expiry, reaper, atexit; a provider failure falls back to a local browser);
-    (4) the local engine — ``browser.engine: lightpanda`` or Hermes' packaged Chromium via the launcher
+    (4) the local engine — ``browser.engine: lightpanda`` or Envoy's packaged Chromium via the launcher
     (never the harness's own discovery of the user's installed Chrome); (5) BU direct-API configs WITH
     ``BROWSER_USE_API_KEY`` → None (checked before (3)): the CLI reaches BU cloud natively (BU_AUTOSPAWN); a
     keyless ``browser-use`` provider (managed-gateway autodetect, or a selection missing its key) takes (3).
@@ -450,9 +450,9 @@ def _resolve_backend_cdp(env: dict, task_id: Optional[str], session_name: str = 
     err = _export_session_cdp(
         env, _session_info, key,
         lambda e: (f"Cloud browser provider {provider_name} failed to provide a session: {e}. "
-                   "Fix the provider configuration or switch backends via `hermes tools` → Browser Automation."),
+                   "Fix the provider configuration or switch backends via `envoy tools` → Browser Automation."),
         f"Cloud browser provider {provider_name} returned no CDP endpoint, so browser_exec "
-        "cannot drive it. Pick a CDP-capable provider via `hermes tools` → Browser Automation.",
+        "cannot drive it. Pick a CDP-capable provider via `envoy tools` → Browser Automation.",
     )
     if session.get("fallback_from_cloud"):
         # The provider failed (rate limit, quota, outage) and the session layer fell back to a LOCAL
@@ -703,8 +703,8 @@ def browser_exec(code: str, session: str = "", timeout_s: int = _DEFAULT_TIMEOUT
 
     cmd = _find_cli()
     if not cmd:
-        return tool_error("browser-harness is missing from Hermes's Python environment. "
-                          "Run `hermes update` to re-sync it.")
+        return tool_error("browser-harness is missing from Envoy's Python environment. "
+                          "Run `envoy update` to re-sync it.")
 
     env = _base_subprocess_env()
     if session:
@@ -881,7 +881,7 @@ def _dynamic_schema_overrides() -> dict:
         props = dict(BROWSER_EXEC_SCHEMA["parameters"]["properties"])
         props["local"] = {
             "type": "boolean", "default": False,
-            "description": ("Drive the user's own local browser (a Hermes-managed copy of their real "
+            "description": ("Drive the user's own local browser (an Envoy-managed copy of their real "
                             "default-Chromium profile, logins/cookies included) instead of the configured "
                             "cloud browser backend. Use when the user asks to act as themselves — their "
                             "accounts, their sessions. No-op when the backend is already local. Default false."),
@@ -894,7 +894,7 @@ BROWSER_EXEC_SCHEMA = {
     "name": "browser_exec",
     # Static fallback description, used only when the managed CLI is unavailable
     "description": (_HEADER_BASE + _HELPERS_DIGEST
-                    + "\n\n(The browser-use CLI is not installed yet. Install it with `hermes tools` (Browser Automation → Browser Use).)"),
+                    + "\n\n(The browser-use CLI is not installed yet. Install it with `envoy tools` (Browser Automation → Browser Use).)"),
     "parameters": {
         "type": "object",
         "properties": {

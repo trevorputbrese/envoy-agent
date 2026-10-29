@@ -1,4 +1,4 @@
-// Hermes shares %LOCALAPPDATA% and HKCU state with the unpackaged CLI/gateway,
+// Envoy shares %LOCALAPPDATA% and HKCU state with the unpackaged CLI/gateway,
 // so every MSIX the repo produces must opt out of write virtualisation and the
 // builder must request the restricted capability that permits it.
 import { execFileSync } from 'node:child_process'
@@ -60,7 +60,7 @@ test('store, release, canary and channel MSIX manifests keep write virtualisatio
   fs.copyFileSync(path.join(canary, 'assets/msix-manifest.xml'), path.join(canary, 'build/msix-manifest.xml'))
   const channel = channelApp()
   stageChannelManifest(channel, {
-    windowsVersion: '0.0.7.0', identity: { appNamePascal: 'HermesChannelab12', displayName: 'Hermes preview' }
+    windowsVersion: '0.0.7.0', identity: { appNamePascal: 'HermesChannelab12', displayName: 'Envoy preview' }
   })
   const manifests = {
     store: stageStoreManifest(store, 'v0.27.1'),

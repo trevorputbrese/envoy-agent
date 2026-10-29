@@ -142,7 +142,7 @@ auxiliary:
 class ClassicHome:
     root: Path
     extra_env: dict[str, str] = field(default_factory=dict)
-    # (pid, argv) of every hermes process the harness started: tmux pane CLIs and piped runs.
+    # (pid, argv) of every envoy process the harness started: tmux pane CLIs and piped runs.
     spawned: list[tuple[int, str]] = field(default_factory=list)
 
     @property

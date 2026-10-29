@@ -47,7 +47,7 @@ def test_the_notice_names_the_skill_and_the_tool_prefix_and_lists_no_tool(blende
     assert all(tool not in note for tool in blender_tools)
     for bridge in ("tool_search", "tool_describe", "tool_call"):
         assert bridge in note
-    # A Hermes control frame, so a hosted room relabels a reply that copies it.
+    # An Envoy control frame, so a hosted room relabels a reply that copies it.
     assert note.startswith("[") and note[1:].startswith(CONTROL_FRAME_OPENERS) and note.endswith("]")
     assert len(note) < 600
 

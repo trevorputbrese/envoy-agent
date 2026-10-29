@@ -1,4 +1,4 @@
-"""ACP agent server — exposes Hermes Agent via the Agent Client Protocol."""
+"""ACP agent server — exposes Envoy Agent via the Agent Client Protocol."""
 
 from __future__ import annotations
 
@@ -232,7 +232,7 @@ class _TurnCallbacks:
 
 
 class HermesACPAgent(SlashCommandsMixin, acp.Agent):
-    """ACP Agent implementation wrapping Hermes AIAgent."""
+    """ACP Agent implementation wrapping Envoy AIAgent."""
 
     # mode id -> (edit approval policy, display name, description): ``acp_adapter/modes.py``
     _EDIT_APPROVAL_POLICY_CONFIG_ID = _modes.EDIT_APPROVAL_POLICY_CONFIG_ID
@@ -293,8 +293,8 @@ class HermesACPAgent(SlashCommandsMixin, acp.Agent):
         return policy, state.cwd
 
     def _build_model_state(self, state: SessionState) -> SessionModelState | None:
-        """Authenticated providers + models, from the shared Hermes inventory (same substrate
-        as ``hermes model``/TUI/dashboard) so the selector isn't just the current curated list."""
+        """Authenticated providers + models, from the shared Envoy inventory (same substrate
+        as ``envoy model``/TUI/dashboard) so the selector isn't just the current curated list."""
         model = str(state.model or getattr(state.agent, "model", "") or "").strip()
         provider = getattr(state.agent, "provider", None) or detect_provider() or "openrouter"
         try:
@@ -761,7 +761,7 @@ class HermesACPAgent(SlashCommandsMixin, acp.Agent):
         with contextlib.ExitStack() as stack:
             # HERMES_SESSION_KEY scopes per-session caches (interactive sudo password) to this
             # session, not the reused thread. ``cwd`` pins what the system prompt reports as the
-            # working directory — otherwise it advertises the Hermes workspace while tools are
+            # working directory — otherwise it advertises the Envoy workspace while tools are
             # rooted at the client's project and edits land outside it. ``cron_session=""`` masks
             # any leaked process-global HERMES_CRON_SESSION.
             def _session_context() -> Callable[[], None]:
@@ -811,7 +811,7 @@ class HermesACPAgent(SlashCommandsMixin, acp.Agent):
                 return {"final_response": f"Error: {e}", "messages": state.history}
 
     async def prompt(self, prompt: list[PromptBlock], session_id: str, **kwargs: Any) -> PromptResponse:
-        """Run Hermes on the user's prompt and stream events back to the editor."""
+        """Run Envoy on the user's prompt and stream events back to the editor."""
         state = await asyncio.to_thread(self.session_manager.get_session, session_id)
         if state is None:
             logger.error("prompt: session %s not found", session_id)
@@ -1035,7 +1035,7 @@ class HermesACPAgent(SlashCommandsMixin, acp.Agent):
                     self._switch_model, state, model_id, keep_endpoint=True)
             except ModelRejected as exc:
                 # A model no provider can serve is a bad ``modelId`` param (-32602), not an agent
-                # internal error (-32603): the client attributes it to the request, not to Hermes (#72439).
+                # internal error (-32603): the client attributes it to the request, not to Envoy (#72439).
                 # Only the switch_model rejection maps here; a ValueError from the rebuild itself
                 # (disabled provider, context window below the floor) stays on the -32603 path.
                 from acp.exceptions import RequestError
@@ -1069,7 +1069,7 @@ class HermesACPAgent(SlashCommandsMixin, acp.Agent):
     async def set_config_option(
         self, config_id: str, session_id: str, value: str, **kwargs: Any
     ) -> SetSessionConfigOptionResponse | None:
-        """Accept ACP config option updates even when Hermes has no typed ACP config surface yet."""
+        """Accept ACP config option updates even when Envoy has no typed ACP config surface yet."""
         state = await asyncio.to_thread(self.session_manager.get_session, session_id)
         if state is None:
             logger.warning("Session %s: config update requested for missing session", session_id)

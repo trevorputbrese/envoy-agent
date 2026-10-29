@@ -8,7 +8,7 @@ own; each cell then publishes a NEW upstream commit (or a new release record), s
 a real fetch, checkout and rebuild, never the "already current" branch.
 
 After the seed the sandbox loses the ``insteadOf`` rewrite: the checkout's origin is the official
-``https://github.com/NousResearch/hermes-agent.git`` again, and inside the namespace the only way
+``https://github.com/trevorputbrese/envoy-agent.git`` again, and inside the namespace the only way
 to reach it is the test's proxy, which routes ``github.com`` to a git smart-HTTP server over the
 same bare origin. The partial clone (``--filter=blob:none``) makes every lazy blob fetch of the
 checkout cross that proxy too.
@@ -36,7 +36,7 @@ from tests.e2e.core.upgrade import _install_helpers as I
 from tests.e2e.core.upgrade.network import _netedge as N
 
 ASSETS = "hermes-assets.nousresearch.com"
-REPOSITORY = "NousResearch/hermes-agent"
+REPOSITORY = "trevorputbrese/envoy-agent"
 # Hosts a correctly isolated update must never reach directly; with the proxy they appear in
 # the proxy log as "refused" (the proxy has no route for them).
 PUBLIC_INDEXES = ("pypi.org", "files.pythonhosted.org", "registry.npmjs.org")
@@ -181,7 +181,7 @@ class Installed:
         return "\n".join(out) or "(no logs)"
 
     def version_works(self) -> Result:
-        """The next ``hermes`` invocation, offline: the install must still start."""
+        """The next ``envoy`` invocation, offline: the install must still start."""
         return self.hermes("--version", edge=None, timeout=120)
 
 
@@ -243,7 +243,7 @@ def canonical(value: object) -> bytes:
 
 def _identity(name: str, token: str) -> dict:
     pascal = f"HermesChannel{token}"
-    return {"token": token, "displayName": f"Hermes {name}", "appId": f"ai.hermes.channel.h{token}",
+    return {"token": token, "displayName": f"Envoy {name}", "appId": f"ai.hermes.channel.h{token}",
             "appNamePascal": pascal, "artifactNamePascal": pascal, "cliName": f"hermes-{name}",
             "windowsExecutableName": pascal, "msixAppIdWithOrg": f"NousResearch.{pascal}"}
 
@@ -349,11 +349,11 @@ SUCCESS_BANNERS = ("Update complete", "Code updated", "Already up to date")
 
 def assert_nothing_changed(inst: Installed, before: dict, r: Result, what: str) -> None:
     """The failure contract: non-zero, says why, nothing reported as success, nothing moved,
-    and the next ``hermes`` still starts."""
+    and the next ``envoy`` still starts."""
     assert r.rc != 0, f"{what}: the command reported success\n" + r.report(inst)
     claimed = [b for b in SUCCESS_BANNERS if b in r.out]
     assert not claimed, f"{what}: failed run printed a success banner {claimed}\n" + r.report(inst)
     after = inst.state()
     assert after == before, f"{what}: install state moved {before} -> {after}\n" + r.report(inst)
     v = inst.version_works()
-    assert v.rc == 0 and I.TRACEBACK not in v.out, f"{what}: `hermes --version` broken afterwards\n" + I.describe(v.cp)
+    assert v.rc == 0 and I.TRACEBACK not in v.out, f"{what}: `envoy --version` broken afterwards\n" + I.describe(v.cp)

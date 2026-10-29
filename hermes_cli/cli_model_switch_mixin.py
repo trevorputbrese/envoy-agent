@@ -876,7 +876,7 @@ class CLIModelSwitchMixin:
                 self._close_model_picker()
                 return
             provider_data = providers[selected]
-            # Curated list (same as `hermes model` / gateway pickers); live catalog only when
+            # Curated list (same as `envoy model` / gateway pickers); live catalog only when
             # it is empty (user-defined endpoints, per-resource providers such as azure-foundry).
             # Disk-cached like the gateway pickers: the live probe can walk several api-version
             # fallbacks with a 6 s timeout each, which must not block the REPL on every select.
@@ -1041,7 +1041,7 @@ class CLIModelSwitchMixin:
 
         Usage:
             /codex-runtime                       — show current state
-            /codex-runtime auto                  — Hermes default (chat_completions)
+            /codex-runtime auto                  — Envoy default (chat_completions)
             /codex-runtime codex_app_server      — hand turns to codex subprocess
             /codex-runtime on / off              — synonyms for the above
         """

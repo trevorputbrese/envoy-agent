@@ -48,7 +48,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 #
 # Without an activation, an explicit HERMES_PYTHON that has pytest is honored:
 # the Nix devShell's editable venv and CI's minimal installer lanes provide
-# one on purpose. The import check matters: a wrapped `hermes` binary exports
+# one on purpose. The import check matters: a wrapped `envoy` binary exports
 # HERMES_PYTHON pointing at a release venv without pytest.
 _has_pytest() { [ -n "$1" ] && [ -x "$1" ] && "$1" -c 'import pytest' 2>/dev/null; }
 # shellcheck source=scripts/_activation.sh
@@ -60,7 +60,7 @@ _has_pytest() { [ -n "$1" ] && [ -x "$1" ] && "$1" -c 'import pytest' 2>/dev/nul
 # records this checkout's pins (_store_has_pins). The check runs unlocked
 # before `pm install` takes the store's install lock, so it keeps runs that
 # START on different pins apart; it does not cover the window in between, where
-# the account's own `hermes update` (or a run on other pins) can re-point
+# the account's own `envoy update` (or a run on other pins) can re-point
 # facts.json and this run's `pm install` then re-stages its pins over them.
 # Only this runner's own provisioning gets HERMES_RUNTIME_DIR: the pytest
 # children below start from `env -i` without it, so tests that exercise setup,

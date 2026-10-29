@@ -1,4 +1,4 @@
-"""``hermes journey`` — what Hermes has learned, on a timeline."""
+"""``envoy journey`` — what Envoy has learned, on a timeline."""
 
 from __future__ import annotations
 
@@ -26,9 +26,9 @@ def _primary_hex() -> str:
         from hermes_cli.skin_engine import get_active_skin
 
         skin = get_active_skin()
-        return skin.get_color("ui_primary", "") or skin.get_color("banner_title", "#FFD700")
+        return skin.get_color("ui_primary", "") or skin.get_color("banner_title", "#49AFD9")
     except Exception:
-        return "#FFD700"
+        return "#49AFD9"
 
 
 @lru_cache(maxsize=1)
@@ -222,7 +222,7 @@ def _cmd_show(args: argparse.Namespace) -> int:
 
     if not payload.get("nodes"):
         console.print(
-            "[grey62]No learning yet — use Hermes a while and your learned skills and "
+            "[grey62]No learning yet — use Envoy a while and your learned skills and "
             "memories will start mapping out here.[/grey62]"
         )
         return 0
@@ -374,7 +374,7 @@ def register_cli(parent: argparse.ArgumentParser) -> None:
 
 
 if __name__ == "__main__":
-    _p = argparse.ArgumentParser(prog="hermes journey")
+    _p = argparse.ArgumentParser(prog="envoy journey")
     register_cli(_p)
     _a = _p.parse_args()
     sys.exit(_a.func(_a))

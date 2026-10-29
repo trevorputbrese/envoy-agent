@@ -50,7 +50,7 @@ def _packaged_resources_dir(desktop_dir: Path) -> Optional[Path]:
     executable = _desktop_packaged_executable(desktop_dir)
     if executable is None:
         return None
-    # macOS: …/Hermes.app/Contents/MacOS/Hermes → …/Contents/Resources
+    # macOS: …/Envoy.app/Contents/MacOS/Envoy → …/Contents/Resources
     return executable.parent.parent / "Resources" if sys.platform == "darwin" else executable.parent / "resources"
 
 
@@ -159,14 +159,14 @@ def _desktop_packaged_executable_in(release_dir: Path) -> Optional[Path]:
     stage-and-swap staging dir (#86443).
     """
     if sys.platform == "darwin":
-        candidates = list(release_dir.glob("mac*/Hermes.app/Contents/MacOS/Hermes"))
+        candidates = list(release_dir.glob("mac*/Envoy.app/Contents/MacOS/Envoy"))
     elif sys.platform == "win32":
         candidates = [
-            release_dir / d / "Hermes.exe" for d in ("win-unpacked", "win-ia32-unpacked", "win-arm64-unpacked")
+            release_dir / d / "Envoy.exe" for d in ("win-unpacked", "win-ia32-unpacked", "win-arm64-unpacked")
         ]
     else:
         candidates = [
-            release_dir / d / n for d in ("linux-unpacked", "linux-arm64-unpacked") for n in ("hermes", "Hermes")
+            release_dir / d / n for d in ("linux-unpacked", "linux-arm64-unpacked") for n in ("hermes", "Envoy")
         ]
 
     existing = [p for p in candidates if p.exists()]
@@ -174,11 +174,11 @@ def _desktop_packaged_executable_in(release_dir: Path) -> Optional[Path]:
         return None
     if sys.platform == "win32" and len(existing) > 1:
         # A stale win-arm64-unpacked next to the real win-unpacked: picking by
-        # mtime can hand a wrong-architecture Hermes.exe to the launcher. Prefer
+        # mtime can hand a wrong-architecture Envoy.exe to the launcher. Prefer
         # candidates whose PE machine matches the host; mtime when none parse.
         # Multiple unpacked trees can coexist (e.g. a stale win-arm64-unpacked left behind by a cross-arch
         # experiment next to the real win-unpacked). Picking purely by mtime can then hand a
-        # wrong-architecture Hermes.exe to the launcher, which Windows rejects with "This app can't run on
+        # wrong-architecture Envoy.exe to the launcher, which Windows rejects with "This app can't run on
         # your computer" (#69179).
         expected = _expected_windows_pe_machines()
         matching = [p for p in existing if _pe_machine_or_none(p) in expected]
@@ -188,9 +188,9 @@ def _desktop_packaged_executable_in(release_dir: Path) -> Optional[Path]:
 
 
 # ─── Desktop stage-and-swap pack (#86443) ─────────────────────────────────── electron-builder packs IN
-# PLACE: before-pack.mjs wipes ``release/<platform>- unpacked`` (or the mac ``Hermes.app``) and the Electron
+# PLACE: before-pack.mjs wipes ``release/<platform>- unpacked`` (or the mac ``Envoy.app``) and the Electron
 # unpack + asar + rename then rebuild it. Any failure after that wipe — corrupt cached zip, blocked
-# download, missing dep, disk full — leaves the user with NO app, and ``hermes update`` used to report
+# download, missing dep, disk full — leaves the user with NO app, and ``envoy update`` used to report
 # "partially complete" over an empty release/. Fix the class, not the predicate: build into a STAGING output
 # dir next to release/, verify the staged result, and only then swap it over the live tree with renames. On
 # any failure the live app is untouched.
@@ -303,7 +303,7 @@ def _swap_staged_desktop_app(
         moved_aside = live_root.exists()
         if moved_aside:
             # A Desktop may have reopened during the long packaging step (Windows lock) or
-            # never exited at all (a manual `hermes update`/`hermes desktop` run does not
+            # never exited at all (a manual `envoy update`/`envoy desktop` run does not
             # wait for it — only the update hand-offs do). Either way a renderer alive
             # past the rename below keeps fetching its old hashed chunks from disk and
             # dies on the next lazy import, so stop it on every platform (#109643).
@@ -332,13 +332,13 @@ def _discard_desktop_staging(staging_dir: Path) -> None:
 
 
 # ─── Desktop exe integrity gate (#69179) ──────────────────────────────────── The desktop self-update chain
-# (Desktop → hermes-setup --update → `hermes update` → `hermes desktop --build-only` → relaunch) rebuilds
-# Hermes.exe on the end user's machine and used to verify only that the file EXISTS before declaring
+# (Desktop → hermes-setup --update → `envoy update` → `envoy desktop --build-only` → relaunch) rebuilds
+# Envoy.exe on the end user's machine and used to verify only that the file EXISTS before declaring
 # success. A corrupt cached Electron zip whose extraction produced a truncated electron.exe, an interrupted
 # rcedit resource rewrite, a disk-full pack, or a wrong-arch unpacked tree therefore shipped a broken binary
 # that Windows refuses to load ("This app can't run on your computer" / 此应用无法在你的电脑上运行). These helpers parse
 # the PE header — no signature infrastructure required — so a structurally broken or wrong-architecture
-# Hermes.exe is caught BEFORE the updater replaces the working app, and the previous build can be restored
+# Envoy.exe is caught BEFORE the updater replaces the working app, and the previous build can be restored
 # from the .bak tree that apps/desktop/scripts/before-pack.mjs now preserves.
 _PE_MACHINE_I386 = 0x014C
 _PE_MACHINE_AMD64 = 0x8664
@@ -492,7 +492,7 @@ def _desktop_ancestor_in(desktop_dir: Path) -> Optional[int]:
     """PID of a Desktop from this build's ``release`` tree that is one of OUR ancestors, else None.
 
     That Desktop is running this process (its backend's launch-time update tail, or a
-    `hermes update` it spawned). On Windows it holds the exe lock the promotion rename
+    `envoy update` it spawned). On Windows it holds the exe lock the promotion rename
     needs, and it cannot be stopped without killing this process first. Never raises."""
     try:
         import psutil
@@ -527,7 +527,7 @@ def _stop_desktop_processes_locking_build(desktop_dir: Path, *, also_posix: bool
     me = os.getpid()
     # Never stop a Desktop that is one of OUR ancestors, on any platform: this
     # process lives in its tree. A historical Desktop (v2026.7.1 Linux in-app
-    # update) runs `hermes update` as a child with piped stdout/stderr and owns
+    # update) runs `envoy update` as a child with piped stdout/stderr and owns
     # the post-update rebuild and relaunch. Killing it breaks those pipes (EPIPE
     # fails the update) and leaves nobody to relaunch. On Windows the same holds
     # for the launch-time tail a Desktop's own backend runs
@@ -758,7 +758,7 @@ def _desktop_macos_local_codesign(app: Path, *, desktop_dir: Path, identity: str
 
     # 1) Standalone Mach-O files (native modules, dylibs, crashpad handler),
     #    compared relative to the app root — the absolute path always contains
-    #    the outer Hermes.app component.
+    #    the outer Envoy.app component.
     contents = app / "Contents"
     standalone: list[Path] = []
     for root, _dirs, files in os.walk(contents):
@@ -825,7 +825,7 @@ def _desktop_macos_relaunchable_fixup(
     """Re-sign a locally-built macOS app so in-place self-update doesn't reset TCC grants.
 
     A rebuilt ad-hoc bundle (new cdhash, no stable Designated Requirement) reports
-    "Hermes is damaged" and loses every grant. Clear quarantine xattrs, then sign
+    "Envoy is damaged" and loses every grant. Clear quarantine xattrs, then sign
     with ``desktop.macos_signing_identity`` or identifier-pinned ad-hoc, keeping
     entitlements. When a configured identity fails (#121857): over a locally-signed
     install, retry identifier-pinned ad-hoc before the cdhash-only legacy sign;
@@ -848,7 +848,7 @@ def _desktop_macos_relaunchable_fixup(
     exe = _desktop_packaged_executable_in(release_dir or (desktop_dir / "release"))
     if exe is None:
         return True
-    # exe = .../Hermes.app/Contents/MacOS/Hermes  ->  app bundle = .../Hermes.app
+    # exe = .../Envoy.app/Contents/MacOS/Envoy  ->  app bundle = .../Envoy.app
     app = exe.parents[2]
     if not str(app).endswith(".app") or not app.is_dir():
         return True
@@ -890,7 +890,7 @@ def _desktop_macos_relaunchable_fixup(
                     f"  ✗ macOS signing identity {configured!r} did not produce a verified "
                     f"signature, and the installed app is publisher-signed (Team ID "
                     f"{target_sig['team']}); keeping it (no ad-hoc fallback). Fix the identity "
-                    "(e.g. `hermes desktop --setup-tcc-identity` or edit "
+                    "(e.g. `envoy desktop --setup-tcc-identity` or edit "
                     "desktop.macos_signing_identity in config.yaml) and update again."
                 )
                 return False
@@ -965,14 +965,14 @@ def _swap_in_new_macos_bundle(tmp: Path, target: Path, old: Path) -> None:
 
 
 def _running_macos_app_bundles() -> set[Path]:
-    """``.app`` bundles of every live Hermes Desktop process. A running bundle is never swapped
+    """``.app`` bundles of every live Envoy Desktop process. A running bundle is never swapped
     under: Electron loads ``app.asar`` chunks and helper apps lazily, so renaming its bundle away
     and deleting the old tree crashes the live app (the detached updater waits for it to exit)."""
     import psutil
     bundles: set[Path] = set()
     for proc in psutil.process_iter(["exe"]):
         exe = proc.info.get("exe") or ""
-        if exe.endswith("/Contents/MacOS/Hermes"):
+        if exe.endswith("/Contents/MacOS/Envoy"):
             bundles.add(Path(exe).resolve().parents[2])
     return bundles
 
@@ -984,10 +984,10 @@ def _stage_macos_bundle_copy(src: Path, dst: Path) -> None:
 
 
 def _install_rebuilt_desktop_app(desktop_dir: Path, candidates: list[Path]) -> tuple[list[Path], list[str]]:
-    """Copy the rebuilt macOS bundle into every stale or missing installed ``Hermes.app`` in
+    """Copy the rebuilt macOS bundle into every stale or missing installed ``Envoy.app`` in
     *candidates* (``_installed_desktop_apps()``) (#52339).
 
-    ``hermes desktop --build-only`` (what ``hermes update`` runs) packages into
+    ``envoy desktop --build-only`` (what ``envoy update`` runs) packages into
     ``apps/desktop/release/`` only. Finder, the Dock and Spotlight launch the copy in
     ``/Applications`` (or ``~/Applications``), so without this step every update leaves the
     installed shell one build behind the backend it boots. The detached Desktop updater swaps
@@ -1003,7 +1003,7 @@ def _install_rebuilt_desktop_app(desktop_dir: Path, candidates: list[Path]) -> t
     rebuilt_exe = _desktop_packaged_executable(desktop_dir)
     if rebuilt_exe is None:
         return [], []
-    # .../Hermes.app/Contents/MacOS/Hermes -> .../Hermes.app
+    # .../Envoy.app/Contents/MacOS/Envoy -> .../Envoy.app
     return _install_rebuilt_macos_bundles(
         rebuilt_exe.parents[2], candidates, running=_running_macos_app_bundles())
 
@@ -1019,7 +1019,7 @@ def _refresh_installed_desktop_apps(desktop_dir: Path) -> None:
     for app in installed:
         if app in missing:
             print(f"  ✓ Reinstalled the Desktop app at {app}: it had been removed, so Finder, "
-                  "the Dock and Spotlight could not find Hermes")
+                  "the Dock and Spotlight could not find Envoy")
         else:
             print(f"  ✓ Installed the rebuilt Desktop app at {app}")
     for problem in problems:
@@ -1027,7 +1027,7 @@ def _refresh_installed_desktop_apps(desktop_dir: Path) -> None:
     from hermes_cli.gui_uninstall import desktop_install_record
     from utils import atomic_json_write, read_json_or_empty
     # A copy that failed to reinstall stays recorded, so the next update retries it. Every
-    # `hermes desktop` launch lands here: write only when the set changed.
+    # `envoy desktop` launch lands here: write only when the set changed.
     apps = [str(app) for app in owned]
     if read_json_or_empty(desktop_install_record()).get("apps", []) == apps:
         return
@@ -1038,7 +1038,7 @@ def _refresh_installed_desktop_apps(desktop_dir: Path) -> None:
 
 
 def _update_owned_macos_bundles(candidates: list[Path]) -> list[Path]:
-    """The existing bundles in *candidates* that only ``hermes update`` keeps current (#52339).
+    """The existing bundles in *candidates* that only ``envoy update`` keeps current (#52339).
 
     Ownership comes from the bundle's own ``install-stamp.json``. ``updateMechanism: self`` is a
     bootstrap build (a local pack or the bootstrap download), and stamps older than the field
@@ -1057,7 +1057,7 @@ def _update_owned_macos_bundles(candidates: list[Path]) -> list[Path]:
 
 
 def _owns_installed_desktop_apps() -> bool:
-    """A packaged app runs the checkout under the default Hermes home, so only that checkout (on
+    """A packaged app runs the checkout under the default Envoy home, so only that checkout (on
     macOS) may build for it: a bundle from any other tree (a dev worktree) would split shell from
     backend."""
     if sys.platform != "darwin":
@@ -1068,12 +1068,12 @@ def _owns_installed_desktop_apps() -> bool:
 
 
 def _installed_desktop_apps() -> list[Path]:
-    """Installed macOS ``Hermes.app`` bundles this checkout's update owns.
+    """Installed macOS ``Envoy.app`` bundles this checkout's update owns.
 
     When no owned copy is left, a recorded one that has gone missing still counts: its ownership
     stamp left with the bundle, and without the record nothing would ever put it back (Finder, the
-    Dock and Spotlight lose Hermes for good). A copy moved to the other Applications folder keeps
-    its stamp, so it is found instead of doubled. Hermes' GUI uninstall deletes the record.
+    Dock and Spotlight lose Envoy for good). A copy moved to the other Applications folder keeps
+    its stamp, so it is found instead of doubled. Envoy's GUI uninstall deletes the record.
     """
     if not _owns_installed_desktop_apps():
         return []
@@ -1089,9 +1089,9 @@ def _installed_desktop_apps() -> list[Path]:
 
 
 def _installed_desktop_launch_target(desktop_dir: Path, packaged_executable: Path) -> Path:
-    """The executable ``hermes desktop`` launches: the installed app once it IS the checkout build.
+    """The executable ``envoy desktop`` launches: the installed app once it IS the checkout build.
 
-    Finder, the Dock and Spotlight open the installed ``Hermes.app``; launching the ``release/``
+    Finder, the Dock and Spotlight open the installed ``Envoy.app``; launching the ``release/``
     bundle beside it ran the same app from a second path while the installed copy went stale
     (#52339). Refresh the installed copies, then launch the first one that matches the checkout
     build. The checkout bundle stays the fallback: nothing installed, or a copy that is running
@@ -1103,7 +1103,7 @@ def _installed_desktop_launch_target(desktop_dir: Path, packaged_executable: Pat
     rebuilt_hash = _app_asar_hash(packaged_executable.parents[2])
     for app in _installed_desktop_apps():
         if rebuilt_hash is not None and _app_asar_hash(app) == rebuilt_hash:
-            return app / "Contents" / "MacOS" / "Hermes"
+            return app / "Contents" / "MacOS" / "Envoy"
     return packaged_executable
 
 
@@ -1131,8 +1131,8 @@ def _install_rebuilt_macos_bundles(
             continue
         if app.resolve() in running:
             problems.append(
-                f"{app} is running and was not refreshed; quit Hermes Desktop and run "
-                "`hermes update` again (or update from inside the app)")
+                f"{app} is running and was not refreshed; quit Envoy Desktop and run "
+                "`envoy update` again (or update from inside the app)")
             continue
         if codesign:
             installed_sig = _macos_signature_summary(codesign, app)
@@ -1233,7 +1233,7 @@ def _desktop_linux_sandbox_fixup(packaged_executable: Path) -> bool:
 
     sandbox, st = _sandbox_helper_lstat(packaged_executable)
     if not sandbox.exists():
-        print(f"✗ Hermes Desktop is missing Electron's Linux sandbox helper: {sandbox}")
+        print(f"✗ Envoy Desktop is missing Electron's Linux sandbox helper: {sandbox}")
         return False
     # Reject symlinks — chown/chmod must not follow an attacker-controlled link.
     if st is None:
@@ -1255,7 +1255,7 @@ def _desktop_linux_sandbox_fixup(packaged_executable: Path) -> bool:
 
     sudo = shutil.which("sudo")
     if not sudo:
-        print("✗ Hermes Desktop requires sudo to configure Electron's Linux sandbox helper.")
+        print("✗ Envoy Desktop requires sudo to configure Electron's Linux sandbox helper.")
         return False
 
     print("→ Configuring Electron Linux sandbox helper (sudo required)...")
@@ -1377,10 +1377,10 @@ def _desktop_launch_options() -> tuple[list[str], str, str, str, bool]:
 
 
 def _register_linux_desktop_entry(defer: bool = False):
-    """Install the XDG desktop entry for Hermes Desktop (Linux only, best-effort).
+    """Install the XDG desktop entry for Envoy Desktop (Linux only, best-effort).
 
     ``Exec`` and ``Icon`` are absolute so the entry works outside a login shell.
-    ``hermes uninstall --gui`` removes it.
+    ``envoy uninstall --gui`` removes it.
 
     ``defer=True`` (app-grid launch) returns a ``DeferredDesktopEntryInstall`` that writes the
     entry only once the Electron window is on screen (#111906); ``None`` when nothing is
@@ -1476,10 +1476,10 @@ def build_prepared_desktop(desktop_dir: Path, *, source_mode: bool, npm: str, en
         # The Desktop running this build holds the exe lock the promotion rename needs,
         # and stopping it would kill this process first (#123499). Packing would only
         # produce a build that cannot be installed; leave the app as it is. Its content
-        # stamp stays stale, so `hermes desktop` run outside the app rebuilds it
+        # stamp stays stale, so `envoy desktop` run outside the app rebuilds it
         # (_desktop_build_needed), and the in-app update completes with desktop=True.
         print(f"  ⚠ Skipped rebuilding the desktop app: this update is running inside it (pid {ancestor}),")
-        print("    and Windows locks a running app's files. Quit Hermes Desktop and run `hermes desktop`")
+        print("    and Windows locks a running app's files. Quit Envoy Desktop and run `envoy desktop`")
         print("    from a terminal, or use Update now in Settings → About, to rebuild and reopen it.")
         return None
     build_label = "source build" if source_mode else "packaged app"
@@ -1656,20 +1656,20 @@ def _site_packages_install_kind(project_root: Path) -> Optional[str]:
 
 
 def _launch_installed_macos_desktop_app() -> bool:
-    """Launch a separately installed ``/Applications/Hermes.app``, if present.
+    """Launch a separately installed ``/Applications/Envoy.app``, if present.
 
     Returns True only when the app bundle exists and a detached launch was
     started — the caller then exits without touching the build ladder.
     """
     if sys.platform != "darwin":
         return False
-    executable = Path("/Applications/Hermes.app/Contents/MacOS/Hermes")
+    executable = Path("/Applications/Envoy.app/Contents/MacOS/Envoy")
     if not executable.is_file():
         return False
     from hermes_cli.bundled_app import launch_detached
 
     pid = launch_detached([str(executable)], cwd=executable.parent)
-    print(f"→ Launched the installed Hermes Desktop app: {executable} (pid {pid})")
+    print(f"→ Launched the installed Envoy Desktop app: {executable} (pid {pid})")
     return True
 
 
@@ -1678,7 +1678,7 @@ def _run_desktop_one_shot(args: argparse.Namespace, desktop_dir: Path, *, bundle
     # macOS: a self-signed code-signing identity so TCC grants survive rebuilds.
     if getattr(args, "setup_tcc_identity", False):
         from hermes_cli.main_desktop_tcc import _desktop_macos_setup_tcc_identity
-        identity = getattr(args, "identity", None) or "Hermes Local Signing"
+        identity = getattr(args, "identity", None) or "Envoy Local Signing"
         sys.exit(0 if _desktop_macos_setup_tcc_identity(identity) else 1)
     # Linux: the per-binary AppArmor profile for Chromium's namespace sandbox (#130177).
     if getattr(args, "install_apparmor_profile", False):
@@ -1690,7 +1690,7 @@ def _run_desktop_one_shot(args: argparse.Namespace, desktop_dir: Path, *, bundle
             with contextlib.suppress(NotBundledApp):
                 exe = resolve_bundle_layout(PROJECT_ROOT).launcher
         if exe is None:
-            print(f"✗ No packaged Hermes Desktop found under {desktop_dir / 'release'}; run `hermes desktop` first.")
+            print(f"✗ No packaged Envoy Desktop found under {desktop_dir / 'release'}; run `envoy desktop` first.")
         sys.exit(0 if exe is not None and install_profile(exe) else 1)
 
 
@@ -1717,10 +1717,10 @@ def cmd_gui(args: argparse.Namespace):
         print(f"Desktop GUI source not found at: {desktop_dir}")
         if install_kind == "homebrew":
             print(
-                "  This Hermes came from Homebrew, which does not ship the desktop app's\n"
+                "  This Envoy came from Homebrew, which does not ship the desktop app's\n"
                 "  source tree, so it cannot be built from this install.\n"
-                "  Install the desktop app from https://hermes-agent.nousresearch.com,\n"
-                "  or run `hermes desktop` from a source checkout."
+                "  Install the desktop app from https://github.com/trevorputbrese/envoy-agent,\n"
+                "  or run `envoy desktop` from a source checkout."
             )
         sys.exit(1)
 
@@ -1743,7 +1743,7 @@ def cmd_gui(args: argparse.Namespace):
 
     # The mutable preflight (freshness check → npm install → pack) mutates
     # checkout-scoped node_modules and apps/desktop/release. Serialize it
-    # across processes so a manual `hermes desktop` racing `hermes update`'s
+    # across processes so a manual `envoy desktop` racing `envoy update`'s
     # rebuild cannot corrupt either (#93940). The lock lives outside the
     # checkout, keyed by the resolved checkout path.
     from hermes_cli.desktop_build_lock import DesktopBuildLock
@@ -1758,7 +1758,7 @@ def cmd_gui(args: argparse.Namespace):
             print("  Refusing to run npm without serialization; check the checkout permissions and retry.")
             sys.exit(1)
         if not acquired:
-            print("✗ A Hermes update or another desktop dependency install or build is already running.")
+            print("✗ An Envoy update or another desktop dependency install or build is already running.")
             print("  Wait for it to finish, then retry.")
             sys.exit(2)
 
@@ -1821,7 +1821,7 @@ def cmd_gui(args: argparse.Namespace):
         return
 
     if source_mode:
-        print("→ Launching Hermes Desktop from source build...")
+        print("→ Launching Envoy Desktop from source build...")
         # Launch only the prepared runtime. npm exec can provision a missing
         # Electron package, including when --skip-build was requested.
         electron = _electron_dir(PROJECT_ROOT)
@@ -1846,13 +1846,13 @@ def cmd_gui(args: argparse.Namespace):
         launch_command.append("--local")
     # Out-of-band preview escape hatch (#97213): a fullscreened preview pane
     # owns all input, and Wayland has no xdotool/wmctrl to break out from a
-    # terminal. `hermes desktop --close-preview` rides the single-instance
+    # terminal. `envoy desktop --close-preview` rides the single-instance
     # argv so a second CLI invocation unlocks the running app.
     if getattr(args, "close_preview", False):
         launch_command.append("--close-preview")
     launch_command.extend(_explicit_profile_args())
     if not source_mode:
-        desktop_launch_notice(f"→ Launching packaged Hermes Desktop: {' '.join(launch_command)}")
+        desktop_launch_notice(f"→ Launching packaged Envoy Desktop: {' '.join(launch_command)}")
     # The launch target is ready; the fixups above finished mutating the
     # packaged tree. Electron is the long-lived handoff, so release the build
     # lock now — an open Desktop window must never block a future rebuild.
@@ -1902,7 +1902,7 @@ def cmd_gui(args: argparse.Namespace):
             )
         if deferred_entry is not None:
             deferred_entry.finish()
-        desktop_launch_notice("✓ Hermes Desktop launched in a detached window; you can close this shell.")
+        desktop_launch_notice("✓ Envoy Desktop launched in a detached window; you can close this shell.")
         sys.exit(0)
     with desktop_console_output(source_mode=source_mode) as streams:
         try:
@@ -1914,7 +1914,7 @@ def cmd_gui(args: argparse.Namespace):
             # closing the Desktop, not a launcher crash. Exit cleanly instead
             # of dumping a KeyboardInterrupt traceback from subprocess.run
             # (#59848).
-            print("\n✓ Hermes Desktop closed.")
+            print("\n✓ Envoy Desktop closed.")
             sys.exit(0)
     if deferred_entry is not None:
         deferred_entry.finish()
@@ -1924,7 +1924,7 @@ def cmd_gui(args: argparse.Namespace):
 def _explicit_profile_args() -> list[str]:
     """``--profile <name>`` for Electron when ``-p``/``--profile`` was on argv.
 
-    Explicit flag only. A bare `hermes desktop` must not forward the sticky CLI
+    Explicit flag only. A bare `envoy desktop` must not forward the sticky CLI
     profile — Electron would persist it over the stored desktop one.
     """
     from hermes_cli.main import explicit_cli_profile
@@ -1960,7 +1960,7 @@ def _launch_bundled_desktop(
         if getattr(args, name, False)
     ]
     if refused:
-        print(f"✗ {', '.join(refused)} cannot apply to a bundled Hermes install.")
+        print(f"✗ {', '.join(refused)} cannot apply to a bundled Envoy install.")
         print("  This app ships prebuilt and has no desktop source tree to build.")
         sys.exit(2)
 
@@ -1970,20 +1970,20 @@ def _launch_bundled_desktop(
         # The stamp says bundled, so a tree that is not one is a damaged or
         # mispackaged install. Report it — degrading to the build ladder
         # would run npm inside the app's own resources.
-        print(f"✗ This Hermes is stamped as a bundled desktop install, but {exc}.")
-        print("  The install is damaged — reinstall Hermes from the website.")
+        print(f"✗ This Envoy is stamped as a bundled desktop install, but {exc}.")
+        print("  The install is damaged — reinstall Envoy from the website.")
         sys.exit(1)
 
     if layout.launcher is None:
-        print(f"✗ Found no Hermes Desktop launcher in {layout.app_root}.")
-        print("  The install is damaged — reinstall Hermes from the website.")
+        print(f"✗ Found no Envoy Desktop launcher in {layout.app_root}.")
+        print("  The install is damaged — reinstall Envoy from the website.")
         sys.exit(1)
 
     launch_command = _packaged_desktop_launch_command(layout.launcher)
     launch_command.extend(electron_flags)
     launch_command.extend(_explicit_profile_args())
     pid = launch_detached(launch_command, env=env, cwd=layout.app_root)
-    print(f"→ Launched Hermes Desktop: {' '.join(launch_command)} (pid {pid})")
+    print(f"→ Launched Envoy Desktop: {' '.join(launch_command)} (pid {pid})")
     sys.exit(0)
 
 

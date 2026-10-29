@@ -201,7 +201,7 @@ def check_systemd_timing_alignment(
     drain_timeout: float, cron_drain_timeout: float = DEFAULT_GATEWAY_CRON_DRAIN_TIMEOUT
 ) -> Optional[dict[str, Any]]:
     """At startup, sanity-check that systemd's TimeoutStopSec covers stop. A stale unit file
-    (upgraded without re-running ``hermes setup``) can have ``TimeoutStopSec`` below the stop
+    (upgraded without re-running ``envoy setup``) can have ``TimeoutStopSec`` below the stop
     budget, so systemd SIGKILLs the cgroup mid-drain (a phantom ``code=killed status=9`` in the
     journal). ``None`` when aligned OR undeterminable (not under systemd, no ``systemctl``);
     otherwise a dict with ``timeout_stop_sec``/``drain_timeout``/``expected_min``/``mismatch``.
@@ -226,7 +226,7 @@ def check_systemd_timing_alignment(
 
 
 def _systemd_timeout_stop_us(unit_name: str) -> Optional[int]:
-    """``TimeoutStopUSec`` of ``unit_name`` in microseconds; ``--user`` first (hermes' usual)."""
+    """``TimeoutStopUSec`` of ``unit_name`` in microseconds; ``--user`` first (envoy' usual)."""
     for flag in (["--user"], []):
         try:
             result = subprocess.run(

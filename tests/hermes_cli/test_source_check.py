@@ -145,7 +145,7 @@ def test_target_worktree_owns_admission_and_fork_comparison(installation, monkey
 
 def test_bare_git_off_path_reads_through_the_updaters_git(installation, monkeypatch, tmp_path):
     """Desktop passes a bare ``git`` when it found none; a Windows install's only git is PM's
-    store copy, off PATH outside ``hermes update``. The check must read HEAD through that git."""
+    store copy, off PATH outside ``envoy update``. The check must read HEAD through that git."""
     import shutil
 
     from hermes_cli import update_pause_record
@@ -284,7 +284,7 @@ def test_channel_failure_never_probes_or_heals_a_branch(installation, name, fail
     elif failure == "malformed":
         body = "not JSON"
     elif failure == "foreign":
-        body["repository"] = "NousResearch/hermes-agent"
+        body["repository"] = "trevorputbrese/envoy-agent"
     else:
         body["policy"] = "preview"
         del body["delivery"]
@@ -338,8 +338,8 @@ def test_running_revision_is_not_applied_to_an_explicit_target(installation, mon
     assert check_for_updates(install_root=linked, home=home)["currentSha"] == head
     # Default invocation retains the Nix revision probe even without a Git checkout.
     monkeypatch.setattr("hermes_cli.config.get_project_root", lambda: home)
-    responses[MAIN_CHANNEL] = (200, source_channel("main", "NousResearch/hermes-agent"))
-    responses["/repos/NousResearch/hermes-agent/commits/main"] = (200, "e" * 40)
+    responses[MAIN_CHANNEL] = (200, source_channel("main", "trevorputbrese/envoy-agent"))
+    responses["/repos/trevorputbrese/envoy-agent/commits/main"] = (200, "e" * 40)
     assert check_for_updates(home=home)["behind"] == 0
 
 
@@ -472,7 +472,7 @@ def test_embedded_revision_keeps_https_ref_advertisement_recovery(installation, 
     monkeypatch.setenv("HERMES_REVISION", head)
     monkeypatch.setattr("hermes_cli.config.get_project_root", lambda: home)
     monkeypatch.setattr("hermes_cli.config.detect_install_method", lambda root: "nix")
-    responses[MAIN_CHANNEL] = (200, source_channel("main", "NousResearch/hermes-agent"))
+    responses[MAIN_CHANNEL] = (200, source_channel("main", "trevorputbrese/envoy-agent"))
     original = subprocess.run
     probes = []
 
@@ -485,7 +485,7 @@ def test_embedded_revision_keeps_https_ref_advertisement_recovery(installation, 
     monkeypatch.setattr(subprocess, "run", advertise)
     assert check_for_updates(home=home)["behind"] == 0
     assert len(probes) == 1
-    assert "https://github.com/NousResearch/hermes-agent.git" in probes[0][0]
+    assert "https://github.com/trevorputbrese/envoy-agent.git" in probes[0][0]
     assert probes[0][1]["stdin"] == subprocess.DEVNULL
     assert probes[0][1]["env"]["GIT_TERMINAL_PROMPT"] == "0"
 
@@ -509,13 +509,13 @@ def test_malformed_optional_changelog_and_cache_do_not_hide_the_update(installat
                         f"/repos/fixture/fork/compare/{head}...{'a' * 40}"] * 2
 
 
-@pytest.mark.parametrize("repository,heals", [("NousResearch/hermes-agent", True), ("fixture/fork", False)])
+@pytest.mark.parametrize("repository,heals", [("trevorputbrese/envoy-agent", True), ("fixture/fork", False)])
 def test_official_ssh_healing_uses_public_https_without_retargeting_forks(installation, monkeypatch, repository, heals):
     from hermes_cli.source_check import check_for_updates
     from hermes_cli.update_channel import set_install_channel
     root, linked, home, _base, head, responses, _requests, git = installation
     git("remote", "set-url", "origin", f"git@github.com:{repository}.git")
-    git("config", f"url.{root.as_uri()}.insteadOf", "https://github.com/NousResearch/hermes-agent.git")
+    git("config", f"url.{root.as_uri()}.insteadOf", "https://github.com/trevorputbrese/envoy-agent.git")
     # The branch heal is a main-channel concern; an official checkout's default is stable.
     set_install_channel("main", linked)
     monkeypatch.setenv("GIT_SSH_COMMAND", "false")
@@ -581,7 +581,7 @@ def test_stable_release_the_checkout_already_contains_is_a_rollback(installation
     git("tag", "v1.2.3", shas[release], cwd=bare)
     git("remote", "set-url", "origin", str(bare))
     git("checkout", "-q", "--detach", shas[on])
-    api = "/repos/NousResearch/hermes-agent"
+    api = "/repos/trevorputbrese/envoy-agent"
     responses[f"{api}/releases/latest"] = (200, {"draft": False, "prerelease": False, "tag_name": "v1.2.3"})
     responses[f"{api}/commits/v1.2.3"] = (200, {"sha": shas[release]})
 
@@ -623,7 +623,7 @@ def test_stable_release_the_updater_refuses_is_held_not_offered(
     git("checkout", "-q", "main")
     if ledgered:
         _ledgered_store(sibling)
-    api = "/repos/NousResearch/hermes-agent"
+    api = "/repos/trevorputbrese/envoy-agent"
     responses[f"{api}/releases/latest"] = (200, {"draft": False, "prerelease": False, "tag_name": "v1.2.3"})
     responses[f"{api}/commits/v1.2.3"] = (200, {"sha": release})
 
@@ -659,7 +659,7 @@ def test_stable_release_the_updater_refuses_is_held_not_offered(
 
 @pytest.mark.parametrize("ledgered", [True, False])
 def test_an_unfetched_release_is_judged_from_github(installation, tmp_path, monkeypatch, ledgered):
-    """The usual install tracks only ``main``, so a release cut beside it is absent until `hermes
+    """The usual install tracks only ``main``, so a release cut beside it is absent until `envoy
     update` fetches it, and a local probe proves nothing. The check reads the release's state modules
     from GitHub instead, so it still holds what the update would refuse (#140215 review)."""
     from hermes_cli.source_check import check_for_updates
@@ -679,15 +679,15 @@ def test_an_unfetched_release_is_judged_from_github(installation, tmp_path, monk
     git("remote", "set-url", "origin", str(bare))
     assert subprocess.run(["git", "cat-file", "-e", f"{release}^{{commit}}"], cwd=root,
                           stderr=subprocess.DEVNULL, check=False).returncode != 0
-    api = "/repos/NousResearch/hermes-agent"
+    api = "/repos/trevorputbrese/envoy-agent"
     responses[f"{api}/releases/latest"] = (200, {"draft": False, "prerelease": False, "tag_name": "v1.2.3"})
     responses[f"{api}/commits/v1.2.3"] = (200, {"sha": release})
     responses[f"{api}/compare/{git('rev-parse', 'HEAD')}...{release}"] = (200, {"status": "diverged"})
     responses[f"{api}/git/trees/{release}"] = (200, {"truncated": False, "tree": [
         {"path": "hermes_state.py", "type": "blob"}, {"path": "hermes_state_common.py", "type": "blob"},
         {"path": "run_agent.py", "type": "blob"}]})
-    responses[f"/NousResearch/hermes-agent/{release}/hermes_state.py"] = (200, "from hermes_state_common import *\n")
-    responses[f"/NousResearch/hermes-agent/{release}/hermes_state_common.py"] = (
+    responses[f"/trevorputbrese/envoy-agent/{release}/hermes_state.py"] = (200, "from hermes_state_common import *\n")
+    responses[f"/trevorputbrese/envoy-agent/{release}/hermes_state_common.py"] = (
         200, "SCHEMA_SQL = 'CREATE TABLE IF NOT EXISTS sessions (id)'\n")
     if ledgered:
         _ledgered_store(home)

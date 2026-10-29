@@ -108,7 +108,7 @@ class ModelCapabilities:
     model_family: str = ""
 
 
-# Hermes provider names → models.dev provider IDs
+# Envoy provider names → models.dev provider IDs
 PROVIDER_TO_MODELS_DEV: dict[str, str] = {
     "openrouter": "openrouter", "novita": "novita-ai", "anthropic": "anthropic",
     "openai": "openai", "openai-api": "openai", "openai-codex": "openai", "zai": "zai",
@@ -125,13 +125,13 @@ PROVIDER_TO_MODELS_DEV: dict[str, str] = {
     "xai-oauth": "xai",  # OAuth is a transport path for the same xAI catalog
     "xiaomi": "xiaomi", "nvidia": "nvidia",
     # Meta Model API (Muse Spark, api.meta.ai): models.dev keys it "meta", the
-    # Hermes provider is "meta-ai"; both aliases are needed or muse-spark-*
+    # Envoy provider is "meta-ai"; both aliases are needed or muse-spark-*
     # falls back to the generic 256K default instead of its true 1M window.
     "meta-ai": "meta", "meta": "meta", "groq": "groq", "mistral": "mistral",
     "togetherai": "togetherai", "perplexity": "perplexity", "cohere": "cohere",
     "ollama-cloud": "ollama-cloud",
 }
-# Reverse mapping: models.dev id → Hermes ids (built lazily; many-to-one).
+# Reverse mapping: models.dev id → Envoy ids (built lazily; many-to-one).
 _MODELS_DEV_TO_PROVIDER: Optional[dict[str, list[str]]] = None
 
 
@@ -144,12 +144,12 @@ def _profile_models_dev_ids() -> dict[str, str]:
 
 
 def models_dev_provider_map() -> dict[str, str]:
-    """Hermes provider id → models.dev id: ``PROVIDER_TO_MODELS_DEV``, then profile ``models_dev_id``s."""
+    """Envoy provider id → models.dev id: ``PROVIDER_TO_MODELS_DEV``, then profile ``models_dev_id``s."""
     return {**PROVIDER_TO_MODELS_DEV, **_profile_models_dev_ids()}
 
 
 def models_dev_id_for(provider: str) -> Optional[str]:
-    """models.dev id for an exact Hermes provider id (static map first, then its profile), or None."""
+    """models.dev id for an exact Envoy provider id (static map first, then its profile), or None."""
     key = (provider or "").strip()
     if not key or key in PROVIDER_TO_MODELS_DEV:
         return PROVIDER_TO_MODELS_DEV.get(key)
@@ -157,7 +157,7 @@ def models_dev_id_for(provider: str) -> Optional[str]:
 
 
 def _models_dev_to_hermes_ids(mdev_id: str) -> list[str]:
-    """Return the Hermes provider ids that map to *mdev_id* (may be [])."""
+    """Return the Envoy provider ids that map to *mdev_id* (may be [])."""
     global _MODELS_DEV_TO_PROVIDER
     if _MODELS_DEV_TO_PROVIDER is None:
         _MODELS_DEV_TO_PROVIDER = {}
@@ -202,7 +202,7 @@ def _configured_catalog_provider(
 def _models_dev_id(
     provider: str, *, config: Optional[dict[str, Any]] = None,
 ) -> Optional[str]:
-    """models.dev provider id for a Hermes provider id, or None. A custom provider reaches the
+    """models.dev provider id for an Envoy provider id, or None. A custom provider reaches the
     catalog only through its configured ``catalog_provider`` alias (#112649)."""
     key = (provider or "").strip()
     mdev_id = models_dev_id_for(key)
@@ -214,7 +214,7 @@ def _models_dev_id(
             # A mistyped alias must not leak into ModelInfo.provider_id; the row stays on its own slug.
             if (key, alias) not in _UNKNOWN_CATALOG_PROVIDER_WARNED:
                 _UNKNOWN_CATALOG_PROVIDER_WARNED.add((key, alias))
-                logger.warning("providers.%s: catalog_provider %r is neither a Hermes provider id nor a "
+                logger.warning("providers.%s: catalog_provider %r is neither an Envoy provider id nor a "
                                "models.dev id; ignoring", key, alias)
             mdev_id = None
     return mdev_id
@@ -565,7 +565,7 @@ def _registry_models(mdev_id: str, *, allow_network: bool) -> Optional[dict[str,
 def _get_provider_models(
     provider: str, *, allow_network: bool = False, config: Optional[dict[str, Any]] = None,
 ) -> Optional[dict[str, Any]]:
-    """Resolve a Hermes provider ID to its models dict, or None if unknown.
+    """Resolve an Envoy provider ID to its models dict, or None if unknown.
     ``allow_network`` defaults to False — hot-path callers must never block."""
     mdev_id = _models_dev_id(provider, config=config)
     return _registry_models(mdev_id, allow_network=allow_network) if mdev_id else None
@@ -669,7 +669,7 @@ def lookup_models_dev_context(provider: str, model: str, *, allow_network: bool 
 # accept): context_window, supports_tools, supports_vision, supports_reasoning,
 # model_family. ``<provider>.<model_id>`` is an explicit partial patch that always wins over the
 # catalog. ``<provider>._default`` / top-level ``_default`` are FILL-GAP defaults: they apply ONLY to
-# models the catalog does not know and never displace catalog data. Provider keys accept the Hermes
+# models the catalog does not know and never displace catalog data. Provider keys accept the Envoy
 # or models.dev id; model ids match exactly, then case-insensitively (mirroring catalog lookup).
 # Resolution semantics: 1. 2. See #84482, #8731.
 _OVERRIDE_WARNED_KEYS: set = set()
@@ -720,7 +720,7 @@ def _load_model_overrides(*, config: Optional[dict[str, Any]] = None) -> dict[st
 
 
 def _provider_override_section(provider: str, *, config: Optional[dict[str, Any]] = None) -> Optional[dict[str, Any]]:
-    """Override section for *provider* (keyed by Hermes OR models.dev id), or None."""
+    """Override section for *provider* (keyed by Envoy OR models.dev id), or None."""
     overrides = (
         _load_model_overrides(config=config)
         if config is not None
@@ -729,7 +729,7 @@ def _provider_override_section(provider: str, *, config: Optional[dict[str, Any]
     provider_key = (provider or "").strip()
     if not overrides or not provider_key:
         return None
-    # Forward (Hermes → models.dev id) and reverse (caller passed a models.dev id, config keyed by Hermes id) aliases.
+    # Forward (Envoy → models.dev id) and reverse (caller passed a models.dev id, config keyed by Envoy id) aliases.
     candidates = [provider_key, models_dev_id_for(provider_key), *_models_dev_to_hermes_ids(provider_key)]
     return next((section for section in (overrides.get(key) if key else None for key in candidates) if isinstance(section, dict)), None)
 
@@ -846,7 +846,7 @@ def _merge_catalog_entry_with_override(raw: dict[str, Any], override: dict[str, 
 def _builtin_model_metadata(
     provider: str, model: str, *, config: Optional[dict[str, Any]] = None,
 ) -> Optional[dict[str, Any]]:
-    """Built-in metadata for a provider/model pair, if Hermes has a vendor-specific entry."""
+    """Built-in metadata for a provider/model pair, if Envoy has a vendor-specific entry."""
     provider_key = _models_dev_id(provider, config=config) or (provider or "").strip()
     return _BUILTIN_MODEL_METADATA.get((provider_key, (model or "").strip().lower()))
 
@@ -1006,7 +1006,7 @@ def _parse_provider_info(provider_id: str, raw: dict[str, Any]) -> ProviderInfo:
 def get_provider_info(
     provider_id: str, *, allow_network: bool = True, config: Optional[dict[str, Any]] = None,
 ) -> Optional[ProviderInfo]:
-    """Provider metadata by Hermes or models.dev ID, or None if not cataloged. ``allow_network`` defaults to True (interactive setup)."""
+    """Provider metadata by Envoy or models.dev ID, or None if not cataloged. ``allow_network`` defaults to True (interactive setup)."""
     mdev_id = _models_dev_id(provider_id, config=config) or provider_id
     raw = _registry_provider(mdev_id, allow_network)
     return _parse_provider_info(mdev_id, raw) if raw is not None else None
@@ -1015,7 +1015,7 @@ def get_provider_info(
 def get_model_info(
     provider_id: str, model_id: str, *, allow_network: bool = False, config: Optional[dict[str, Any]] = None,
 ) -> Optional[ModelInfo]:
-    """Full model metadata by Hermes or models.dev provider ID (exact match, then case-insensitive), or
+    """Full model metadata by Envoy or models.dev provider ID (exact match, then case-insensitive), or
     None if not found. EXPLICIT ``model_overrides`` patch known catalog models; ``_default`` fills the gap
     only for unknown ones. ``allow_network`` defaults to False — cost guard and inventory are hot paths.
 

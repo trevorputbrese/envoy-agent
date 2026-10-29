@@ -20,7 +20,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Runtime state that lives at $HERMES_HOME's root on a flat install, exactly as
-# ``hermes update`` would sweep it: one representative per ignored class. The
+# ``envoy update`` would sweep it: one representative per ignored class. The
 # sidecar names mirror ``_sqlite_files`` in gateway/platforms/base.py; the
 # credential entries mirror ``_ROOT_CREDENTIAL_PATHS`` there.
 FLAT_INSTALL_RUNTIME_STATE = (
@@ -133,7 +133,7 @@ def flat_install_repo(tmp_path: Path) -> Path:
 
 def test_flat_install_runtime_state_is_ignored(flat_install_repo):
     """`git status --porcelain` must stay empty with the full runtime state present,
-    so `hermes update` never enters its stash step for runtime state alone."""
+    so `envoy update` never enters its stash step for runtime state alone."""
     status = _run_git(
         flat_install_repo, "status", "--porcelain", "--untracked-files=all"
     )

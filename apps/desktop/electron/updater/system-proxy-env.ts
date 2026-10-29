@@ -14,7 +14,7 @@ import { configuredUpdateHosts } from './update-hosts'
  * always wins: it is returned untouched.
  *
  * The env is for the update's children only. The hand-off script, the staged
- * updater and `hermes update` start the relaunched Desktop and gateways, which
+ * updater and `envoy update` start the relaunched Desktop and gateways, which
  * would otherwise inherit it as if the user had set it: every LAN host the PAC
  * sends direct would be proxied, and the next update would read the stale value
  * as an explicit setting. So every variable the Desktop adds is named in

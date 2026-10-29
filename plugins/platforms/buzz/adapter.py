@@ -396,7 +396,7 @@ async def _exec_buzz(
 ) -> tuple[int, str, str]:
     """Run the buzz CLI (argv, never a shell) -> ``(rc, stdout, stderr)``. Key travels via env only."""
     from tools.environments.local import hermes_subprocess_env
-    env = hermes_subprocess_env()  # a third-party CLI: its own key only, never Hermes' credentials
+    env = hermes_subprocess_env()  # a third-party CLI: its own key only, never Envoy's credentials
     env["HOME"] = env["HERMES_REAL_HOME"]  # its own config and credentials file live under the user's HOME
     env["BUZZ_RELAY_URL"] = relay_url
     env["BUZZ_PRIVATE_KEY"] = private_key
@@ -1897,7 +1897,7 @@ async def _standalone_send(
 
 
 def interactive_setup() -> None:
-    """Interactive ``hermes gateway setup`` flow (lazy CLI imports keep the plugin importable elsewhere)."""
+    """Interactive ``envoy gateway setup`` flow (lazy CLI imports keep the plugin importable elsewhere)."""
     from hermes_cli.setup import (
         prompt, prompt_yes_no, save_env_value, get_env_value, print_header, print_info, print_warning, print_success,
     )
@@ -1909,7 +1909,7 @@ def interactive_setup() -> None:
     existing_relay = get_env_value("BUZZ_RELAY_URL")
     if declines_reconfigure("Buzz", "Reconfigure Buzz?", "BUZZ_RELAY_URL"):
         return
-    print_info("Connect Hermes to a Buzz community (Block's Nostr-based human+agent platform).")
+    print_info("Connect Envoy to a Buzz community (Block's Nostr-based human+agent platform).")
     print_info("   Requires the buzz CLI binary and a Nostr key that is a community member.")
     print()
     relay = prompt("Relay URL (e.g. https://mycommunity.communities.buzz.xyz)", default=existing_relay or "")
@@ -1940,11 +1940,11 @@ def interactive_setup() -> None:
         save_env_value("BUZZ_ALLOWED_USERS", allowed.replace(" ", "") if allowed else "")
     print()
     print_success("Buzz configuration saved to ~/.hermes/.env")
-    print_info("Restart the gateway for changes to take effect: hermes gateway restart")
+    print_info("Restart the gateway for changes to take effect: envoy gateway restart")
 
 
 def register(ctx):
-    """Plugin entry point: called by the Hermes plugin system."""
+    """Plugin entry point: called by the Envoy plugin system."""
     ctx.register_platform(
         **_load_sibling("send_targets").SEND_ENTRY_KWARGS,  # send_message target syntax + routing
         name="buzz", label="Buzz", adapter_factory=lambda cfg: BuzzAdapter(cfg), check_fn=check_requirements,

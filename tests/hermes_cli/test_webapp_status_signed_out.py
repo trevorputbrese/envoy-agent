@@ -3,7 +3,7 @@
 ``/api/status`` is public (``PUBLIC_API_PATHS``): the native-app login probe and uptime checks read
 it without a session. A Webapp on a wildcard bind is reachable by everyone on the network, so its
 profile names, install id and host figures wait for sign-in. The standalone dashboard keeps its
-public body (Hermes Cloud lists profiles from it without a session, #60585).
+public body (Envoy Cloud lists profiles from it without a session, #60585).
 """
 from __future__ import annotations
 
@@ -61,7 +61,7 @@ def test_signed_out_webapp_status_carries_no_profile_or_install_identity(wildcar
     assert body["gateway_running"] in (True, False) and body["overall"] in ("ok", "degraded")
     assert body["version"]
     if wildcard_gate == "dashboard":
-        assert body["profiles"] == ["default", "coder"]  # Hermes Cloud's contract (#60585)
+        assert body["profiles"] == ["default", "coder"]  # Envoy Cloud's contract (#60585)
         return
     assert [key for key in IDENTITY if key in body] == []
     # ``?profile=`` is no profile-name oracle either: an unknown name answers like a real one.

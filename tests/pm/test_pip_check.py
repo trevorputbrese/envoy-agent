@@ -103,13 +103,13 @@ def test_overrides_round_trip_as_requirement_lines(lock):
 
 
 def test_stdlib_fallback_reads_the_real_lock_like_tomllib(monkeypatch):
-    """The bootstrap runner may lack tomllib; its parser must agree on Hermes's own lock."""
+    """The bootstrap runner may lack tomllib; its parser must agree on Envoy's own lock."""
     with_tomllib = overridden_versions(REPO_LOCK)
     requirements = override_requirements(REPO_LOCK)
     monkeypatch.setitem(sys.modules, "tomllib", None)
     assert overridden_versions(REPO_LOCK) == with_tomllib
     assert override_requirements(REPO_LOCK) == requirements
-    assert with_tomllib, "Hermes's lock declares overrides; an empty read means the parser missed them"
+    assert with_tomllib, "Envoy's lock declares overrides; an empty read means the parser missed them"
 
 
 @pytest.fixture

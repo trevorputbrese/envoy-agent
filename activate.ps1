@@ -1,5 +1,5 @@
 # Source this file to sync and apply the PM environment; deactivate restores it.
-# Trusts the recorded tool digest. `hermes pm install` re-checks the bytes.
+# Trusts the recorded tool digest. `envoy pm install` re-checks the bytes.
 # -TestExtras a,b selects runtime extras in the test environment (default: [all]).
 param([string]$TestExtras = '')
 $ErrorActionPreference = 'Stop'
@@ -70,7 +70,7 @@ foreach ($key in $global:_hermesKeys) {
 foreach ($property in $composed.PSObject.Properties) {
     Set-Item -Path "env:$($property.Name)" -Value ([string]$property.Value)
 }
-# This checkout, not whichever `hermes` PATH finds. A function beats PATH,
+# This checkout, not whichever `envoy` PATH finds. A function beats PATH,
 # an alias, and the MSIX execution alias. It runs only while the shell is
 # inside this worktree.
 $global:_hermesWorktree = $repo

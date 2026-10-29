@@ -1,6 +1,6 @@
 """Tests for HERMES_HOME credential-file read blocking in file_safety.
 
-Regression for https://github.com/NousResearch/hermes-agent/issues/17656 —
+Regression for https://github.com/trevorputbrese/envoy-agent/issues/17656 —
 ``read_file`` was previously only sandboxed against ``HERMES_HOME`` itself,
 which left ``auth.json`` and ``.anthropic_oauth.json`` (plaintext provider
 keys + OAuth tokens) readable by the agent. A prompt-injection reaching
@@ -194,7 +194,7 @@ def test_webhook_subscriptions_blocked(fake_home):
 def test_identically_named_hermes_files_outside_home_not_blocked(
     fake_home, tmp_path
 ):
-    """Hermes-specific filenames (``auth.json``, ``mcp-tokens/``, ``google_oauth.json``)
+    """Envoy-specific filenames (``auth.json``, ``mcp-tokens/``, ``google_oauth.json``)
     outside HERMES_HOME must remain readable — the gate is per-location for
     those, not per-filename. ``.env`` is the exception: it's blocked anywhere
     on disk (see test_project_local_env_blocked) because the basename always
@@ -288,7 +288,7 @@ def test_profile_mode_blocks_root_credentials(tmp_path, monkeypatch):
     "rel", ["webapp/session-token", "webapp/native-sign-in-tokens.json", "webapp/sign-in-registration.json"])
 def test_the_webapps_sign_in_files_are_neither_read_nor_written(tmp_path, monkeypatch, rel):
     """``webapp/`` holds the Webapp's browser credential (a bare token no redaction pattern masks; it opens
-    host shells and files on the loopback Webapp until ``hermes webapp --sign-out``), the record of the
+    host shells and files on the loopback Webapp until ``envoy webapp --sign-out``), the record of the
     provider tokens its listener gave native apps and the Portal callback its Web Access registered. The
     agent's file tools neither read nor write anything there, in the profile's home or at the root: a
     write could plant a credential or a grant that the gateway then honours."""

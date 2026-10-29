@@ -35,7 +35,7 @@ _DESCENDANTS_SQL = f"""
 # Desktop 0.22.2's ``readableError`` keeps the HTTP ``detail`` and shows its "app and backend are
 # on different versions" toast (with an Update action) for "out of sync (different versions)".
 CLIENT_UPGRADE_REQUIRED = ('client_upgrade_required: this app is out of sync (different versions) '
-                           'with the Hermes backend; update the app to edit sessions')
+                           'with the Envoy backend; update the app to edit sessions')
 
 
 def _session_latest_descendant(session_id: str, db):
@@ -188,7 +188,7 @@ def _mutate_offline_store(profile, actor, params):
 async def _mutate_via_gateway_owner(profile, actor, params):
     """Forward a standalone dashboard mutation to the live gateway owner.
 
-    While a gateway serves the same home, a separately launched ``hermes
+    While a gateway serves the same home, a separately launched ``envoy
     dashboard`` is not the store owner, so the offline path's
     exclusive-maintenance reservation can never win and every write action
     dies on a bare 409 (#138915). The owner exposes the same revision-fenced
@@ -406,7 +406,7 @@ def _open_session_db_at_path(db_path: Path, *, read_only: bool):
         from hermes_state_errors import is_malformed_db_error
         if isinstance(exc, sqlite3.DatabaseError) and is_malformed_db_error(exc):
             # Same structured 503 the analytics routers publish (``corrupt_store_as_status``): a
-            # corrupt image names the repair (`hermes doctor`), never a generic "schema unavailable".
+            # corrupt image names the repair (`envoy doctor`), never a generic "schema unavailable".
             from hermes_cli.web_routers._common import corrupt_store_status
             raise corrupt_store_status(db_path, exc) from exc
         if isinstance(exc, sqlite3.OperationalError) and is_transient_sqlite_error(exc):
@@ -414,7 +414,7 @@ def _open_session_db_at_path(db_path: Path, *, read_only: bool):
         else:
             detail = (
                 "Session store schema is unavailable or corrupt. Start or restart this profile's "
-                "gateway to reconcile it; if it persists, run `hermes doctor` for diagnosis. "
+                "gateway to reconcile it; if it persists, run `envoy doctor` for diagnosis. "
                 "Browsing does not repair the store.")
         raise HTTPException(status_code=503, detail=detail) from exc
 
@@ -478,7 +478,7 @@ def _maybe_auto_archive_for_profile(profile: Optional[str]) -> None:
 
         # A live gateway owns this profile's store and runs the same sweep on its own
         # housekeeping tick ("state.db maintenance tick" in gateway/run.py, profile-scoped so a
-        # multiplexed secondary's store is swept too). Opening it WRITABLE from `hermes
+        # multiplexed secondary's store is swept too). Opening it WRITABLE from `envoy
         # serve` adds a second writer to a database another process is already archiving,
         # for zero extra coverage (#110405). `_check_gateway_running` is the canonical
         # per-profile predicate (`_maybe_run_skill_maintenance` below uses it): its

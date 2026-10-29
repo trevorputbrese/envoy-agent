@@ -181,7 +181,7 @@ const NOTICE_DISPLAY_KINDS = [
   'process_complete',
   'auto_continue',
   'personality_switch',
-  // Hermes closing a failed turn, not the model speaking.
+  // Envoy closing a failed turn, not the model speaking.
   'failed_turn'
 ] as const
 
@@ -601,7 +601,7 @@ export function toChatMessages(messages: SessionMessage[]): ChatMessage[] {
     let pendingAbsorbedRows = 0
 
     // A machine notice stored as an assistant row (the failed-turn boundary) is
-    // Hermes speaking: it must not join the tool-call reply it follows.
+    // Envoy speaking: it must not join the tool-call reply it follows.
     if (displayRole === 'assistant') {
       if (pendingToolParts.length) {
         if (!appendPartsToActiveAssistant(pendingToolParts, message.timestamp ?? pendingToolTimestamp)) {

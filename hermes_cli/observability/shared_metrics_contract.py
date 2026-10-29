@@ -1,4 +1,4 @@
-"""Bounded product contract for the first Hermes shared-metrics slice."""
+"""Bounded product contract for the first Envoy shared-metrics slice."""
 
 from __future__ import annotations
 
@@ -111,7 +111,7 @@ TASK_END_REASONS = frozenset({
     "system_aborted", "timed_out", "unknown", "user_cancelled",
 })
 TASK_TERMINATIONS = frozenset({"none", "system_aborted", "timed_out", "unknown", "user_cancelled"})
-# ``one_shot``: a finite CLI run (``hermes -z``, ``hermes chat -q`` off a TTY, ``-Q``, ``--oneshot``) that
+# ``one_shot``: a finite CLI run (``envoy -z``, ``envoy chat -q`` off a TTY, ``-Q``, ``--oneshot``) that
 # answers one prompt and exits — a person's shell line or their script, never the REPL.
 TASK_ENTRYPOINTS = frozenset({
     "api", "background", "batch", "delegated", "gateway_message", "interactive", "one_shot", "other",
@@ -379,9 +379,9 @@ PROCESS_EXIT_MARK = PROCESS_EXIT_METRIC = "hermes.process.exit"
 UPDATE_KINDS = frozenset({"cli", "desktop"})
 UPDATE_OUTCOMES = frozenset({"failed", "noop", "refused", "success"})
 # ``partial``: committed, but interrupted after the commit point or the user's changes stay parked
-# (only `hermes update` receipts; the Desktop RPC keeps UPDATE_OUTCOMES).
+# (only `envoy update` receipts; the Desktop RPC keeps UPDATE_OUTCOMES).
 UPDATE_RUN_OUTCOMES = UPDATE_OUTCOMES | {"partial"}
-# `hermes update` pipeline stages, in pipeline order (the receipt's stage marks use these names).
+# `envoy update` pipeline stages, in pipeline order (the receipt's stage marks use these names).
 UPDATE_STAGE_ORDER = ("plan", "snapshot", "apply", "deps", "build", "restart", "verify")
 UPDATE_STAGES = frozenset(UPDATE_STAGE_ORDER)
 # Desktop's packaged updaters (electron-updater, App Installer, Store) fail at their own steps.
@@ -463,7 +463,7 @@ EXTENSION_MCP_FAILURE_CLASSES = EXTENSION_COMMON_FAILURE_CLASSES | frozenset({
     "bootstrap_failed",   # a catalog entry's bootstrap command exited non-zero
     "clone_failed",       # git clone / checkout of a catalog entry's repository failed
     "config_invalid",     # no such catalog entry, undeclared env var, or a manifest that cannot be built
-    "config_rejected",    # Hermes refused a suspicious command/args configuration
+    "config_rejected",    # Envoy refused a suspicious command/args configuration
     "connect_failed",     # the probe could not reach or initialize the server
     "git_missing",        # git is not installed
     "missing_credentials",  # a required credential was not provided
@@ -484,7 +484,7 @@ EXTENSION_REGISTRY_IDS = frozenset({
     "browse-sh", "clawhub", "github", "hermes-index", "lobehub", "official", "skills-sh", "url", "well-known",
 })
 EXTENSION_REGISTRIES = EXTENSION_REGISTRY_IDS | frozenset({"none", "other", "unresolved"})
-# Why a `hermes update` run failed or was refused, derived from the FINAL receipt only
+# Why a `envoy update` run failed or was refused, derived from the FINAL receipt only
 # (shared_metrics_update.update_failure_class); ``none`` unless outcome is failed/refused/partial.
 UPDATE_FAILURE_CLASSES = frozenset({
     "aborted_before_apply",  # fallback: exited before the checkout moved with no reason recorded
@@ -532,7 +532,7 @@ UPDATE_STOP_CLASSES = frozenset({
     "old_version_handoff",    # an older updater's hand-off to this version could not finish
     "parked_branch_blocked",  # the checkout is parked on another branch that is unsafe to switch
     "permission_denied",      # (see above): git could not write a file it needs (e.g. index.lock's directory)
-    "stash_restore_rejected",  # re-applied local changes broke Hermes; the update stopped
+    "stash_restore_rejected",  # re-applied local changes broke Envoy; the update stopped
     "syntax_rollback",        # the pulled code failed the syntax check and was rolled back
     "target_syntax_error",    # the target failed the syntax check before anything moved
     "target_unresolved",      # the fetched target ref did not resolve to a commit
@@ -544,7 +544,7 @@ UPDATE_FAILURE_CLASSES |= UPDATE_STOP_CLASSES
 # ---- end iuf c1 ----
 # ---- iuf c2 ----
 # One fresh-install run of scripts/install.sh / install.ps1, from the local receipt the installer
-# leaves (the installer itself never sends); counted by a later Hermes start while collection is on.
+# leaves (the installer itself never sends); counted by a later Envoy start while collection is on.
 INSTALL_RUN_MARK = INSTALL_RUN_METRIC = "hermes.install.run"
 INSTALL_RUN_INSTALLERS = frozenset({"install_ps1", "install_sh", "other"})
 INSTALL_RUN_OUTCOMES = frozenset({"failed", "success"})
@@ -639,17 +639,17 @@ TURN_ACTIVITY_BUCKETS = frozenset({
     "0", "1", "2", "3_to_5", "6_to_10", "11_to_25", "26_to_50", "51_to_100", "gte_101",
 })
 WASTE_REASONS = frozenset({"interrupt", "retry", "undo"})
-# Characters of one raw tool result, before Hermes spills or truncates it.
+# Characters of one raw tool result, before Envoy spills or truncates it.
 TOOL_OUTPUT_SIZE_BUCKETS = frozenset({
     "lt_1k", "1k_to_10k", "10k_to_50k", "50k_to_100k", "100k_to_500k", "gte_500k", "unknown",
 })
 TOOL_SCHEMA_TOKEN_BUCKETS = frozenset({
     "0", "lt_2k", "2k_to_5k", "5k_to_10k", "10k_to_20k", "20k_to_40k", "gte_40k",
 })
-# Toolsets Hermes ships; MCP servers and plugin toolsets collapse to custom.
+# Toolsets Envoy ships; MCP servers and plugin toolsets collapse to custom.
 TOOLSET_NAMES = BUILTIN_TOOLSET_NAMES | RETIRED_TOOLSET_NAMES | {"custom"}
-# compression is the expected cause; the rest are Hermes invalidating a warm prefix (bugs or
-# user-driven), or the provider reporting a cold read Hermes did not cause.
+# compression is the expected cause; the rest are Envoy invalidating a warm prefix (bugs or
+# user-driven), or the provider reporting a cold read Envoy did not cause.
 CACHE_BREAK_CAUSES = frozenset({
     "cache_expired", "compression", "model_switch", "provider_reported_miss", "system_prompt_rebuild",
     "toolset_change",
@@ -810,7 +810,7 @@ def client_architecture(value: Any) -> str:
 
 
 def client_install_method(value: Any) -> str:
-    """Return an allowlisted Hermes installation method."""
+    """Return an allowlisted Envoy installation method."""
     normalized = _norm(value)
     return _allowlisted("nixos" if normalized == "nix" else normalized, CLIENT_INSTALL_METHODS)
 
@@ -1361,7 +1361,7 @@ def model_call_dimensions(event: Any) -> dict[str, str] | None:
 
 
 def _auxiliary_model_call_dimensions(event: Any) -> dict[str, str] | None:
-    """Project a terminal auxiliary route from its Hermes logical scope."""
+    """Project a terminal auxiliary route from its Envoy logical scope."""
     metadata = _relay_metadata(
         event, RUNTIME_SCHEMA_KEY, RUNTIME_SCHEMA_VERSION, "hermes.call_role"
     )
@@ -1676,7 +1676,7 @@ def task_failure_class(kwargs: dict[str, Any], outcome: str | None = None) -> st
 
 
 def task_terminal_state(kwargs: dict[str, Any]) -> tuple[str, str, str]:
-    """Map Hermes terminal state to bounded (outcome, end_reason, termination)."""
+    """Map Envoy terminal state to bounded (outcome, end_reason, termination)."""
     reason = _norm(kwargs.get("turn_exit_reason"))
     if kwargs.get("interrupted") or "interrupt" in reason or "cancel" in reason:
         return "cancelled", "user_cancelled", "user_cancelled"
@@ -1738,7 +1738,7 @@ _TOOL_CATEGORY_PREFIXES = (
 
 
 def tool_category(kwargs: dict[str, Any]) -> str:
-    """Map Hermes registry toolset metadata to a low-cardinality category."""
+    """Map Envoy registry toolset metadata to a low-cardinality category."""
     if _norm(kwargs.get("tool_name")).startswith(CONNECTOR_NAME_PREFIX):
         return "connector"
     toolset = _norm(kwargs.get("toolset"))
@@ -1759,7 +1759,7 @@ _TOOL_STATUS_OUTCOMES = {
 
 
 def tool_outcome(kwargs: dict[str, Any]) -> str:
-    """Normalize the terminal Hermes tool status without inspecting its result."""
+    """Normalize the terminal Envoy tool status without inspecting its result."""
     return _TOOL_STATUS_OUTCOMES.get(_norm(kwargs.get("status")), "unknown")
 
 
@@ -1822,7 +1822,7 @@ _TOOL_ERROR_TYPES = {
 
 
 def tool_error_class(kwargs: dict[str, Any], outcome: str | None = None) -> str:
-    """Closed failure class from Hermes's own error_type; exception class names become
+    """Closed failure class from Envoy's own error_type; exception class names become
     ``exception`` so plugin-defined identifiers never leave the machine. A connector entry's
     gateway error code names its class instead of ``tool_error``."""
     outcome = outcome or tool_outcome(kwargs)
@@ -1906,7 +1906,7 @@ def _non_negative_number(value: Any) -> float | None:
 
 
 def model_call_fields(kwargs: dict[str, Any]) -> dict[str, str]:
-    """Return the terminal model identity and provider route known to Hermes."""
+    """Return the terminal model identity and provider route known to Envoy."""
     from .shared_metrics_catalog import model_metric_name, provider_metric_name
 
     provider = provider_metric_name(kwargs.get("provider"))

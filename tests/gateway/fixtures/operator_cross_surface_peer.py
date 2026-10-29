@@ -135,7 +135,7 @@ async def probe(peer, creator):
             assert await rpc(viewer, 'prompt.submit', **followup) == accepted
             rows = list_session_admissions(authority.db, session_id=sid, pending_only=False)
             assert len(rows) == 2, rows
-            # Hermes is single-user: the dashboard login is the machine owner, so both surfaces'
+            # Envoy is single-user: the dashboard login is the machine owner, so both surfaces'
             # admissions carry the owner's own OS subject and neither is an operator hand-off.
             assert rows[0]['principal_id'] == original_owner, rows
             assert rows[1]['principal_id'] == original_owner, rows

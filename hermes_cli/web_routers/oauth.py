@@ -76,7 +76,7 @@ def _codex_device_code_start_error(resp: Any) -> str:
     if "device" in lower and ("authori" in lower or "enable" in lower):
         message = (
             "OpenAI rejected the device-code login request. Your OpenAI "
-            "account may need device-code authorization enabled before Hermes "
+            "account may need device-code authorization enabled before Envoy "
             "can start this dashboard login. Enable device-code authorization "
             "in OpenAI, then return here and click Login again."
         )
@@ -658,14 +658,14 @@ def _oauth_provider_disconnect_command(
 
 def _oauth_provider_disconnect_hint(provider: dict[str, Any], status: dict[str, Any]) -> Optional[str]:
     """Return the manual disconnect path when the API cannot clear this provider."""
-    # "anthropic" is flow == "external" (no in-dashboard login) but Hermes still
+    # "anthropic" is flow == "external" (no in-dashboard login) but Envoy still
     # OWNS its credential (the PKCE file ~/.hermes/.anthropic_oauth.json and its
-    # credential-pool entry, written by `hermes auth add anthropic`), so it is
+    # credential-pool entry, written by `envoy auth add anthropic`), so it is
     # excluded from the "external providers can't be auto-disconnected" rule.
     if provider.get("flow") == "external" and provider.get("id") != "anthropic":
         if _oauth_provider_disconnect_command(provider):
             # Fallback wording for surfaces without the one-click "run in terminal" path.
-            return "Managed outside Hermes — run the disconnect command to remove it."
+            return "Managed outside Envoy — run the disconnect command to remove it."
         return "Managed by that provider's CLI; remove it there."
     if status.get("source") == "env_var":
         return "Remove the API key from Settings → Keys instead."
@@ -675,7 +675,7 @@ def _oauth_provider_disconnect_hint(provider: dict[str, Any], status: dict[str, 
 def _build_oauth_catalog() -> list[dict[str, Any]]:
     """Accounts-tab provider list: ``_OAUTH_PROVIDER_CATALOG`` cards first (curated
     order, win on metadata), then every other accounts-tab ``provider_catalog()`` entry
-    in ``hermes model`` order, so plugin-added OAuth/external providers appear automatically."""
+    in ``envoy model`` order, so plugin-added OAuth/external providers appear automatically."""
     rows: list[dict[str, Any]] = []
     seen: set[str] = set()
     for entry in _OAUTH_PROVIDER_CATALOG:
@@ -709,7 +709,7 @@ def _profile_account_row(d) -> Optional[dict[str, Any]]:
     return {
         "id": d.slug, "name": card.get("name") or d.label,
         "flow": "device_code" if device else card.get("flow") or "external",
-        "cli_command": card.get("cli_command") or f"hermes auth add {d.slug}",
+        "cli_command": card.get("cli_command") or f"envoy auth add {d.slug}",
         "docs_url": card.get("docs_url") or d.signup_url or "",
         "status_fn": getattr(prof, "account_status", None),
     }
@@ -743,7 +743,7 @@ def _reject_if_not_disconnectable(provider: dict[str, Any], status: dict[str, An
 
 
 def _clear_anthropic_auth() -> bool:
-    """Clear only the Hermes-managed PKCE file and auth-store entry (never ~/.claude/*)."""
+    """Clear only the Envoy-managed PKCE file and auth-store entry (never ~/.claude/*)."""
     cleared = False
     try:
         from agent.anthropic_credentials import _get_hermes_oauth_file

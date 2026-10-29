@@ -33,21 +33,21 @@ function killPid(pid: number | undefined): void {
 
 // The decision itself, on every CI host (the host is data); the live EBUSY proof below needs Windows.
 test('a packaged Windows app leaves a CWD inside its install folder and keeps one outside it', () => {
-  const app = { platform: 'win32', isPackaged: true, execPath: 'C:\\Hermes\\win-unpacked\\Hermes.exe' } as const
+  const app = { platform: 'win32', isPackaged: true, execPath: 'C:\\Envoy\\win-unpacked\\Envoy.exe' } as const
   const home = 'C:\\Users\\ada'
 
   const target = (cwd: string, facts: Partial<Parameters<typeof packagedWorkingDirectoryTarget>[0]> = {}) =>
     packagedWorkingDirectoryTarget({ ...app, cwd, homedir: home, ...facts })
 
-  assert.equal(target('C:\\Hermes\\win-unpacked'), home, 'the install folder (shortcut "Start in")')
+  assert.equal(target('C:\\Envoy\\win-unpacked'), home, 'the install folder (shortcut "Start in")')
   assert.equal(target('c:\\hermes\\WIN-UNPACKED\\resources'), home, 'below it, any case')
-  assert.equal(target('C:\\Hermes'), null, 'the parent folder is a workspace, not the app tree')
+  assert.equal(target('C:\\Envoy'), null, 'the parent folder is a workspace, not the app tree')
   assert.equal(target('D:\\work\\repo'), null, 'a workspace on another drive')
-  assert.equal(target('C:\\Hermes\\win-unpacked-old'), null, 'a sibling that shares a name prefix')
-  assert.equal(target('C:\\Hermes\\win-unpacked', { isPackaged: false }), null, 'dev runs keep their CWD')
+  assert.equal(target('C:\\Envoy\\win-unpacked-old'), null, 'a sibling that shares a name prefix')
+  assert.equal(target('C:\\Envoy\\win-unpacked', { isPackaged: false }), null, 'dev runs keep their CWD')
 
   for (const platform of ['linux', 'darwin'] as const) {
-    assert.equal(target('/opt/Hermes', { platform, execPath: '/opt/Hermes/hermes' }), null, platform)
+    assert.equal(target('/opt/Envoy', { platform, execPath: '/opt/Envoy/hermes' }), null, platform)
   }
 })
 
@@ -57,8 +57,8 @@ test('a home folder that cannot be entered leaves the CWD and does not crash sta
   const facts = {
     platform: 'win32',
     isPackaged: true,
-    execPath: 'C:\\Hermes\\win-unpacked\\Hermes.exe',
-    cwd: 'C:\\Hermes\\win-unpacked',
+    execPath: 'C:\\Envoy\\win-unpacked\\Envoy.exe',
+    cwd: 'C:\\Envoy\\win-unpacked',
     homedir: 'H:\\offline-roaming-profile'
   } as const
 
@@ -95,7 +95,7 @@ test.skipIf(process.platform !== 'win32')(
           platform: 'node',
           format: 'esm',
           define: {
-            'process.execPath': JSON.stringify(path.join(install, 'Hermes.exe')),
+            'process.execPath': JSON.stringify(path.join(install, 'Envoy.exe')),
             'process.env.HERMES_DESKTOP_IS_PACKAGED': 'undefined'
           },
           plugins: [

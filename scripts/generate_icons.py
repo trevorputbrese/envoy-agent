@@ -50,7 +50,7 @@ Containers: Pillow for multi-size .ico and .icns.
 
 Dependencies:
     Pillow and resvg-py are core runtime dependencies; run this file with a
-    Hermes runtime interpreter (scripts/generate-icons.mjs uses HERMES_PYTHON).
+    Envoy runtime interpreter (scripts/generate-icons.mjs uses HERMES_PYTHON).
 
 Outputs (99 files):
   assets/icon-master.svg                              generated light master
@@ -108,8 +108,8 @@ try:
     import resvg_py
 except ImportError:
     sys.exit(
-        "resvg-py is missing: run the generator with a Hermes runtime interpreter\n"
-        "  (HERMES_PYTHON=<hermes venv python> node scripts/generate-icons.mjs)"
+        "resvg-py is missing: run the generator with an Envoy runtime interpreter\n"
+        "  (HERMES_PYTHON=<envoy venv python> node scripts/generate-icons.mjs)"
     )
 
 # Copy of hermes_cli.update_channel._CANARY_TAG_RE: builders run this renderer

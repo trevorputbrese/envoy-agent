@@ -1,6 +1,6 @@
 """Read-only binding checks; unknown supervisor syntax is not profile absence.
 
-These checks recognize the installed Hermes launch formats, not arbitrary shell
+These checks recognize the installed Envoy launch formats, not arbitrary shell
 programs. Manager-loaded values take precedence over filenames and disk copies.
 """
 from __future__ import annotations
@@ -91,9 +91,9 @@ def _launch_module(argv: list[str], *, legacy: bool = True) -> tuple[str, list[s
 
 def verify_gateway_argv(argv: list[str], home: Path, *, wrapped: bool = False) -> None:
     """``wrapped``: a launcher wrapper (the osascript Local Network wrapper) was already stripped, so
-    only this root's installer forms count: no legacy ``python -m``, and a ``hermes`` launcher must be
+    only this root's installer forms count: no legacy ``python -m``, and a ``envoy`` launcher must be
     ``<root>/.hermes/bin/hermes`` (``_own_store_launcher``). The stderr-timestamp wrapper holds its inner
-    ``hermes`` to the same rule. A bare unwrapped ``hermes`` keeps verifying by name, as older
+    ``envoy`` to the same rule. A bare unwrapped ``envoy`` keeps verifying by name, as older
     systemd/schtasks/launchd definitions persisted it (binding those is a separate change)."""
     from gateway.status import looks_like_gateway_command_line
 
@@ -113,7 +113,7 @@ def verify_gateway_argv(argv: list[str], home: Path, *, wrapped: bool = False) -
         if entry is None or entry[0] != "hermes_cli.main":
             _unverified()
         args = entry[1]
-    elif executable in {"hermes", "hermes.exe"} and (not own_launcher_only or _own_store_launcher(argv[0])):
+    elif executable in {"hermes", "hermes.exe", "envoy", "envoy.exe"} and (not own_launcher_only or _own_store_launcher(argv[0])):
         args = argv[1:]
     else:
         _unverified()

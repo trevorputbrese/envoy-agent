@@ -109,7 +109,7 @@ export interface DesktopOnboardingState {
   localEndpoint: boolean
   /** True when the backend still owes this user the one-time free-tier
    *  introduction AND the free tier is what carries inference. It makes the
-   *  overlay show its "Hermes is ready" screen once even though the app is
+   *  overlay show its "Envoy is ready" screen once even though the app is
    *  configured. The backend's `notice_pending` flag is the only source of
    *  truth — there is no renderer latch — so an ack clears it everywhere. */
   freeTierReady: boolean
@@ -304,7 +304,7 @@ function shouldPreserveConfiguredOnBootRace(runtime: RuntimeReadinessResult, sta
 }
 
 function notifyReady(provider: string) {
-  notify({ kind: 'success', title: 'Hermes is ready', message: `${provider} connected.` })
+  notify({ kind: 'success', title: 'Envoy is ready', message: `${provider} connected.` })
 }
 
 // Human-friendly labels for tools auto-routed through the Nous Tool Gateway,
@@ -392,7 +392,7 @@ async function fetchProviderDefaultModel(
   }
 
   // Prefer the backend's recommended default — it mirrors the curation
-  // `hermes model` does (for Nous it honors the user's free/paid tier, so a
+  // `envoy model` does (for Nous it honors the user's free/paid tier, so a
   // free user gets a free model rather than a paid default like opus). Fall
   // back to the first curated model if the endpoint can't resolve one.
   let defaultModel = String(models[0])
@@ -492,7 +492,7 @@ async function completeWithModelConfirm(
         return
       }
 
-      onFail(error instanceof Error ? error.message : 'Hermes could not save the selected model.')
+      onFail(error instanceof Error ? error.message : 'Envoy could not save the selected model.')
 
       return
     }
@@ -560,8 +560,8 @@ function providerResolutionFailure(reason: null | string) {
   const detail = reason?.trim()
 
   return detail
-    ? `Connected, but Hermes still cannot resolve a usable provider. ${detail}`
-    : 'Connected, but Hermes still cannot resolve a usable provider.'
+    ? `Connected, but Envoy still cannot resolve a usable provider. ${detail}`
+    : 'Connected, but Envoy still cannot resolve a usable provider.'
 }
 
 /** Re-read the OAuth provider list into the onboarding cache. Exported so a
@@ -841,7 +841,7 @@ export async function refreshOnboarding(ctx: OnboardingContext, stillWanted?: ()
         kind: 'info',
         title: 'Runtime not ready',
         message:
-          'Hermes Desktop could not verify the running backend on startup. Some features may be unavailable until the gateway is reachable.'
+          'Envoy Desktop could not verify the running backend on startup. Some features may be unavailable until the gateway is reachable.'
       })
     }
 
@@ -1170,7 +1170,7 @@ export async function recheckExternalSignin(ctx: OnboardingContext) {
       provider,
       message:
         reason?.trim() ||
-        `Hermes still cannot reach ${provider.name}. Run \`${provider.cli_command}\` in a terminal first.`
+        `Envoy still cannot reach ${provider.name}. Run \`${provider.cli_command}\` in a terminal first.`
     })
   )
 }
@@ -1355,7 +1355,7 @@ export async function saveOnboardingLocalEndpoint(
     if (!runtime.ready) {
       const detail = (runtime.reason ?? '').trim()
 
-      return { ok: false, message: detail || `Saved, but Hermes still cannot reach ${resolvedUrl}.` }
+      return { ok: false, message: detail || `Saved, but Envoy still cannot reach ${resolvedUrl}.` }
     }
 
     notifyReady('Local / custom endpoint')

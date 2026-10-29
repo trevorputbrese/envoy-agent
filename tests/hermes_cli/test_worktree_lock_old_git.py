@@ -1,7 +1,7 @@
 """Worktree lock state without ``git worktree list --porcelain -z`` (git < 2.36, e.g. Ubuntu 22.04).
 
 The pruner read every lock through ``list -z``; on an older git that fails and the fail-safe
-``"live"`` answer kept every ``.worktrees`` checkout forever ("in use by a running hermes session").
+``"live"`` answer kept every ``.worktrees`` checkout forever ("in use by a running envoy session").
 """
 import os
 import shutil

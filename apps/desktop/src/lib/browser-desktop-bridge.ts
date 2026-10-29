@@ -23,7 +23,7 @@ import { resolveGatewayVersion } from '../../electron/gateway-version'
 
 /**
  * Install a capability-limited Desktop bridge when the real renderer is served
- * directly by Hermes' authenticated web server.
+ * directly by Envoy's authenticated web server.
  *
  * Electron remains authoritative everywhere it exists: no injected dashboard
  * token means this is a normal Vite/Electron renderer, and an existing preload
@@ -104,7 +104,7 @@ export function installBrowserDesktopBridge(): boolean {
       if (Notification.permission === 'default') {await Notification.requestPermission()}
 
       if (Notification.permission !== 'granted') {return false}
-      new Notification(title || 'Hermes', { body })
+      new Notification(title || 'Envoy', { body })
 
       return true
     },

@@ -1,4 +1,4 @@
-"""The machine's UI preferences store (#145213): one file beside the ROOT Hermes home, shared by
+"""The machine's UI preferences store (#145213): one file beside the ROOT Envoy home, shared by
 native Desktop and every browser that opens this machine's Webapp.
 
 Contracts: a profile's HERMES_HOME resolves the same file as the root; the one-time localStorage

@@ -1,4 +1,4 @@
-"""Real-profile local browsing: snapshot the user's default Chromium profile into a Hermes-owned copy and
+"""Real-profile local browsing: snapshot the user's default Chromium profile into an Envoy-owned copy and
 launch the user's REAL browser binary on it through the launcher.
 
 The real binary (not the packaged Chromium, and never ``--password-store=basic``/``--use-mock-keychain``)
@@ -54,7 +54,7 @@ def _snapshot_error(err: str) -> str:
     from hermes_cli.browser_connect import _PROFILE_LOCKED_PREFIX
     if err and err.startswith(_PROFILE_LOCKED_PREFIX):
         return (err[len(_PROFILE_LOCKED_PREFIX):] + " To close it (only after the user approves — it "
-                "quits their browser and loses unsaved tabs), run: `hermes browser close-profile`; the next "
+                "quits their browser and loses unsaved tabs), run: `envoy browser close-profile`; the next "
                 "browser session then uses the profile.")
     return f"{_RP}{err}"
 
@@ -102,7 +102,7 @@ def _launch(browser_name: str) -> tuple[Optional[str], Optional[str]]:
     def overlay() -> Optional[str]:
         # The snapshot overlay rewrites Cookies / Login Data, so it runs inside the launcher's cross-process
         # step on the copy dir: never beside another process's copy, never under a live copy-browser (maybe
-        # from an earlier Hermes process; the launcher ATTACHES to that one instead).
+        # from an earlier Envoy process; the launcher ATTACHES to that one instead).
         copied, err = snapshot_real_profile(browser_name)
         if err or not copied:
             snapshot_failure.append(_snapshot_error(err))
@@ -138,7 +138,7 @@ def real_profile_cdp() -> tuple[Optional[str], Optional[str]]:
     lock = _home_lock()
     if not lock.acquire(timeout=_LOCK_TIMEOUT_S):
         return None, (_RP + "the real-profile browser is already being prepared by another call that has not "
-                      "finished. Retry after that call completes, or restart Hermes if it was abandoned.")
+                      "finished. Retry after that call completes, or restart Envoy if it was abandoned.")
     try:
         from tools.browser_launcher import get_browser
         running = get_browser(real_profile_key())

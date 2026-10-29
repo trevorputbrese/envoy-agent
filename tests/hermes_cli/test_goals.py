@@ -132,10 +132,10 @@ class TestGoalManager:
         from hermes_cli.goals import GoalManager
 
         mgr = GoalManager(session_id="cont-sid")
-        mgr.set("port goal command to hermes")
+        mgr.set("port goal command to envoy")
         prompt = mgr.next_continuation_prompt()
         assert prompt is not None
-        assert "port goal command to hermes" in prompt
+        assert "port goal command to envoy" in prompt
         assert prompt.strip()  # non-empty
 
 
@@ -256,7 +256,7 @@ class TestMigrateGoalToSession:
 
 
 class TestSessionDbCacheAfterProfileDelete:
-    """``hermes profile delete`` force-closes every registry handle under the profile home
+    """``envoy profile delete`` force-closes every registry handle under the profile home
     (``close_all_under``) and rmtrees it; recreating the same name in the long-lived dashboard
     process must not keep persisting goals into the torn-down handle."""
 

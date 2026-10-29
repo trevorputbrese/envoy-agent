@@ -244,7 +244,7 @@ if [ "$needs_chown" = true ]; then
         chown hermes:hermes "$HERMES_HOME" 2>/dev/null || \
             echo "[stage2] Warning: chown $HERMES_HOME failed (rootless container?) — continuing"
     fi
-    # Hermes-owned subdirs: recursive chown is safe here because these are
+    # Envoy-owned subdirs: recursive chown is safe here because these are
     # created and managed exclusively by hermes (see the s6-setuidgid mkdir
     # -p block below for the canonical list).
     for sub in cron sessions logs hooks memories skills skins plans workspace home profiles pairing platforms/pairing; do
@@ -302,8 +302,8 @@ fi
 
 # Always reset ownership of pairing data on every boot, same docker-exec/
 # root-write reason as profiles/ and cron/. `docker exec <container>
-# hermes pairing approve …` defaults to uid=0 and writes 0600 root-owned
-# approval files that the unprivileged hermes gateway cannot read,
+# envoy pairing approve …` defaults to uid=0 and writes 0600 root-owned
+# approval files that the unprivileged envoy gateway cannot read,
 # silently leaving the approved user unauthorized (#10270). The targeted
 # data-volume chown above only runs when the top-level $HERMES_HOME is
 # mis-owned, so warm boots skip it — this block makes a container restart
@@ -418,7 +418,7 @@ fi
 # bind-mounted from the host (~/.hermes:/opt/data) and sometimes shared with a
 # host-side Desktop/CLI install. Stamping 'docker' here clobbered that host
 # install's marker, so its in-app updater read 'docker' and refused to run
-# 'hermes update'. To heal homes already poisoned by older images, remove a
+# 'envoy update'. To heal homes already poisoned by older images, remove a
 # stale 'docker' stamp from $HERMES_HOME if one is present (the host install's
 # own installer re-creates its code-scoped stamp; a genuine container relies on
 # the baked /opt/hermes stamp, so deleting the data-dir copy is safe).
@@ -467,7 +467,7 @@ seed_one "SOUL.md" "docker/SOUL.md"
 #
 # OPERATOR-PROVIDED KEYS WIN: if the container environment already carries
 # API_SERVER_KEY (documented `docker run -e API_SERVER_KEY=...` flow), do
-# not generate one. Hermes loads $HERMES_HOME/.env with override=True, so
+# not generate one. Envoy loads $HERMES_HOME/.env with override=True, so
 # a generated key written here would silently SHADOW the operator's env
 # key and 401 every client still using the supplied credential.
 if [ -n "${API_SERVER_KEY:-}" ]; then
@@ -637,7 +637,7 @@ fi
 # --- Migrate persisted config schema ---
 # Docker image upgrades replace the code under $INSTALL_DIR but preserve
 # $HERMES_HOME on the mounted volume. Run the same safe, non-interactive
-# config-schema migrations that `hermes update` runs for non-Docker installs,
+# config-schema migrations that `envoy update` runs for non-Docker installs,
 # after first-boot seeding and before supervised gateway services start.
 # Set HERMES_SKIP_CONFIG_MIGRATION=1 for controlled/manual migrations.
 # Remote config mode (HERMES_CONFIG_BACKEND=remote) has no local config to migrate: the agent
@@ -772,7 +772,7 @@ fi
 # The image's Dockerfile pm-provisions pinned full Chromium into
 # $HERMES_RUNTIME_DIR (/opt/hermes/tools) at BUILD time and bakes the
 # resolved binary path into /etc/hermes/chromium-executable-path (the layout
-# differs per arch, so it is resolved at build time, not hard-coded). Hermes
+# differs per arch, so it is resolved at build time, not hard-coded). Envoy
 # reads that file itself (hermes_cli/browser_runtime.py) when pm's facts are
 # hidden, so nothing is exported here: the hook only says, once per boot,
 # when the baked path no longer names a runnable binary (a custom build that

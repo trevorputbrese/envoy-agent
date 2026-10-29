@@ -58,7 +58,7 @@ def test_usage_level_is_the_gateway_word_never_computed_here():
     }
     assert usage_levels(list(pricing), pricing) == {
         "small": "low", "medium": "medium", "large": "top_tier", "gift:free": "free"}
-    # Same prices with no gateway word: Hermes does not invent low / medium.
+    # Same prices with no gateway word: Envoy does not invent low / medium.
     bare = {m: {k: v for k, v in p.items() if k != "usage_level"} for m, p in pricing.items()}
     assert usage_levels(list(bare), bare) == {"large": "top_tier", "gift:free": "free"}
     # Unknown price is not a promise of free; an unknown word is ignored.
@@ -175,7 +175,7 @@ def test_month_row_only_when_the_server_lists_it():
 
 def test_picker_draws_whatever_allowances_the_server_lists():
     """A new allowance (a 5-hour window) shows with the server's label and stops every model when full,
-    with no Hermes release; the order is the server's."""
+    with no Envoy release; the order is the server's."""
     usage = picker_usage_from_account(SimpleNamespace(
         logged_in=True, subscription=SimpleNamespace(plan="Window Plan"),
         usage_window=SimpleNamespace(gauges=[

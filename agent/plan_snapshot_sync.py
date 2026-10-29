@@ -17,7 +17,7 @@ from typing import Any, Optional
 logger = logging.getLogger(__name__)
 
 _lock = threading.Lock()
-# Both keyed by Hermes home: one process can serve several profiles, each with its own account.
+# Both keyed by Envoy home: one process can serve several profiles, each with its own account.
 _inflight: set[str] = set()
 # What the headers said the last time a refresh ran, and when. The portal can trail the gateway by a few
 # minutes (usage is ingested in batches), so the same mismatch is refreshed once per retry interval, not on
@@ -102,7 +102,7 @@ def sync_plan_snapshot(state: Any) -> bool:
                 return False
             _inflight.add(key)
             _last_attempt[key] = (seen, now)
-        # Under this profile's contextvars (its Hermes home and auth store), as the credits seed thread does.
+        # Under this profile's contextvars (its Envoy home and auth store), as the credits seed thread does.
         from agent.memory_provider import spawn_context_thread
         spawn_context_thread(_refresh, args=(plan_changed, key), name="nous-plan-sync").start()
         return True

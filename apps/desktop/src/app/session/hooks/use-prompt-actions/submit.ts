@@ -1091,7 +1091,7 @@ export function useSubmitPrompt(deps: SubmitPromptDeps) {
           // row display_kind=hidden so no client renders it as a bubble.
           ...(options?.displayKind === 'hidden' && { display_kind: 'hidden' }),
           // Typed into the floating HUD, so the user is looking at another app
-          // rather than at Hermes. The gateway turns this into a per-turn hint
+          // rather than at Envoy. The gateway turns this into a per-turn hint
           // to read the window underneath and work in it.
           ...($hudMode.get() && { surface: 'hud' }),
           // A GPT-Live delegation: the text is a voice transcript and the reply
@@ -1166,7 +1166,7 @@ export function useSubmitPrompt(deps: SubmitPromptDeps) {
                   }
 
                   // 4094 is an explicit PRE-admission capability refusal; 4000 is the
-                  // legacy `hermes serve` contract refusing `submission_id` as an unknown
+                  // legacy `envoy serve` contract refusing `submission_id` as an unknown
                   // key (version skew) before any handler ran. Both are pre-admission and
                   // safe to retry identityless. Never downgrade on a timeout, malformed
                   // ACK or an ambiguous retry.

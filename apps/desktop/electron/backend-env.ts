@@ -6,7 +6,7 @@ import { resolveDesktopHermesHome } from './data-paths'
 
 // macOS apps launched from Finder/Dock inherit only /usr/bin:/bin:/usr/sbin:/sbin,
 // which misses Homebrew and user-installed CLI tools (codex, git credential
-// helpers). Hermes' own managed tools need no PATH help — the backend composes
+// helpers). Envoy's own managed tools need no PATH help — the backend composes
 // their environment in-process via pm — but user tools on PATH do.
 const POSIX_SANE_PATH_ENTRIES = Object.freeze([
   '/opt/homebrew/bin',
@@ -128,9 +128,9 @@ function readTextOrEmpty(fsModule, file) {
 }
 
 /**
- * Parent env for a local `hermes serve` child of `profile` (#68367).
+ * Parent env for a local `envoy serve` child of `profile` (#68367).
  *
- * `hermes desktop` loads its launch profile's `.env`/`.op.env` into os.environ
+ * `envoy desktop` loads its launch profile's `.env`/`.op.env` into os.environ
  * before exec'ing Electron, so `process.env` carries that profile's platform
  * credentials. A child for ANOTHER profile would inherit them ahead of its own
  * dotenv (`.op.env` is even skipped once OP_SERVICE_ACCOUNT_TOKEN is set) and,
@@ -141,7 +141,7 @@ function readTextOrEmpty(fsModule, file) {
  * declared pass through everywhere.
  *
  * `profile` null/empty means no `--profile` flag: the child follows the sticky
- * `active_profile` like a bare `hermes serve` (`_apply_profile_override`).
+ * `active_profile` like a bare `envoy serve` (`_apply_profile_override`).
  */
 function profileBackendParentEnv({
   hermesHome,
@@ -185,11 +185,11 @@ function profileBackendParentEnv({
 
 /**
  * PATH with the entries under the PM store (HERMES_RUNTIME_DIR, else
- * <hermes home>/tools, as pm.environments.store_root resolves it) moved to the
- * front, every other entry kept in order. Hermes's own children must run the
+ * <envoy home>/tools, as pm.environments.store_root resolves it) moved to the
+ * front, every other entry kept in order. Envoy's own children must run the
  * store's uv/node/npm, but shell-path.ts puts the user's login-shell entries
  * (nvm, Homebrew, ~/.local/bin) ahead of the inherited PATH, which is where
- * `hermes desktop` put the store dirs.
+ * `envoy desktop` put the store dirs.
  */
 function storeFirstPath(
   pathValue: string,

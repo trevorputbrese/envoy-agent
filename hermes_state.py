@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SQLite state store for Hermes Agent: session metadata, message history, model
+"""SQLite state store for Envoy Agent: session metadata, message history, model
 config, FTS5 search. WAL mode (concurrent readers + one writer); compression
 splits sessions via parent_session_id chains; sessions are source-tagged
 ('cli', 'telegram', ...). Batch-runner / RL trajectories live elsewhere.
@@ -122,8 +122,8 @@ class SessionResumeTooLargeError(ValueError):
         super().__init__(
             f"This session is too long to reload safely ({message_count} messages; limit {limit}). "
             "Start a fresh chat and keep a copy with the dashboard Sessions page's Export action or "
-            "`hermes sessions export --format md --session-id <id>` (neither is capped), or raise the limit "
-            "with `hermes config set sessions.max_resume_messages 0`."
+            "`envoy sessions export --format md --session-id <id>` (neither is capped), or raise the limit "
+            "with `envoy config set sessions.max_resume_messages 0`."
         )
 
 
@@ -193,7 +193,7 @@ _READ_ONLY_IOERR_RETRY_ATTEMPTS, _READ_ONLY_IOERR_RETRY_BACKOFF_S = 3, 0.05
 # SQLite busy handler budget for reads. Under DELETE (rollback-journal) mode a reader needs a SHARED
 # lock, which every commit from another process blocks across its journal+db fsyncs; the writer
 # connection's 1 s timeout exists for writes (they retry at application level) and starved readers
-# into "database is locked" (dashboard 503s, `hermes sessions list` crashes) under a busy gateway.
+# into "database is locked" (dashboard 503s, `envoy sessions list` crashes) under a busy gateway.
 _READ_BUSY_TIMEOUT_S = 5.0
 
 
@@ -233,7 +233,7 @@ def _ensure_test_isolation(db_path: Path) -> None:
         if _is_production_state_db(resolved, root):
             raise RuntimeError(
                 "live-system guard: test attempted to open production "
-                f"state.db at {resolved} (under real Hermes root {root}). "
+                f"state.db at {resolved} (under real Envoy root {root}). "
                 "Tests must run against a temporary HERMES_HOME — pass an "
                 "explicit tmp db_path or let the hermetic conftest redirect "
                 "HERMES_HOME. If this test genuinely needs the live database, mark it with "
@@ -256,7 +256,7 @@ def _secure_state_db_files(db_path: Path, *, create_main: bool = False) -> None:
     connection to the same database. A lock-losing close in one process lets a
     sibling's connection take the shared-memory DMS exclusively at its own
     close, checkpoint, and unlink the sidecars while long-lived holders
-    (gateway, desktop ``hermes serve``) keep using the deleted inodes.
+    (gateway, desktop ``envoy serve``) keep using the deleted inodes.
     """
     if os.name == "nt":
         return
@@ -373,12 +373,12 @@ _SESSION_DB_CONSEQUENCE = "Sessions will not be saved until this is fixed."
 _NETWORK_DRIVE_HINT = " If the database lives on a network drive, move it to a local disk."
 _NETWORK_DRIVE_GLOSS = "the session database could not be opened; it may be on a network or unsupported drive"
 _NETWORK_DRIVE_ACTION = (
-    "Move it to a local disk (`hermes {profile_arg}doctor` shows where it is), then start Hermes again."
+    "Move it to a local disk (`envoy {profile_arg}doctor` shows where it is), then start Envoy again."
 )
 
 
 def format_session_db_unavailable(
-    prefix: str = "Hermes can't open its session history right now",
+    prefix: str = "Envoy can't open its session history right now",
     *,
     details: bool = False,
 ) -> str:
@@ -388,7 +388,7 @@ def format_session_db_unavailable(
     surfaces (gateway, TUI) get the one-liner; ``details=True`` (the CLI banner) appends a
     ``Details: <raw cause>`` line for the raw SQLite text. Network filesystems (NFS/SMB/FUSE/ZFS)
     cannot host SQLite's write-ahead log: when the raw cause carries one of those markers the
-    message names the network-drive suspicion, because ``hermes doctor --fix`` cannot repair a
+    message names the network-drive suspicion, because ``envoy doctor --fix`` cannot repair a
     mount — only moving the file can."""
     from hermes_constants import profile_cli_selector
 
@@ -396,7 +396,7 @@ def format_session_db_unavailable(
     cause = get_last_init_error()
     if not cause:
         return (
-            f"{prefix}. {_SESSION_DB_CONSEQUENCE} Run `hermes {profile_arg}doctor` to check the "
+            f"{prefix}. {_SESSION_DB_CONSEQUENCE} Run `envoy {profile_arg}doctor` to check the "
             "storage location."
         )
     from hermes_state_user_copy import describe_storage_failure
@@ -470,14 +470,14 @@ class SessionDB(
 
     # Only these state-owned producers join automatic stale-open reconciliation; messaging/UI
     # sources have their own lifecycle owners; unknown sources fail closed.
-    # See #60609.  `recovered` = placeholders `hermes sessions recover` synthesizes for
+    # See #60609.  `recovered` = placeholders `envoy sessions recover` synthesizes for
     # orphaned messages (no live owner, never stamped ended_at); without it they are immortal.
     _AUTO_PRUNE_STALE_OPEN_SOURCES: tuple[str, ...] = (
         "cli", "cron", "kanban", "acp", "api_server", "subagent", "tool", "recovered",
     )
 
     # ── Write-contention tuning ──
-    # SQLite's deterministic busy handler convoys under many hermes processes: keep its
+    # SQLite's deterministic busy handler convoys under many envoy processes: keep its
     # timeout short (1s) and retry with random jitter. Patience is TIME-based (a sibling
     # legitimately holds the lock for seconds: checkpoint at close, VACUUM, recovery, FTS
     # optimize); attempt-counted budgets destroyed turns on a healthy store. Transcript
@@ -720,7 +720,7 @@ class SessionDB(
             if not repair_state_db_schema(self.db_path).get("repaired"):
                 raise
             self._connect_and_init_with_lock_patience()
-        # FTS optimization is OPT-IN (`hermes db optimize`); no background worker races session lifecycle.
+        # FTS optimization is OPT-IN (`envoy db optimize`); no background worker races session lifecycle.
         self._ensure_db_file_generation()
         if self._wal_active:
             # OFD copies of the two POSIX locks that keep a sibling's close from unlinking this WAL
@@ -756,7 +756,7 @@ class SessionDB(
                 # needs). Closes in milliseconds: retry a bounded number of times before
                 # classifying the store as failed (#100436; see _READ_ONLY_IOERR_RETRY_ATTEMPTS).
                 # A lock is NOT retried here: the connection already waited _READ_BUSY_TIMEOUT_S,
-                # and a retry would multiply that wait on blocking callers (TUI, `hermes status`).
+                # and a retry would multiply that wait on blocking callers (TUI, `envoy status`).
                 transient = _DISK_IO_ERROR_MARKER in str(ioerr).lower()
                 if attempt >= _READ_ONLY_IOERR_RETRY_ATTEMPTS or not transient:
                     raise
@@ -784,10 +784,10 @@ class SessionDB(
         qpath = quarantine_invalid_state_db(self.db_path, already_locked=already_locked)
         where = f"moved aside to {qpath}" if qpath else "left in place (it could not be moved aside)"
         msg = (
-            f"state.db was empty or damaged ({zsize} bytes) and has been {where}; Hermes started with a "
+            f"state.db was empty or damaged ({zsize} bytes) and has been {where}; Envoy started with a "
             "fresh, empty session database. To bring old sessions back, run "
-            f"`hermes sessions recover --source {qpath or self.db_path} --inspect-only`, or restore a "
-            "snapshot with `/snapshot list` then `/snapshot restore <id>` (terminal `hermes` chat only)."
+            f"`envoy sessions recover --source {qpath or self.db_path} --inspect-only`, or restore a "
+            "snapshot with `/snapshot list` then `/snapshot restore <id>` (terminal `envoy` chat only)."
         )
         logger.error(msg)
         _set_last_init_error(msg)
@@ -1091,7 +1091,7 @@ class SessionDB(
                         # a holder's argv (a worktree named fix-corrupt-db) would flip the bucket.
                         log_write_lock_holders(self.db_path, patience_s)
                         raise sqlite3.OperationalError(
-                            f"database is locked (another Hermes process held the "
+                            f"database is locked (another Envoy process held the "
                             f"state.db write lock for over {patience_s:.0f}s — "
                             "likely a long maintenance operation such as VACUUM, "
                             "a large WAL checkpoint, or an older pre-update "
@@ -1354,7 +1354,7 @@ class SessionDB(
             "state.db %s reported structural corruption outside the FTS "
             "indexes (%s); quarantining this handle: no further writes, no "
             "automatic reopen, no explicit WAL checkpoint at close. Stop the "
-            "gateway and run `hermes sessions recover --source %s --inspect-only`.", self.db_path, exc,
+            "gateway and run `envoy sessions recover --source %s --inspect-only`.", self.db_path, exc,
             self.db_path,
         )
         err = self._corrupt_error()
@@ -1558,7 +1558,7 @@ class SessionDB(
                     logger.warning(
                         "Skipping the close-time WAL checkpoint for %s: this "
                         "handle observed %s. Take a snapshot of state.db, -wal and -shm "
-                        "before restarting, then run `hermes sessions recover --source %s --inspect-only`.",
+                        "before restarting, then run `envoy sessions recover --source %s --inspect-only`.",
                         self.db_path, quarantine_reason, self.db_path,
                     )
                 elif not self.read_only and not generation_lost:  # PASSIVE, not TRUNCATE (see docstring)

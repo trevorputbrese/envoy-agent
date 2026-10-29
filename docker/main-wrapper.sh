@@ -13,7 +13,7 @@
 # re-exec and continue directly.
 #
 # Routing:
-#   no args                       → exec `hermes` (the default)
+#   no args                       → exec `envoy` (the default)
 #   first arg is an executable    → exec it directly (sleep, bash, sh, …)
 #   first arg is anything else    → exec `hermes <args>` (subcommand passthrough)
 #
@@ -72,7 +72,7 @@ _hermes_orig_cwd="${HERMES_ORIG_CWD:-$PWD}"
 cd /opt/data
 
 # Restore the original working directory before handing off to
-# the user's command so `hermes chat` starts in the Docker -w
+# the user's command so `envoy chat` starts in the Docker -w
 # directory, not /opt/data.
 cd "$_hermes_orig_cwd"
 
@@ -93,5 +93,5 @@ case "$1" in
         ;;
 esac
 
-# Hermes subcommand pass-through.
+# Envoy subcommand pass-through.
 drop hermes "$@"

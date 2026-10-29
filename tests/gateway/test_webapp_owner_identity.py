@@ -1,6 +1,6 @@
 """The Webapp is the machine owner: a signed-in tab and native Desktop share Group Chats and history.
 
-Hermes is single-user. Sign-in only decides whether a browser may open the Webapp; it never names a
+Envoy is single-user. Sign-in only decides whether a browser may open the Webapp; it never names a
 second owner. So a Webapp tab's Group Chats are native Desktop's (and the reverse), and the rooms an
 older build stored under the tab's ``auth:v1`` login subject are still the owner's, while another OS
 user's subject or a messaging identity stays foreign (gateway.owner_identity).

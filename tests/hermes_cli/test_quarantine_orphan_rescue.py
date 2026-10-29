@@ -1,9 +1,9 @@
-"""Regression tests: a failed quarantine restore must never strand `hermes`.
+"""Regression tests: a failed quarantine restore must never strand `envoy`.
 
-On Windows the updater renames the live ``hermes*.exe`` shims aside
+On Windows the updater renames the live ``envoy*.exe`` shims aside
 (``hermes.exe.old.<unix-ms>``) so uv can write replacements. Gaps in the
-recovery path ended with ``hermes`` gone from PATH — and, because the command
-that repairs it IS ``hermes update``, unrecoverable without a manual reinstall
+recovery path ended with ``envoy`` gone from PATH — and, because the command
+that repairs it IS ``envoy update``, unrecoverable without a manual reinstall
 (#75584):
 
 1. Restoring a shim got a single attempt whose ``OSError`` was swallowed in

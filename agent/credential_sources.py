@@ -1,7 +1,7 @@
-"""Unified removal contract for every credential source Hermes reads from.
+"""Unified removal contract for every credential source Envoy reads from.
 
 Readers live in ``agent.credential_pool``; what is unified here is **removal**:
-``hermes auth remove <provider> <N>`` must make the entry stay gone across
+``envoy auth remove <provider> <N>`` must make the entry stay gone across
 ``load_pool()`` calls. Each source registers a ``RemovalStep`` whose
 ``remove_fn`` cleans the external state the source reads from, and the
 dispatcher suppresses ``(provider, source_id)`` in auth.json so the seeding
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 EXTERNAL_LOGINS_NOT_ADOPTED_NOTICE = (
     "External CLI logins (Codex CLI, Claude Code) are not adopted: auth.adopt_external_logins is false. "
-    "Hermes uses only its own logins; run `hermes auth add <provider>` to add one."
+    "Envoy uses only its own logins; run `envoy auth add <provider>` to add one."
 )
 _notice_logged = False
 
@@ -32,9 +32,9 @@ _notice_logged = False
 def adopt_external_logins_enabled() -> bool:
     """``auth.adopt_external_logins`` (default True).
 
-    Codex and Claude OAuth refresh tokens are single-use and rotate, so once Hermes borrows a CLI's
+    Codex and Claude OAuth refresh tokens are single-use and rotate, so once Envoy borrows a CLI's
     token pair the two programs hold one token family and whichever refreshes first logs the other
-    out. When the user opts out, Hermes never reads or refreshes those files and says so once per
+    out. When the user opts out, Envoy never reads or refreshes those files and says so once per
     process (INFO) the first time it would have."""
     global _notice_logged
     try:
@@ -145,9 +145,9 @@ def _remove_env_source(provider: str, removed) -> RemovalResult:
             f"Note: {env_var} is still set in your shell environment "
             f"(not in ~/.hermes/.env).",
             "  Unset it there (shell profile, systemd EnvironmentFile, "
-            "launchd plist, etc.) or it will keep being visible to Hermes.",
-            f"  The pool entry is now suppressed — Hermes will ignore "
-            f"{env_var} until you run `hermes auth add {provider}`.",
+            "launchd plist, etc.) or it will keep being visible to Envoy.",
+            f"  The pool entry is now suppressed — Envoy will ignore "
+            f"{env_var} until you run `envoy auth add {provider}`.",
         ])
     else:
         result.hints.append(
@@ -166,7 +166,7 @@ def _remove_hermes_pkce(provider: str, removed) -> RemovalResult:
     if oauth_file.exists():
         try:
             oauth_file.unlink()
-            result.cleaned.append("Cleared Hermes Anthropic OAuth credentials")
+            result.cleaned.append("Cleared Envoy Anthropic OAuth credentials")
         except OSError as exc:
             result.hints.append(f"Could not delete {oauth_file}: {exc}")
     return result
@@ -194,7 +194,7 @@ def _remove_auth_store_oauth(provider: str, removed) -> RemovalResult:
 def _remove_xai_oauth_device_code(provider: str, removed) -> RemovalResult:
     result = _remove_auth_store_oauth(provider, removed)
     result.hints.append(
-        "Run `hermes model` → xAI Grok OAuth (SuperGrok / Premium+) to re-authenticate if needed."
+        "Run `envoy model` → xAI Grok OAuth (SuperGrok / Premium+) to re-authenticate if needed."
     )
     return result
 
@@ -212,7 +212,7 @@ def _remove_codex_device_code(provider: str, removed) -> RemovalResult:
     result.hints.extend([
         "Suppressed openai-codex device_code source — it will not be re-seeded.",
         "Note: Codex CLI credentials still live in ~/.codex/auth.json",
-        "Run `hermes auth add openai-codex` to re-enable if needed.",
+        "Run `envoy auth add openai-codex` to re-enable if needed.",
     ])
     return result
 
@@ -240,7 +240,7 @@ _REGISTRY: list[RemovalStep] = [
         remove_fn=_suppress_only(
             "Suppressed claude_code credential — it will not be re-seeded.",
             "Note: Claude Code credentials still live in ~/.claude/.credentials.json",
-            "Run `hermes auth add anthropic` to re-enable if needed.",
+            "Run `envoy auth add anthropic` to re-enable if needed.",
         ),
         description="~/.claude/.credentials.json",
     ),
@@ -270,7 +270,7 @@ _REGISTRY: list[RemovalStep] = [
         remove_fn=_suppress_only(
             "Suppressed qwen-cli credential — it will not be re-seeded.",
             "Note: Qwen CLI credentials still live in ~/.qwen/oauth_creds.json",
-            "Run `hermes auth add qwen-oauth` to re-enable if needed.",
+            "Run `envoy auth add qwen-oauth` to re-enable if needed.",
         ),
         description="~/.qwen/oauth_creds.json",
     ),

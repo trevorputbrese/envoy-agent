@@ -74,7 +74,7 @@ function failedReport(home: string, runId: string, stopClass: string | null): { 
     JSON.stringify({
       ok: false,
       exit_code: 1,
-      message: 'Update failed (exit 1). Run hermes debug share in a terminal to send a report.',
+      message: 'Update failed (exit 1). Run envoy debug share in a terminal to send a report.',
       branch: 'main',
       run_id: runId,
       started_at: finished_at - 60,
@@ -141,7 +141,7 @@ test('a failed run with no receipt keeps the generic retry dialog', () => {
   const { lines, dialogs } = failedReport(home, 'run-plain', null)
 
   assert.equal(dialogs.length, 1)
-  assert.equal(dialogs[0].message, "Hermes couldn't finish updating")
+  assert.equal(dialogs[0].message, "Envoy couldn't finish updating")
   assert.deepEqual(dialogs[0].buttons, ['Try again', 'Open log', 'Close'])
   assert.ok(
     lines.some(line => line.includes('detached update FAILED (exit 1)') && !line.includes('stop_class')),

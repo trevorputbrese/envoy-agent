@@ -86,7 +86,7 @@ def _install_example_plugin(_isolate_hermes_home):
     # An installed-but-not-enabled user plugin has its API mount skipped
     # and its assets 404'd — which is the whole point of the gate. These
     # fixtures exist to exercise the *serving* paths, so opt the example
-    # plugin in exactly as a real operator would with `hermes plugins
+    # plugin in exactly as a real operator would with `envoy plugins
     # enable example`.
     from hermes_cli.config import load_config, save_config
     _cfg = load_config()
@@ -165,7 +165,7 @@ class TestReloadEnv:
 
 
     def test_removes_deleted_known_vars(self, tmp_path):
-        """reload_env() removes known Hermes vars not present in .env."""
+        """reload_env() removes known Envoy vars not present in .env."""
         env_file = tmp_path / ".env"
         env_file.write_text("")  # empty .env
         # Pick a known key from OPTIONAL_ENV_VARS
@@ -709,7 +709,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         data = resp.json()
         pip_rows = [row for row in data["results"] if row["kind"] == "pip"]
         assert pip_rows and pip_rows[0]["status"] == "installed"
-        assert pip_rows[0]["command"] == "hermes pm install"
+        assert pip_rows[0]["command"] == "envoy pm install"
         assert prepared == ["flatprov"]
 
 
@@ -1155,7 +1155,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         def fail_spawn(*_args, **_kwargs):
             nonlocal spawned
             spawned = True
-            raise AssertionError("docker update guard should not spawn hermes update")
+            raise AssertionError("docker update guard should not spawn envoy update")
 
         # Bypass the managed-externally gate so we reach the docker install check.
         monkeypatch.setattr(_web_server_files, "_dashboard_local_update_managed_externally", lambda: False)
@@ -1193,7 +1193,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         def fail_spawn(*_args, **_kwargs):
             nonlocal spawned
             spawned = True
-            raise AssertionError("APT-managed update guard should not spawn hermes update")
+            raise AssertionError("APT-managed update guard should not spawn envoy update")
 
         monkeypatch.setattr(_web_server_files, "_dashboard_local_update_managed_externally", lambda: False)
         # The shared admission gate (#91277 Phase 3) resolves the install
@@ -1292,7 +1292,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
 
     def test_model_set_maps_unknown_vendor_to_aggregator(self, monkeypatch):
         """A bare vendor name from analytics rows (no billing_provider) is not
-        a Hermes provider — keep the user's aggregator instead of writing a
+        an Envoy provider — keep the user's aggregator instead of writing a
         provider that can never resolve credentials."""
         monkeypatch.setattr(
             "hermes_cli.model_cost_guard.expensive_model_warning",
@@ -1553,7 +1553,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         """A custom endpoint that requires auth must persist model.api_key (where
         the runtime reads it) AND register a named custom_providers entry so the
         endpoint reappears as a ready row in the picker — matching the
-        ``hermes model`` custom flow. Regression for the desktop loop where a
+        ``envoy model`` custom flow. Regression for the desktop loop where a
         keyed custom endpoint could never be configured from the GUI."""
         from hermes_cli.config import load_config
 
@@ -3323,7 +3323,7 @@ class TestDesktopHostRendezvousIsolation:
 
     def test_desktop_backend_does_not_claim_the_host_serve_record(self, monkeypatch, tmp_path):
         """A Desktop child must not block a separately supervised public dashboard, yet a
-        terminal `hermes plugins install` on a Desktop-only box must still find it (#119644):
+        terminal `envoy plugins install` on a Desktop-only box must still find it (#119644):
         it publishes under its OWN role, which the attach ladder never reads."""
         import io
         import urllib.request
@@ -3357,7 +3357,7 @@ class TestDesktopHostRendezvousIsolation:
             # Not a host owner: the supervised public dashboard's attach ladder sees nobody.
             assert hr.read_record(hr.ROLE_SERVE) is None
             assert _host_backend_attachment() is None
-            # ...but a terminal `hermes plugins install` still lights up its open chats.
+            # ...but a terminal `envoy plugins install` still lights up its open chats.
             assert notify_serve_backend("demo", tmp_path) == {"ok": True}
             assert dialed == [("http://127.0.0.1:9231/api/dashboard/agent-plugins/activate",
                                "desktop-spawn-token")]
@@ -3782,7 +3782,7 @@ class TestStatusInstallId:
     """Stable per-install identity on /api/status.
 
     Behaviour contracts: the id is minted once, persisted under the ROOT
-    Hermes home (not the profile home), survives a fresh process-cache read,
+    Envoy home (not the profile home), survives a fresh process-cache read,
     and is byte-identical for every profile served by the same install — the
     desktop uses it to collapse duplicate roster rows when one backend is
     registered under two addresses.
@@ -4708,7 +4708,7 @@ class TestDashboardPluginManifestExtensions:
     def test_user_plugins_found_under_profile_scoped_process(self, tmp_path, monkeypatch):
         """Regression #87197: a profile-scoped process (``--profile <name>``
         sets HERMES_HOME=<root>/profiles/<name>) must still discover user
-        plugins installed in the hermes root's plugins/ directory."""
+        plugins installed in the envoy root's plugins/ directory."""
         root = tmp_path / "hermes-root"
         profile_home = root / "profiles" / "presale"
         profile_home.mkdir(parents=True)
@@ -4796,7 +4796,7 @@ class TestDashboardPluginManifestExtensions:
 # /api/pty WebSocket — terminal bridge for the dashboard "Chat" tab.
 #
 # These tests drive the endpoint with a tiny fake command (typically ``cat``
-# or ``sh -c 'printf …'``) instead of the real ``hermes --tui`` binary.  The
+# or ``sh -c 'printf …'``) instead of the real ``envoy --tui`` binary.  The
 # endpoint resolves its argv through ``_resolve_chat_argv``, so tests
 # monkeypatch that hook.
 # ---------------------------------------------------------------------------
@@ -5317,7 +5317,7 @@ class TestServeIndexMissingIndex:
 
 
 class TestHeadlessServeTokenPage:
-    """Headless `hermes serve` must serve the Desktop token handshake page
+    """Headless `envoy serve` must serve the Desktop token handshake page
     at `/` when the dashboard auth gate is off (#94227).
 
     The Electron renderer boots by fetching `/` and extracting

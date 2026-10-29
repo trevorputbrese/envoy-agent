@@ -1,6 +1,6 @@
-"""hermes desktop forwards an explicit profile into the packaged Electron launch.
+"""envoy desktop forwards an explicit profile into the packaged Electron launch.
 
-Electron boots from active-profile.json. ``hermes -p <name> desktop`` used to
+Electron boots from active-profile.json. ``envoy -p <name> desktop`` used to
 set only the CLI HERMES_HOME, so the packaged app still started the stored
 profile. A launch with no ``-p`` / ``--profile`` must not invent a flag.
 """
@@ -51,9 +51,9 @@ def _named_profiles(argv: list[str]) -> set[str]:
 def _packaged_exe(root: Path) -> Path:
     desktop_dir = root / "apps" / "desktop"
     if sys.platform == "darwin":
-        exe = desktop_dir / "release" / "mac-arm64" / "Hermes.app" / "Contents" / "MacOS" / "Hermes"
+        exe = desktop_dir / "release" / "mac-arm64" / "Envoy.app" / "Contents" / "MacOS" / "Envoy"
     elif sys.platform == "win32":
-        exe = desktop_dir / "release" / "win-unpacked" / "Hermes.exe"
+        exe = desktop_dir / "release" / "win-unpacked" / "Envoy.exe"
     else:
         exe = desktop_dir / "release" / "linux-unpacked" / "hermes"
         exe.parent.mkdir(parents=True, exist_ok=True)

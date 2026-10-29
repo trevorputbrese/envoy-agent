@@ -1,6 +1,6 @@
 """Machine-level Desktop/Webapp UI preferences (#145213).
 
-One JSON document per machine, beside the ROOT Hermes home (``get_default_hermes_root()``, never a
+One JSON document per machine, beside the ROOT Envoy home (``get_default_hermes_root()``, never a
 profile's ``HERMES_HOME``): native Desktop writes it through its preload capability
 (``apps/desktop/electron/ui-preferences.ts``) and every browser that opens this machine's Webapp
 writes it through ``/api/ui-preferences``. It is deliberately neither per profile nor per gateway

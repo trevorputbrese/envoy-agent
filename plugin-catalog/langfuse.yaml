@@ -2,10 +2,10 @@ name: langfuse
 repo: https://github.com/NousResearch/hermes-official-plugins
 sha: e1f16143f164c4db10ea8fc0fc47ff8ac611e9fc
 subdir: langfuse
-description: 'Langfuse observability for Hermes: one trace per turn, one generation per LLM call (usage
-  and cost from Hermes'' own pricing, cache and reasoning tokens included), one observation per tool
+description: 'Langfuse observability for Envoy: one trace per turn, one generation per LLM call (usage
+  and cost from Envoy'' own pricing, cache and reasoning tokens included), one observation per tool
   call and subagent. Content capture is sanitized by default (metadata-only and full are opt-in); sends
-  traces only to the Langfuse project whose keys you set. Formerly built into Hermes core as
+  traces only to the Langfuse project whose keys you set. Formerly built into Envoy core as
   observability/langfuse; existing users are migrated automatically.'
 maintainer: NousResearch
 tier: official

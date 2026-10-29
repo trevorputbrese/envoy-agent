@@ -240,7 +240,7 @@ function useFirstRunOnboarding(request: OnboardingRequest, open: OnboardingResum
   }, [open])
 }
 
-// Recovery actions raised by toast buttons (Restart Hermes, Open Billing, cron
+// Recovery actions raised by toast buttons (Restart Envoy, Open Billing, cron
 // review) fire from stores with no router context. Each counter is
 // consumed here: the ref skips the initial mount value, and only a fresh
 // request navigates or recycles the backend.

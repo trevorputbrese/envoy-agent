@@ -107,8 +107,8 @@ _PY_SKIP = ("docs/", "website/") + _FRONTEND
 # Python lane — otherwise dropping a redirect URI goes green here and breaks
 # every CIMD login on main.
 # website/docs/ and website/scripts/ are asserted about the same way. The docs
-# tree generates llms.txt — the index every LLM (Hermes included, via the
-# hermes-agent skill) reads to learn what Hermes can do — and
+# tree generates llms.txt — the index every LLM (Envoy included, via the
+# hermes-agent skill) reads to learn what Envoy can do — and
 # tests/website/test_generate_llms_txt.py holds every page to appearing in it.
 # Skipping Python on a docs-only PR is how the index drifted to 53% coverage.
 _PY_RELEVANT_SITE = (
@@ -198,7 +198,7 @@ _SHARED_FIXTURE_CONSUMERS: dict[str, tuple[str, ...]] = {
 # electron/update-* starts the Desktop update E2E, which never reads the corpus).
 _FIXTURE_CONSUMER_LANES = ("python", "rust", "frontend", "desktop_updater")
 
-# Rust crates — currently just the Tauri bootstrap installer (Hermes-Setup).
+# Rust crates — currently just the Tauri bootstrap installer (Envoy-Setup).
 # These live under ``apps/``, so before this lane existed a ``.rs`` edit matched
 # ``frontend`` and nothing more: the TypeScript matrix built, cargo never ran,
 # and the crate's unit tests had never executed in CI at all.
@@ -249,7 +249,7 @@ _DESKTOP_E2E_SHARED = (
 # The Tauri updater (update.rs, its marker claim marker.rs, the paths.rs both resolve) is
 # compiled and tested by ``cargo test`` alone (the ``rust`` lane, via ``.rs``): no slow lane
 # builds the bootstrap installer, so none of the three starts one.
-# What `hermes update` runs outside the update_* module family: the steps of the
+# What `envoy update` runs outside the update_* module family: the steps of the
 # pipeline (entry, lock, early recovery, completion tail, launchers, fleet
 # restart/verify, Windows pause/resume) and the lock / marker / recovery state
 # the update_* modules import. Editing any of these changes what a real update
@@ -294,10 +294,10 @@ _UPDATE_PIPELINE = (
     "gateway/host_rendezvous.py",
     "gateway/shutdown_forensics.py",
     "gateway/restart.py",
-    "scripts/desktop-update/",  # the hand-off scripts run `hermes update`
+    "scripts/desktop-update/",  # the hand-off scripts run `envoy update`
 )
 # Selectors are owned by the import graph, not remembered. The update
-# transaction's own modules (what `hermes update` and the launch-time completion
+# transaction's own modules (what `envoy update` and the launch-time completion
 # run between the lock and the receipt) are the entry points;
 # tests/ci/test_update_ci_routing.py reads every repo module they import (AST,
 # module level and lazy) and every build script they run, and fails until each
@@ -317,7 +317,7 @@ _UPDATE_ENTRY_POINTS = (
     "hermes_cli/subcommands/update",
 )
 # The entry points that build or verify the Desktop app inside an update
-# (`hermes desktop --build-only`, the source build/completion that feeds it).
+# (`envoy desktop --build-only`, the source build/completion that feeds it).
 _DESKTOP_BUILD_ENTRY_POINTS = (
     "hermes_cli/source_build.py",
     "hermes_cli/source_completion.py",
@@ -498,7 +498,7 @@ _E2E_LANES: dict[str, tuple[str, ...]] = {
         *_DESKTOP_BUILD_ENTRY_POINTS,
         *_UPDATE_DEPENDENCIES,
         # Pipeline modules the Desktop build entry points import directly.
-        "hermes_cli/main.py",  # `hermes desktop --build-only`
+        "hermes_cli/main.py",  # `envoy desktop --build-only`
         "hermes_cli/venv_sync.py",
         "hermes_cli/source_stamp.py",
         # Imported by the Desktop build's scripts (scripts/build/desktop.mjs closure).
@@ -572,7 +572,7 @@ def _is_catalog_data(p: str) -> bool:
 def _py_test_only(p: str) -> bool:
     """Is ``p`` inside the test suite (never shipped / imported by the product)?
 
-    Product jobs (Desktop E2E's ``hermes serve`` backend, the Docker image)
+    Product jobs (Desktop E2E's ``envoy serve`` backend, the Docker image)
     run installed code — nothing under ``tests/`` is packaged or importable
     there. scripts/run_tests.sh and scripts/run_tests_parallel.py are deliberately
     NOT test-only: they are runner infrastructure, and a bad edit there can

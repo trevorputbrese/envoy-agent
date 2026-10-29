@@ -729,7 +729,7 @@ def _bedrock_reasoning_stale_floor(model_id: object) -> float | None:
 
 
 def _bedrock_converse_call(api_kwargs: dict, *, stream: bool, on_stream_denied=None):
-    """Pop the Hermes routing keys and call ``converse`` / ``converse_stream`` (boto3 directly) with the
+    """Pop the Envoy routing keys and call ``converse`` / ``converse_stream`` (boto3 directly) with the
     adapter's shared recovery: a cachePoint rejection (Nova: toolConfig.tools, #97281) or a replayed sealed
     reasoning rejection resends once without the offending blocks inside the same attempt; a streaming IAM
     denial hands off to ``on_stream_denied(client, kwargs, exc)``; a stale connection evicts the cached
@@ -1475,7 +1475,7 @@ def _build_chat_completions_kwargs(agent, api_messages, tools_for_api, reasoning
         provider_preferences=_prefs or None, openrouter_min_coding_score=agent.openrouter_min_coding_score,
         supports_reasoning=agent._supports_reasoning_extra_body(),
         lmstudio_reasoning_options=agent._lmstudio_reasoning_options_cached() if _is_lmstudio else None,
-        qwen_session_metadata=_qwen_meta)
+        qwen_session_metadata=_qwen_meta, developer_role=agent.capabilities.get("developer_role", True))
     if _profile:
         # Profiles handle per-provider quirks via hooks fed the context above.
         return transport.build_kwargs(provider_profile=_profile, **_common)
@@ -1903,7 +1903,7 @@ def _log_fallback_activated(agent, reason, old_model, old_provider, fb_model, fb
         return
     from hermes_constants import get_hermes_home, profile_name_for_home
     profile = profile_name_for_home(get_hermes_home()) or "default"
-    remedy = "hermes model" if profile == "default" else f"hermes -p {profile} model"
+    remedy = "envoy model" if profile == "default" else f"envoy -p {profile} model"
     logger.warning(
         "Profile %s: %s via %s refused for billing/credits — using fallback %s via %s. "
         "Top up credits, or run `%s` to pick a model this account can use.",
@@ -2151,7 +2151,7 @@ def _iteration_summary_api_messages(agent, messages: list) -> list:
         # chat.completions.create() directly, bypassing the transport — so mirror that sanitization here:
         # tool_name (SQLite FTS bookkeeping), the codex_* reasoning carriers, timestamp (preserved on
         # gateway user replay entries for the stale-confirmation expiry check — #47868 rejection class), and
-        # every Hermes-internal underscore-prefixed scaffolding key.
+        # every Envoy-internal underscore-prefixed scaffolding key.
         substitute_api_content(api_msg)
         if needs_sanitize:
             agent._sanitize_tool_calls_for_strict_api(api_msg, model=sanitize_model)
@@ -3075,7 +3075,7 @@ class _StreamingCall(StreamingWaitMonitor):
             completed_response_predicate=lambda value: hasattr(value, "choices"),
             metadata=_relay_stream_metadata(self.agent, "chat_completions"), defer_logical_completion=True))
         if self.agent.provider == "moa":
-            # Hermes interrupts the managed stream; Relay alone closes the provider stream.
+            # Envoy interrupts the managed stream; Relay alone closes the provider stream.
             self.clients.set_stream_handle(stream)
 
         def _close_half_read_stream(reason: str) -> None:

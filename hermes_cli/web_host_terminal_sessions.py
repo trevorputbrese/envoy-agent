@@ -461,7 +461,7 @@ async def _resize(session: PtySession, ws: WebSocket, size: tuple[int, int], und
     """Apply ``size``; return what the next resize needs to tell whether it undoes this one.
 
     A program can read the size well after its SIGWINCH (Node, behind its event loop, and reports a
-    'resize', which Hermes' TUI redraws on, only when the size it reads has changed). A step undone
+    'resize', which Envoy's TUI redraws on, only when the size it reads has changed). A step undone
     before it looks is never seen: both signals find the size it already had. So a resize back to
     the size before the previous one first waits until the program has written output since that
     one, as a program that redraws on a resize does, or ``_RESIZE_ANSWER_SECONDS`` for one that

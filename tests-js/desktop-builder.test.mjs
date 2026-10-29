@@ -270,7 +270,7 @@ test('a desktop build that another build restamps mid-compile still publishes, a
   const { buildDesktop } = await import('../scripts/build/desktop.mjs')
   const input = fixture()
   const raced = { ...JSON.parse(readFileSync(input.stamp, 'utf8')), builtAt: '2027-03-03T00:00:00.000Z' }
-  // The issue's actual shape: a second `hermes desktop` runs write-build-stamp.mjs
+  // The issue's actual shape: a second `envoy desktop` runs write-build-stamp.mjs
   // while this build is compiling, so recordProduct() re-hashes a stamp whose only
   // difference is the build clock. Provenance racing in must still fail the build.
   put(join(input.source, 'apps/desktop/vite.config.mjs'), `
@@ -310,7 +310,7 @@ test('the pre-build gate still notices a restamp, so packaging cannot ship a bun
   const restamped = { ...JSON.parse(readFileSync(input.stamp, 'utf8')), builtAt: '2027-04-04T00:00:00.000Z' }
   put(input.stamp, JSON.stringify(restamped))
   expect(productCurrent({ ...input, product: 'desktop' })).toBe(false)
-  // And rebuilding restores agreement, which is what the next `hermes desktop` does.
+  // And rebuilding restores agreement, which is what the next `envoy desktop` does.
   await buildDesktop(input)
   expect(productCurrent({ ...input, product: 'desktop' })).toBe(true)
   const rebaked = readFileSync(join(input.out, 'electron-main.mjs'), 'utf8')

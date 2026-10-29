@@ -2,10 +2,10 @@
  * Renderer-bundle skew detection.
  *
  * The desktop UI (including bundled plugins like Bot Mode) is compiled into
- * the app binary at build time, while `hermes update` only moves the source
+ * the app binary at build time, while `envoy update` only moves the source
  * tree. A user who updates from the terminal — or whose in-app update failed
  * on the bundle-swap leg — ends up running a NEW runtime under an OLD
- * renderer: About proudly reports the new Hermes version while the sidebar
+ * renderer: About proudly reports the new Envoy version while the sidebar
  * is missing the features that version shipped (the "no Bots tab after the
  * Bot Mode update" reports).
  *
@@ -20,7 +20,7 @@
  *
  * The count is evidence and the endpoint content is the verdict: a change and its revert
  * inside one update range leave the runtime byte-identical, which is exactly when
- * `hermes update` reuses the packaged app (hermes_cli/desktop_build_reuse.py).
+ * `envoy update` reuses the packaged app (hermes_cli/desktop_build_reuse.py).
  *
  * Ancestry has to come first, because `A..HEAD` only means "how far HEAD is
  * ahead of A" when A is an ancestor of HEAD. When it is not, the range
@@ -217,7 +217,7 @@ export async function detectBundleSkew(
     }
 
     // Commits are evidence, content is the verdict: a change and its revert in one update range
-    // count 2 but leave the runtime byte-identical, and `hermes update` then rightly reuses the
+    // count 2 but leave the runtime byte-identical, and `envoy update` then rightly reuses the
     // packaged app instead of rebuilding it. Warning there would never clear.
     return { desktopCommitsBehind: count, outOfSync: !(await runtimeContentMatches(runGit, stamp.commit, options)) }
   } catch {

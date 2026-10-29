@@ -522,7 +522,7 @@ class TestStatusEndpointTopology:
         assert data["gateway_shared_with"] is None
 
     def test_unscoped_status_on_a_served_profiles_own_backend_uses_multiplexer_record(self, monkeypatch, tmp_path):
-        # `hermes -p coder serve` answers plain /api/status (no ?profile=) for its own home. That
+        # `envoy -p coder serve` answers plain /api/status (no ?profile=) for its own home. That
         # home's gateway.lock is the multiplexer's too, so the same live record applies.
         import hermes_cli.web_routers.status as status_router
 
@@ -884,7 +884,7 @@ class TestStatusEndpointTopology:
 
     def test_profile_names_and_mode_public_when_auth_gated(self, monkeypatch):
         # Profile NAMES + gateway_mode are low-sensitivity product surface: the
-        # Hermes Cloud Portal reads /api/status over the network (a gated bind)
+        # Envoy Cloud Portal reads /api/status over the network (a gated bind)
         # to render the profile list, so they must survive the auth gate.
         monkeypatch.setattr(
             _web_server_gateway, "_collect_profile_gateway_topology",

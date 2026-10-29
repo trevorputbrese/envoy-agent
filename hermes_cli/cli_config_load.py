@@ -27,7 +27,7 @@ def _cli():
 def _load_prefill_messages(file_path: str, base_dir: Path | None = None) -> list[dict[str, Any]]:
     """Load prefill messages (JSON array) from *file_path*; missing/empty -> [].
 
-    Relative paths resolve against *base_dir*, defaulting to the CLI's hermes home.
+    Relative paths resolve against *base_dir*, defaulting to the CLI's envoy home.
     """
     if not file_path:
         return []
@@ -140,7 +140,7 @@ def _mirror_config_to_env(defaults, _file_has_terminal_config):
     # TERMINAL_CWD is force-exported (beats stale .env) except inside a gateway process,
     # whose config bridge already set it. Ask whether THIS process imported gateway.run:
     # its _HERMES_GATEWAY env marker is inherited by every shell the gateway's terminal
-    # tool spawns, so a `hermes chat` launched there would keep the gateway's directory.
+    # tool spawns, so a `envoy chat` launched there would keep the gateway's directory.
     _is_gateway = "gateway.run" in sys.modules
     for config_key, env_var in _TERMINAL_ENV_MAPPINGS.items():
         if config_key not in terminal_config:
@@ -288,7 +288,7 @@ def load_cli_config() -> dict[str, Any]:
     defaults = _expand_env_vars(defaults)
 
     # Administrator-pinned (managed scope) values overlay LAST; cli.py builds its config
-    # independently of hermes_cli.config, so this keeps parity with `hermes config`. Fail-open.
+    # independently of hermes_cli.config, so this keeps parity with `envoy config`. Fail-open.
     from hermes_cli import managed_scope
 
     defaults = managed_scope.apply_managed_overlay(defaults)

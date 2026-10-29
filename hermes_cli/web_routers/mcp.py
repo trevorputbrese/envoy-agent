@@ -356,7 +356,7 @@ async def mcp_oauth_callback(
         None,
     )
     if flow is None:
-        return HTMLResponse("<h1>OAuth flow expired</h1><p>Return to Hermes and try again.</p>", status_code=404)
+        return HTMLResponse("<h1>OAuth flow expired</h1><p>Return to Envoy and try again.</p>", status_code=404)
     try:
         flow.deliver_callback(code=code, state=state, error=error, iss=iss)
     except ValueError as exc:
@@ -365,8 +365,8 @@ async def mcp_oauth_callback(
             status_code=409 if "already received" in str(exc) else 400,
         )
     if error:
-        return HTMLResponse("<h1>Authorization failed</h1><p>Return to Hermes for details.</p>", status_code=400)
-    return HTMLResponse("<h1>Authorization received</h1><p>You can close this tab and return to Hermes.</p>")
+        return HTMLResponse("<h1>Authorization failed</h1><p>Return to Envoy for details.</p>", status_code=400)
+    return HTMLResponse("<h1>Authorization received</h1><p>You can close this tab and return to Envoy.</p>")
 
 
 @router.put("/api/mcp/servers/{name}/enabled")
@@ -438,7 +438,7 @@ def _catalog_entry_json(entry: Any, installed: bool, enabled: bool) -> dict[str,
 
 @router.get("/api/mcp/catalog")
 async def list_mcp_catalog(profile: Optional[str] = None):
-    """Browse the Nous-approved MCP catalog (optional-mcps/ manifests), each
+    """Browse the curated MCP catalog (optional-mcps/ manifests), each
     entry annotated with installed/enabled state for ``profile``."""
     with http_failure("mcp_catalog import failed", 500, "Catalog unavailable"):
         from hermes_cli import mcp_catalog

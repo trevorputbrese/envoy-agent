@@ -1,8 +1,8 @@
 """Loopback OIDC/model boundaries; daemon, auth, tickets and room controls are real.
 
-Hermes is single-user: every signed-in Webapp tab is the machine owner, whichever IdP account it
+Envoy is single-user: every signed-in Webapp tab is the machine owner, whichever IdP account it
 signed in with, so two tabs share one Group Chat list and either may stop or approve. Who may sign in
-is the login provider's app configuration, not Hermes's.
+is the login provider's app configuration, not Envoy's.
 """
 import asyncio
 import base64
@@ -25,7 +25,7 @@ from tests.gateway.fixtures.local_recovery_probe import child_env, daemon, rpc
 from tests.waiting import async_wait_until
 
 
-#: Two signed-in Webapp tabs, each acting as the machine owner (Hermes is single-user).
+#: Two signed-in Webapp tabs, each acting as the machine owner (Envoy is single-user).
 TABS = ('tab1', 'tab2')
 
 

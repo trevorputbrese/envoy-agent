@@ -105,7 +105,7 @@ class TestRelaunch:
     def test_windows_uses_subprocess_not_execvp(self, monkeypatch):
         """On Windows, os.execvp raises OSError "Exec format error" when the
         target is a .cmd shim or console-script wrapper (both common for
-        hermes).  relaunch() must detect win32 and use subprocess.run +
+        envoy).  relaunch() must detect win32 and use subprocess.run +
         sys.exit instead.
 
         ``platforms("windows")``: the bug is that ``os.execvp`` cannot exec a Windows
@@ -205,7 +205,7 @@ class TestResolveHermesBinWindowsPyGuard:
     def test_posix_python_launcher_falls_through_to_path(self, monkeypatch, tmp_path):
         """A Python source launcher must not be re-executed through its shebang.
 
-        The git installer invokes ``hermes`` with the venv interpreter while the
+        The git installer invokes ``envoy`` with the venv interpreter while the
         source launcher's shebang uses ``/usr/bin/env python3``.  Re-executing
         that source file directly can therefore escape the venv and lose core
         dependencies such as PyYAML.

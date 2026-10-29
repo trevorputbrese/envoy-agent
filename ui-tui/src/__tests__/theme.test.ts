@@ -251,22 +251,22 @@ describe('fromSkin', () => {
 
     const theme = fromSkin(
       {
-        banner_accent: '#FFBF00',
-        banner_border: '#CD7F32',
-        banner_dim: '#B8860B',
-        banner_text: '#FFF8DC',
-        banner_title: '#FFD700',
-        prompt: '#FFF8DC'
+        banner_accent: '#0095D3',
+        banner_border: '#0072A3',
+        banner_dim: '#5B7F95',
+        banner_text: '#E3F5FC',
+        banner_title: '#49AFD9',
+        prompt: '#E3F5FC'
       },
       {}
     )
 
-    expect(theme.color.primary).toBe('#FFD700')
-    expect(theme.color.accent).toBe('#FFBF00')
-    expect(theme.color.border).toBe('#CD7F32')
+    expect(theme.color.primary).toBe('#49AFD9')
+    expect(theme.color.accent).toBe('#0095D3')
+    expect(theme.color.border).toBe('#0072A3')
     expect(theme.color.muted).toBe('ansi256(245)')
-    expect(theme.color.text).toBe('ansi256(136)')
-    expect(theme.color.prompt).toBe('ansi256(136)')
+    expect(theme.color.text).toBe('ansi256(31)')
+    expect(theme.color.prompt).toBe('ansi256(31)')
   })
 
   // ── A skin that authors a background OWNS its polarity ──────────────
@@ -311,7 +311,7 @@ describe('fromSkin', () => {
       TERM_PROGRAM: 'Apple_Terminal'
     })
 
-    const theme = fromSkin({ banner_text: '#FFF8DC' }, {})
+    const theme = fromSkin({ banner_text: '#E3F5FC' }, {})
 
     // No ansi256 bucketing on truecolor terminals — a truly invisible cream
     // (1.08:1 on white) still gets the display shim's gentle light-mode rescue
@@ -323,9 +323,9 @@ describe('fromSkin', () => {
 
   it('normalizes Apple Terminal names before matching', async () => {
     const { fromSkin } = await importThemeWithEnv({ TERM_PROGRAM: ' Apple_Terminal ' })
-    const theme = fromSkin({ banner_text: '#FFF8DC' }, {})
+    const theme = fromSkin({ banner_text: '#E3F5FC' }, {})
 
-    expect(theme.color.text).toBe('ansi256(136)')
+    expect(theme.color.text).toBe('ansi256(31)')
   })
 
   it('maps ui_ color keys + cascades to status', async () => {
@@ -394,8 +394,8 @@ describe('derived tone ladder', () => {
     const light = await importThemeWithEnv({ HERMES_TUI_BACKGROUND: '#ffffff' })
 
     const cases: Array<[string, string, string]> = [
-      [dark.DARK_THEME.color.muted, '#CC9B1F', 'dark muted'],
-      [dark.DARK_THEME.color.label, '#DAA520', 'dark label'],
+      [dark.DARK_THEME.color.muted, '#1378A3', 'dark muted'],
+      [dark.DARK_THEME.color.label, '#1380AE', 'dark label'],
       [dark.DARK_THEME.color.statusFg, '#C0C0C0', 'dark statusFg'],
       [dark.DARK_THEME.color.completionBg, '#1a1a2e', 'dark surface'],
       [dark.DARK_THEME.color.completionCurrentBg, '#333355', 'dark chip'],
@@ -480,17 +480,17 @@ describe('background-aware adaptation (OSC-11 light terminals)', () => {
 
   it('rescues near-invisible colors with a hue-preserving multiplicative lift', async () => {
     const { contrastRatio, fromSkin } = await importThemeWithEnv({ HERMES_TUI_BACKGROUND: '#ffffff' })
-    // The default dark cream (#FFF8DC, 1.08:1 on white) is genuinely invisible.
-    const { color } = fromSkin({ banner_text: '#FFF8DC' }, {})
+    // The default ice text (#E3F5FC, 1.08:1 on white) is genuinely invisible.
+    const { color } = fromSkin({ banner_text: '#E3F5FC' }, {})
 
-    expect(color.text.toLowerCase()).not.toBe('#fff8dc')
+    expect(color.text.toLowerCase()).not.toBe('#e3f5fc')
     expect(contrastRatio(color.text, '#ffffff')!).toBeGreaterThanOrEqual(1.18)
 
-    // Multiplicative lift preserves channel ordering (warm stays warm).
+    // Multiplicative lift preserves channel ordering (cool stays cool).
     const [r, g, b] = [1, 3, 5].map(i => parseInt(color.text.slice(i, i + 2), 16))
 
-    expect(r).toBeGreaterThanOrEqual(g!)
-    expect(g).toBeGreaterThanOrEqual(b!)
+    expect(b).toBeGreaterThanOrEqual(g!)
+    expect(g).toBeGreaterThanOrEqual(r!)
   })
 
   it('leaves the same skin untouched on a dark background', async () => {

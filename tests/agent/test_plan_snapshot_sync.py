@@ -108,7 +108,7 @@ def test_back_in_step_rearms(wired):
 
 
 def test_each_profile_refreshes_its_own_account_under_its_own_home(wired, tmp_path, monkeypatch):
-    """One process, two profiles: the refresh runs with the asking profile's Hermes home, and one
+    """One process, two profiles: the refresh runs with the asking profile's Envoy home, and one
     profile's pending mismatch never blocks another's."""
     from hermes_constants import get_hermes_home, reset_hermes_home_override, set_hermes_home_override
     import hermes_cli.nous_account as na

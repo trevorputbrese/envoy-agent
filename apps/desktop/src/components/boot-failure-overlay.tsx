@@ -98,7 +98,7 @@ export function StartupOverlay() {
 }
 
 /** A Webapp tab without a valid sign-in. The service is running, so there is nothing to recover or
- * dismiss: only hermes webapp signs the tab in. */
+ * dismiss: only envoy webapp signs the tab in. */
 function WebappSignInOverlay() {
   const copy = useI18n().t.boot.failure
 
@@ -297,7 +297,7 @@ export function BootFailureOverlay() {
   }
 
   // Clear this gateway's stale auth first, then re-establish it through the
-  // connection's owning login flow. Hermes Cloud must reuse its portal session
+  // connection's owning login flow. Envoy Cloud must reuse its portal session
   // and per-agent cascade; generic remote gateways use native/embedded OAuth.
   // Reload after success so boot mints a fresh ticket against the new session.
   // The cloud ladder is shared with Settings (reestablishCloudAgentSession) so

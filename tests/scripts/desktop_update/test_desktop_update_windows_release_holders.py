@@ -1,6 +1,6 @@
-"""#101789 on the real Windows hand-off script: a Desktop swap blocked by a program outside Hermes.
+"""#101789 on the real Windows hand-off script: a Desktop swap blocked by a program outside Envoy.
 
-A real ``windows.ps1`` drives a published launcher whose ``hermes update`` is a scripted stand-in
+A real ``windows.ps1`` drives a published launcher whose ``envoy update`` is a scripted stand-in
 printing exactly what ``hermes_cli.desktop_release_holders`` prints when Windows refused the
 promotion rename. The result the relaunched Desktop reads must name that program (message and a
 structured ``release_holders`` list), so the Desktop can offer to close exactly it, and the retry
@@ -78,7 +78,7 @@ def test_blocked_swap_result_names_the_holder_for_the_desktop(tmp_path: Path) ->
     ], result
     assert not consent.exists(), 'a consent the run never used ends with the run'
     assert 'SogouCloud.exe (pid 4242)' in result['message'], result
-    assert 'not part of Hermes' in result['message'], result
+    assert 'not part of Envoy' in result['message'], result
 
 
 # The Desktop that clicked "Close X and retry": it quits once the hand-off has adopted its bridge.
@@ -145,7 +145,7 @@ def test_close_and_retry_runs_under_its_own_run_even_from_a_relaunched_desktop(t
     home.mkdir()
     source = tmp_path / 'desktop.cs'
     source.write_text(RELAUNCHED_DESKTOP, encoding='utf-8')
-    # Named apart from other tests' stand-in Hermes.exe: the explorer rung takes any fresh process of
+    # Named apart from other tests' stand-in Envoy.exe: the explorer rung takes any fresh process of
     # this name as its launch. A GUI-subsystem exe, so no console window satisfies the focus wait.
     relaunch = tmp_path / 'release' / 'win-unpacked' / 'HermesRetryDesktop.exe'
     relaunch.parent.mkdir(parents=True)

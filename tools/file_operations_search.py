@@ -120,7 +120,7 @@ def _search_stdout_and_limit(result: ExecuteResult) -> tuple[str, Optional[str]]
 
 
 def _bundled_rg() -> Optional[str]:
-    """Hermes's pinned ripgrep, forward-slashed for the shell transports, or None."""
+    """Envoy's pinned ripgrep, forward-slashed for the shell transports, or None."""
     import pm
 
     try:
@@ -297,7 +297,7 @@ class SearchMixin:
         from tools.environments.base import env_uses_host_filesystem
         from tools.environments.local import _IS_WINDOWS
 
-        # A host search is Hermes's own work, so it runs the pinned ripgrep, never the
+        # A host search is Envoy's own work, so it runs the pinned ripgrep, never the
         # first rg on the terminal PATH, where the user's tools come first.
         on_host = env_uses_host_filesystem(self.env)
         bundled = _bundled_rg() if on_host else None

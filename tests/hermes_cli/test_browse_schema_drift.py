@@ -231,7 +231,7 @@ def test_session_list_reconciles_once_only_when_unowned(own_store_client, missin
     assert response.status_code == 503
     assert "gateway owns it" in response.json()["detail"]
     # A failed read is a retryable failed load naming the drift, never an empty list.
-    assert "behind this Hermes version" in sidebar["errors"][0]["error"]
+    assert "behind this Envoy version" in sidebar["errors"][0]["error"]
     assert "sessions" not in sidebar["recents"] and sidebar["recents"]["failed"] is True
     assert path.read_bytes() == before
     assert missing_column not in _session_columns(path)
@@ -243,7 +243,7 @@ def test_session_list_reconciles_once_only_when_unowned(own_store_client, missin
 
 
 def test_startup_eager_reconcile_heals_only_an_unowned_stale_store(own_store_client):
-    """After `hermes update` an old-schema store must not fail every poll (#79531/#80037); the
+    """After `envoy update` an old-schema store must not fail every poll (#79531/#80037); the
     dashboard is never a second writer while a gateway owns it (#107688)."""
     from hermes_cli import web_server_lifecycle
 
@@ -600,7 +600,7 @@ def test_slow_browse_reconcile_gives_up_inside_its_budget_and_boot_waits_it_out(
     assert float(elapsed) < budget_s + 2, out
     detail = " ".join(detail)
     assert "nothing was changed" in detail
-    assert "`hermes -p scribe sessions repair`" in detail and "gateway" not in detail.lower()
+    assert "`envoy -p scribe sessions repair`" in detail and "gateway" not in detail.lower()
     assert _file_state(path) == before
     assert "last_read_at" not in _session_columns(path)
 
@@ -861,7 +861,7 @@ def test_boot_refuses_at_once_when_another_home_has_a_real_owner(tmp_path):
 
 def test_budget_refusal_on_unowned_store_names_repair_not_a_gateway(tmp_path, monkeypatch):
     """Round-2 decision: the 3 s browse budget stays. When it runs out on a store no gateway owns,
-    the 503 must be actionable: name `hermes -p NAME sessions repair` (no time limit), say the
+    the 503 must be actionable: name `envoy -p NAME sessions repair` (no time limit), say the
     history is untouched, and never tell a user with no gateway to restart one."""
     import hermes_cli.sqlite_safe_read as ssr
     import hermes_state_reconcile as reconcile
@@ -877,7 +877,7 @@ def test_budget_refusal_on_unowned_store_names_repair_not_a_gateway(tmp_path, mo
         _open_session_db_at_path(path, read_only=True)
     assert caught.value.status_code == 503
     detail = caught.value.detail
-    assert "Run `hermes -p scribe sessions repair` to bring it up to date (it has no time limit)" in detail
+    assert "Run `envoy -p scribe sessions repair` to bring it up to date (it has no time limit)" in detail
     assert "Your history is untouched" in detail
     assert "gateway" not in detail.lower()
     assert _file_state(path) == before
@@ -909,7 +909,7 @@ def test_legacy_gateway_holding_the_store_without_a_lock_is_not_written(tmp_path
     """alt-glitch W1: a v0.22.0 multiplex gateway keeps a named profile's state.db open without writing
     that profile's gateway.lock/gateway.pid. Browse must still treat it as the owner: no DDL, a named
     503. Plain readers (sibling browses, Desktop) are not owners, so only a holder identified as a
-    Hermes gateway process refuses."""
+    Envoy gateway process refuses."""
     import os
     import subprocess
     import sys
@@ -948,7 +948,7 @@ time.sleep(60)
 @pytest.mark.platforms("linux", "macos")
 @pytest.mark.spawns_gateway_lookalike
 def test_owned_refusal_names_the_owning_multiplexers_restart(tmp_path):
-    """alt-glitch W2: when the default multiplexer owns a named profile's lock, `hermes -p NAME gateway
+    """alt-glitch W2: when the default multiplexer owns a named profile's lock, `envoy -p NAME gateway
     restart` is refused ("Manage the host gateway instead"). Name the owner's own restart command,
     from the lock record's hermes_home."""
     import os
@@ -968,7 +968,7 @@ def test_owned_refusal_names_the_owning_multiplexers_restart(tmp_path):
         host.wait()
     detail = caught.value.detail
     assert caught.value.status_code == 503 and "running gateway owns it" in detail
-    assert "`hermes gateway restart`" in detail
+    assert "`envoy gateway restart`" in detail
     assert "-p scribe gateway restart" not in detail
 
 

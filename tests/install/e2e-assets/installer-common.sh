@@ -2,8 +2,8 @@
 # Driver-only setup; these helpers never install into the caller's real HOME.
 arm_source_redirect() {
   local repo="$1" work="$2" serve="$3"
-  local https='https://github.com/NousResearch/hermes-agent.git'
-  local ssh='git@github.com:NousResearch/hermes-agent.git'
+  local https='https://github.com/trevorputbrese/envoy-agent.git'
+  local ssh='git@github.com:trevorputbrese/envoy-agent.git'
   local actual real_git quoted_git cfg="$work/gitconfig" shim="$work/shim"
   actual="$(git -C "$repo" remote get-url origin)"
   real_git="$(command -v git)"
@@ -65,8 +65,8 @@ resolve_update_ref() {
     | git -C "$repo" hash-object -w --stdin)" || return
   tree="$( { git -C "$repo" ls-tree -z "$parent"; printf '100644 blob %s\t.hermes-e2e-next\0' "$blob"; } \
     | git -C "$repo" mktree -z)" || return
-  GIT_AUTHOR_NAME='Hermes E2E' GIT_AUTHOR_EMAIL='e2e@hermes.invalid' \
-    GIT_COMMITTER_NAME='Hermes E2E' GIT_COMMITTER_EMAIL='e2e@hermes.invalid' \
+  GIT_AUTHOR_NAME='Envoy E2E' GIT_AUTHOR_EMAIL='e2e@hermes.invalid' \
+    GIT_COMMITTER_NAME='Envoy E2E' GIT_COMMITTER_EMAIL='e2e@hermes.invalid' \
     git -C "$repo" commit-tree "$tree" -p "$parent" -m 'e2e: synthetic next commit'
 }
 

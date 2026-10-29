@@ -757,11 +757,11 @@ const isPrimaryInstance: boolean = acquireSingleInstanceLock()
 const relauncher = createAppRelauncher(app)
 
 if (!isPrimaryInstance) {
-  console.error('[hermes] another Hermes Desktop instance holds the single-instance lock; exiting')
+  console.error('[hermes] another Envoy Desktop instance holds the single-instance lock; exiting')
   app.exit(0)
 }
 
-// `hermes desktop` shortens TMPDIR only so the lock above can bind its socket (#124688). The
+// `envoy desktop` shortens TMPDIR only so the lock above can bind its socket (#124688). The
 // backend and every other child get the real one (the profile scratch dir) back.
 if (process.env.HERMES_DESKTOP_TMPDIR) {
   process.env.TMPDIR = process.env.HERMES_DESKTOP_TMPDIR
@@ -1001,7 +1001,7 @@ if (process.platform === 'linux') {
 // Linux: point Chromium at the session's keychain backend so safeStorage can
 // encrypt remote gateway tokens (hardening.ts refuses to persist them without
 // it). The value arrives via HERMES_DESKTOP_PASSWORD_STORE, bridged by the
-// `hermes desktop` launcher from detection or `desktop.password_store` in
+// `envoy desktop` launcher from detection or `desktop.password_store` in
 // config.yaml. Must run before app `ready` — the switch only applies pre-launch.
 const PASSWORD_STORE = resolveLinuxPasswordStore()
 
@@ -1021,7 +1021,7 @@ if (PASSWORD_STORE.store) {
 // 0x80000003. After enough GPU deaths the browser process FATAL-exits before the
 // UI is usable. Must run before app `ready` so `--no-sandbox` applies to child
 // processes. The sticky marker recovers Start Menu / shortcut launches that
-// never go through `hermes desktop`; it is version-scoped so an app update
+// never go through `envoy desktop`; it is version-scoped so an app update
 // re-probes the sandbox instead of degrading forever.
 //
 // `windowsSandboxFallbackActive` = this process runs without the Chromium
@@ -1050,7 +1050,7 @@ if (IS_WINDOWS || process.platform === 'linux') {
   // engaged — icacls /T recurses the whole install tree, so healthy launches
   // skip it (the installer already granted the ACE at install time). Repair
   // targets the install dir only: granting AppContainer read on userData would
-  // expose Hermes sessions/config to every packaged app on the machine.
+  // expose Envoy sessions/config to every packaged app on the machine.
   if (shouldAttemptAclRepair(priorMarker)) {
     const exeDir = path.dirname(process.execPath)
     const acl = grantAllApplicationPackagesAcl(exeDir, { execFileSync })
@@ -1222,7 +1222,7 @@ ipcMain.handle('hermes:embed-host:origin', () => embedHostOrigin())
 // `backgroundThrottling: false` on every chat window) pinned every renderer's
 // `document.visibilityState` to 'visible' forever — which silently turned all
 // the renderer's visibility-gated backstop polls and clock ticks into
-// always-on timers. A completely idle, minimized Hermes burned ~20% CPU
+// always-on timers. A completely idle, minimized Envoy burned ~20% CPU
 // around the clock. Throttling is now a runtime dial scoped to streaming:
 // see createStreamThrottle() — chat windows are unthrottled while any turn is
 // in flight (so a live answer keeps painting while blurred, occluded, or
@@ -1255,7 +1255,7 @@ const HERMES_HOME: string = resolveDesktopHermesHome({
 
 // #77311: `desktop.electron_flags` and the renderer heap ceiling
 // (`desktop.renderer_max_old_space_mb`) used to reach Chromium only through
-// the `hermes desktop` launcher's argv, so a packaged app opened from its
+// the `envoy desktop` launcher's argv, so a packaged app opened from its
 // Start-menu / .desktop entry ran with no `--js-flags` at all. Apply them here
 // from config.yaml, before `ready` — Chromium copies `js-flags` to renderer
 // processes only from the browser's pre-launch command line.
@@ -1276,7 +1276,7 @@ let desktopSshPathOverride = ''
   desktopSshPathOverride = desktopLaunchConfig.sshPath || ''
 
   // `desktop.renderer_accessibility: false` must reach packaged launches too,
-  // not only the `hermes desktop` launcher's env bridge (#118271).
+  // not only the `envoy desktop` launcher's env bridge (#118271).
   if (
     desktopLaunchConfig.rendererAccessibility === false &&
     process.env.HERMES_DESKTOP_RENDERER_ACCESSIBILITY === undefined
@@ -1296,7 +1296,7 @@ if (isPrimaryInstance) {
   })
 }
 
-// ACTIVE_HERMES_ROOT — the canonical mutable Hermes install. Same path
+// ACTIVE_HERMES_ROOT — the canonical mutable Envoy install. Same path
 // install.ps1 / install.sh use, so a desktop-only user and a CLI-only user end
 // up with identical layouts and can share one install.
 const ACTIVE_HERMES_ROOT = path.join(HERMES_HOME, 'hermes-agent')
@@ -1328,8 +1328,8 @@ const DESKTOP_UPDATE_CONFIG_PATH = path.join(app.getPath('userData'), 'updates.j
 const DESKTOP_WINDOW_STATE_PATH = path.join(app.getPath('userData'), 'window-state.json')
 const DESKTOP_BACKEND_OWNERSHIP_PATH = path.join(app.getPath('userData'), 'backend-ownership.json')
 const DESKTOP_MANAGED_SSH_RECOVERY_PATH = path.join(app.getPath('userData'), 'managed-ssh-update-recovery.json')
-// active-profile.json records which Hermes profile the desktop launches its
-// local backend as. When set, startHermes() passes `hermes --profile <name>
+// active-profile.json records which Envoy profile the desktop launches its
+// local backend as. When set, startHermes() passes `envoy --profile <name>
 // dashboard …`, which deterministically pins HERMES_HOME (see
 // _apply_profile_override in hermes_cli/main.py) and bypasses the sticky
 // ~/.hermes/active_profile file. Unset (null) preserves the legacy behavior:
@@ -1391,7 +1391,7 @@ const BOOT_FAKE_STEP_MS = (() => {
   return Math.max(120, raw)
 })()
 
-const APP_NAME: string = IDENTITY_APP_NAME || process.env.HERMES_DESKTOP_APP_NAME || 'Hermes'
+const APP_NAME: string = IDENTITY_APP_NAME || process.env.HERMES_DESKTOP_APP_NAME || 'Envoy'
 const HUD_WINDOW_TITLE = `${APP_NAME} HUD`
 const TITLEBAR_HEIGHT = 34
 const MACOS_TRAFFIC_LIGHTS_HEIGHT = 14
@@ -1801,9 +1801,9 @@ if (IS_WINDOWS) {
   app.setAppUserModelId(IDENTITY_APP_NAME ? PRODUCT_IDENTITY.appId : 'com.nousresearch.hermes')
 }
 
-// Seed the native About panel with the best-known Hermes version. This is
+// Seed the native About panel with the best-known Envoy version. This is
 // refreshed on every open via showAboutPanelFresh, so an in-place
-// `hermes update` mid-session is reflected without an app restart; the seed
+// `envoy update` mid-session is reflected without an app restart; the seed
 // covers the first open and any non-menu invocation path. Never seed empty:
 // an empty applicationVersion falls back to the bundle version, which is the
 // 0.0.0 placeholder on local builds (#124581).
@@ -1917,7 +1917,7 @@ const backendDialClaims = new BackendDialClaims()
 let softRehomeInProgress = false
 // Cached connection DESCRIPTORS for every non-primary (connectionId, profile)
 // scope the app has dialed: canonical local gateways reached through
-// `hermes gateway ensure`, registry remotes, per-profile remote overrides.
+// `envoy gateway ensure`, registry remotes, per-profile remote overrides.
 // Never a process — the gateway owns its own lifetime; forgetting an entry only
 // forces the next ensure*() to re-dial. A user with no named profiles never
 // populates this map.
@@ -1937,7 +1937,7 @@ let desktopLogFlushPromise = Promise.resolve()
 // Land a spawn failure in desktop.log.
 function logPoolSpawnFailure(label: string, error: unknown): void {
   rememberLog(
-    `Hermes backend for profile ${label} failed to start: ${error instanceof Error ? error.message : String(error)}`
+    `Envoy backend for profile ${label} failed to start: ${error instanceof Error ? error.message : String(error)}`
   )
 }
 
@@ -1958,7 +1958,7 @@ const rendererReloadTimesRef: { current: number[] } = { current: [] }
 // the renderer's "Reload and retry" path or by quitting the app.
 let bootstrapFailure = null
 // Latched non-bootstrap backend spawn failure — stops getConnection() from
-// respawning hermes serve backend children in a tight loop while boot is broken.
+// respawning envoy serve backend children in a tight loop while boot is broken.
 let backendStartFailure = null
 // Latched CONFIRMED remote reauth failure. Remote failures deliberately do not
 // latch via backendStartFailure (they're usually transient and must stay
@@ -1999,7 +1999,7 @@ let bootProgressState = {
   error: null,
   fakeMode: BOOT_FAKE_MODE,
   isCloudBackendDown: false,
-  message: 'Waiting to start Hermes backend',
+  message: 'Waiting to start Envoy backend',
   phase: 'idle',
   progress: 0,
   retryable: false,
@@ -2807,7 +2807,7 @@ async function waitForUpdateToFinish() {
 
         await advanceBootProgress(
           'backend.update-wait',
-          'An update is still running — Hermes will start automatically when it finishes. Its progress is in logs/update.log.',
+          'An update is still running — Envoy will start automatically when it finishes. Its progress is in logs/update.log.',
           12
         )
 
@@ -2816,7 +2816,7 @@ async function waitForUpdateToFinish() {
 
       await advanceBootProgress(
         'backend.update-wait',
-        'An update is finishing — Hermes will start automatically when it completes…',
+        'An update is finishing — Envoy will start automatically when it completes…',
         12
       )
     },
@@ -2861,7 +2861,7 @@ async function waitForUpdateToFinish() {
       log: rememberLog
     })
   ) {
-    await advanceBootProgress('backend.update-restart', 'Restarting Hermes to load the updated app…', 14)
+    await advanceBootProgress('backend.update-restart', 'Restarting Envoy to load the updated app…', 14)
     // Park while the scheduled exit lands so this stale build never starts a
     // backend; the failsafe below only runs if the exit somehow does not.
     await new Promise(resolve => setTimeout(resolve, BUNDLE_SWAP_RELAUNCH_FAILSAFE_MS))
@@ -2903,7 +2903,7 @@ function findOnPath(command) {
   // On Windows, try PATHEXT extensions BEFORE the bare (empty-extension) name.
   // A real command must resolve via its .exe/.cmd (Windows command-resolution
   // semantics consult PATHEXT); an extensionless file — e.g. a Git-Bash
-  // shell-script shim named `hermes` — must not shadow `hermes.cmd`/`hermes.exe`.
+  // shell-script shim named `envoy` — must not shadow `hermes.cmd`/`hermes.exe`.
   // The empty entry is kept LAST so callers that already include the extension
   // (py.exe, pwsh.exe, powershell.exe) still resolve.
   const extensions = buildPathExtCandidates(process.env.PATHEXT, IS_WINDOWS)
@@ -3025,7 +3025,7 @@ async function findSystemPython() {
   //      miss real Python 3.13 installs (user-reported case).
   //
   // We also restrict ourselves to Python 3.11–3.13. 3.14 is the latest
-  // CPython but several Hermes deps (notably pywinpty's Rust-built
+  // CPython but several Envoy deps (notably pywinpty's Rust-built
   // windows_x86_64_msvc crate) don't yet publish 3.14 wheels, and
   // `pip install -e .` falls back to source-build, which fails without
   // a Rust toolchain. install.ps1 sidesteps this by pinning to 3.11
@@ -3299,7 +3299,7 @@ function recentHermesLog() {
   return hermesLog.slice(-20).join('\n')
 }
 
-// ─── Self-update (git-pull against the running backend's hermes root) ──────
+// ─── Self-update (git-pull against the running backend's envoy root) ──────
 
 function readDesktopUpdateConfig(): { branch: string; branchExplicit: boolean } {
   try {
@@ -3746,7 +3746,7 @@ let quitPromptOpen = false
 let quitConfirmedWithActiveWork = false
 
 // Resolve the staged updater binary the desktop may hand an update to. On
-// Windows that binary owns ALL repo mutation — running `hermes update` +
+// Windows that binary owns ALL repo mutation — running `envoy update` +
 // rebuilding the desktop — so the desktop never touches its own bits while
 // running. macOS/Linux stage the same binary but deliberately do not use it;
 // see resolveStagedUpdaterBinary for the policy and for #74836. Returns null
@@ -3755,7 +3755,7 @@ function resolveUpdaterBinary() {
   return resolveStagedUpdaterBinary(HERMES_HOME, { fileExists, isWindows: IS_WINDOWS })
 }
 
-// Path to the venv shim whose lock decides whether `hermes update` can write
+// Path to the venv shim whose lock decides whether `envoy update` can write
 // fresh entry points. On Windows this is the file the running backend
 // `hermes.exe` holds open; on POSIX it's never mandatory-locked.
 function venvHermesShimPath(updateRoot) {
@@ -3794,10 +3794,10 @@ function isShimLocked(shimPath) {
   }
 }
 
-// Kill only Hermes-OWNED venv daemons (the memory plugin's hindsight daemon:
+// Kill only Envoy-OWNED venv daemons (the memory plugin's hindsight daemon:
 // exe under venv\Scripts AND cmdline referencing hindsight_api.main). The
 // daemon is spawned DETACHED, so it outlives the backend tree-kill and keeps
-// venv files mapped. External holders (a user terminal running `hermes`,
+// venv files mapped. External holders (a user terminal running `envoy`,
 // unrelated scripts) are NOT killed. The uninstall lock probe refuses a
 // held installation. Selection lives in the pure
 // venv-holder-select module (ordinal path-prefix, no PowerShell -like
@@ -3838,7 +3838,7 @@ function killHermesOwnedVenvDaemons(updateRoot) {
     const pid = Number(holder?.ProcessId)
 
     if (Number.isInteger(pid) && pid > 0) {
-      rememberLog(`[updates] stopping Hermes-owned venv daemon (hindsight) PID ${pid} before hand-off`)
+      rememberLog(`[updates] stopping Envoy-owned venv daemon (hindsight) PID ${pid} before hand-off`)
 
       try {
         forceKillProcessTree(pid)
@@ -3851,12 +3851,12 @@ function killHermesOwnedVenvDaemons(updateRoot) {
   }
 }
 
-// Kill EXTERNAL Hermes processes that hold this install's venv shim (#62311):
+// Kill EXTERNAL Envoy processes that hold this install's venv shim (#62311):
 // the gateway Startup item and dashboard Scheduled Task are launched outside
 // this app (Task Scheduler / autostart), so the backend teardown above never
 // sees them — yet they map venv files and made every update hand-off abort
 // with "venv shim still locked". Selection is deliberately narrow
-// (isExternalVenvHolder: exe under venv\Scripts AND unambiguously a Hermes
+// (isExternalVenvHolder: exe under venv\Scripts AND unambiguously an Envoy
 // program) — unrelated processes that merely mention the install root or use
 // the venv interpreter for their own scripts are never killed; the shim-lock
 // probe still aborts the hand-off for those. Called before the release gate
@@ -3883,7 +3883,7 @@ function killExternalVenvHolders(updateRoot) {
 
     if (Number.isInteger(pid) && pid > 0) {
       rememberLog(
-        `[updates] stopping external Hermes venv holder (autostart gateway/dashboard) PID ${pid} before hand-off`
+        `[updates] stopping external Envoy venv holder (autostart gateway/dashboard) PID ${pid} before hand-off`
       )
 
       try {
@@ -3897,7 +3897,7 @@ function killExternalVenvHolders(updateRoot) {
 
 // Force-kill the entire process TREE rooted at each PID. Node's child.kill()
 // only signals the direct child, so on Windows a backend `hermes.exe` that
-// spawned its own grandchildren (a `hermes` REPL, a pty terminal session, the
+// spawned its own grandchildren (a `envoy` REPL, a pty terminal session, the
 // gateway) would survive and keep the venv shim locked. taskkill /T /F reaps
 // the whole tree synchronously. The command is not widened: one owned PID,
 // /T /F, nothing else. Failures propagate — close/stop must not discard them.
@@ -4232,7 +4232,7 @@ function reapOrphanedBackendsOnce() {
 
 // Stop app-owned Windows backends before replacing application outputs.
 // PM generations can retain live readers. Gateway draining/restart belongs to
-// `hermes update`; neither venv scans nor a second fleet stop belong here.
+// `envoy update`; neither venv scans nor a second fleet stop belong here.
 async function stopBackendsForUpdate(): Promise<void> {
   closeGatewayTicketBridges()
 
@@ -4271,14 +4271,14 @@ async function releaseBackendLock(updateRoot: string, tag: string): Promise<{ un
   // through the CLI, rather than targeting a gateway worker by PID.
   stopGatewayBeforeUpdate(venvHermesShimPath(updateRoot), HERMES_HOME)
 
-  // Reap Hermes-OWNED venv daemons the tree-kill above cannot reach: the
+  // Reap Envoy-OWNED venv daemons the tree-kill above cannot reach: the
   // memory plugin's hindsight daemon is spawned DETACHED (it outlives the
   // backend) yet runs off venv\Scripts\pythonw.exe, keeping venv files
   // mapped past the backend teardown (#75477/#75478). Narrowly scoped
   // (venv-holder-select) — external holders are never killed here.
   killHermesOwnedVenvDaemons(updateRoot)
 
-  // External autostart Hermes processes (gateway Startup item, dashboard
+  // External autostart Envoy processes (gateway Startup item, dashboard
   // Scheduled Task) also hold the venv shim and are invisible to the backend
   // teardown (#62311). Kill them before the gate AND re-scan inside each gate
   // pass, so a respawning holder loses the race instead of the update.
@@ -4341,8 +4341,8 @@ async function releaseBackendLock(updateRoot: string, tag: string): Promise<{ un
 //
 // The desktop is a pure consumer: it does NOT git pull / pip install / rebuild
 // itself (the old open-coded git dance lived here and drifted from
-// `hermes update`). Instead we spawn the staged Hermes-Setup binary with
-// --update and quit, so it can run `hermes update` (which refuses while we
+// `envoy update`). Instead we spawn the staged Envoy-Setup binary with
+// --update and quit, so it can run `envoy update` (which refuses while we
 // hold the venv shim) and rebuild the desktop with our exe already gone.
 //
 // Detection (checkUpdates / commit changelog / "N behind") stays in the UI;
@@ -4509,7 +4509,7 @@ function runningAppBundle() {
 
 // macOS/Linux update hand-off: spawn the repo-owned posix orchestrator
 // (scripts/desktop-update/posix.sh) detached and QUIT. The script waits us
-// out, runs `hermes update`, swaps/relaunches the app bundle, and writes
+// out, runs `envoy update`, swaps/relaunches the app bundle, and writes
 // .hermes-update-result.json for the relaunched Desktop to surface. It shows
 // its own tiny shim window (or nothing, headless) — this process only needs
 // to leave. Checkouts that predate the script get the manual card once.
@@ -4702,7 +4702,7 @@ function resolveRendererIndexWithMissing(): { index: string; missing: string[] }
     rememberLog(
       `[renderer] every renderer bundle is incomplete (${present.join(', ')}). ` +
         `The last update replaced the app while its files were locked. ` +
-        `Repair with: hermes desktop --force-build`
+        `Repair with: envoy desktop --force-build`
     )
 
     // present[0]'s own list, captured on the first loop iteration — never the
@@ -4716,7 +4716,7 @@ function resolveRendererIndexWithMissing(): { index: string; missing: string[] }
   rememberLog(
     `[renderer] index.html not found — the desktop app was packaged without a ` +
       `renderer bundle. Tried: ${candidates.join(', ')}. ` +
-      `Rebuild with: hermes desktop --force-build`
+      `Rebuild with: envoy desktop --force-build`
   )
 
   return { index: candidates[0], missing: [] }
@@ -4745,7 +4745,7 @@ function isPackagedInstallPath(dir) {
 
 function resolveHermesCwd() {
   // In a packaged build, `process.cwd()` resolves to the install root (e.g.
-  // `…/win-unpacked` on Windows or `/Applications/Hermes.app/Contents/...`
+  // `…/win-unpacked` on Windows or `/Applications/Envoy.app/Contents/...`
   // on macOS). Sessions spawned there leave files inside the app bundle
   // and bewilder users when "where did my files go?" is the install dir.
   // The user-configurable default project directory wins over everything,
@@ -4884,7 +4884,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
 
   // 2. Development source -- when running `npm run dev` from a checkout, the
   //    cloned repo at SOURCE_REPO_ROOT takes precedence over ACTIVE and any
-  //    installed `hermes` on PATH so local Python edits are actually exercised.
+  //    installed `envoy` on PATH so local Python edits are actually exercised.
   //    (In dev with no checkout, SOURCE_REPO_ROOT won't pass isHermesSourceRoot.)
   if (!IS_PACKAGED && isHermesSourceRoot(SOURCE_REPO_ROOT)) {
     const backend: SourceBackend | null = createSourcePythonBackend(
@@ -4912,12 +4912,12 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
     } else if (!isWindowsBinaryPathInWsl(hermesOverride, { isWsl: IS_WSL })) {
       hermesCommand = hermesOverride
     } else {
-      rememberLog(`Ignoring Windows Hermes override under WSL: ${hermesOverride}`)
+      rememberLog(`Ignoring Windows Envoy override under WSL: ${hermesOverride}`)
     }
 
     if (hermesCommand) {
       if (looksLikeDesktopAppBinary(hermesCommand)) {
-        rememberLog(`Ignoring desktop app executable on PATH while resolving Hermes CLI: ${hermesCommand}`)
+        rememberLog(`Ignoring desktop app executable on PATH while resolving Envoy CLI: ${hermesCommand}`)
         hermesCommand = null
       } else {
         const unwrapped: Awaited<ReturnType<typeof unwrapWindowsVenvHermesCommand>> =
@@ -4934,7 +4934,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
           (await verifyHermesCli(hermesCommand, { shell: shellForProbe }))
         ) {
           return {
-            label: `existing Hermes CLI at ${hermesCommand}`,
+            label: `existing Envoy CLI at ${hermesCommand}`,
             command: hermesCommand,
             args: backendArgs,
             bootstrap: false,
@@ -4946,7 +4946,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
         }
 
         rememberLog(
-          `Ignoring existing Hermes CLI at ${hermesCommand}: --version probe failed; falling through to bootstrap.`
+          `Ignoring existing Envoy CLI at ${hermesCommand}: --version probe failed; falling through to bootstrap.`
         )
       }
     }
@@ -4970,7 +4970,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
   if (activeBackend && !bootstrapRepairRequested) {
     if (!activeRuntime.hasValidMarker) {
       rememberLog(
-        `[bootstrap] Active Hermes runtime at ${ACTIVE_HERMES_ROOT} is usable but the bootstrap marker is missing or stale; skipping first-run bootstrap.`
+        `[bootstrap] Active Envoy runtime at ${ACTIVE_HERMES_ROOT} is usable but the bootstrap marker is missing or stale; skipping first-run bootstrap.`
       )
     }
 
@@ -4993,14 +4993,14 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
       )
 
       if (userBackend) {
-        rememberLog(`[boot] Using Hermes install at ${userInstall.root} (published launcher ${userInstall.launcher})`)
+        rememberLog(`[boot] Using Envoy install at ${userInstall.root} (published launcher ${userInstall.launcher})`)
 
         return userBackend
       }
 
-      rememberLog(`[bootstrap] Hermes install at ${userInstall.root} (from ${userInstall.launcher}) is not usable`)
+      rememberLog(`[bootstrap] Envoy install at ${userInstall.root} (from ${userInstall.launcher}) is not usable`)
     } else {
-      rememberLog(`[bootstrap] no usable Hermes install at ${ACTIVE_HERMES_ROOT} and no published user-bin launcher`)
+      rememberLog(`[bootstrap] no usable Envoy install at ${ACTIVE_HERMES_ROOT} and no published user-bin launcher`)
     }
   }
 
@@ -5016,7 +5016,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
   //    is a recoverable state the GUI can drive through.
   return {
     kind: 'bootstrap-needed',
-    label: 'Hermes Agent not installed yet; bootstrap required',
+    label: 'Envoy Agent not installed yet; bootstrap required',
     command: null,
     args: backendArgs,
     bootstrap: true,
@@ -5079,7 +5079,7 @@ async function ensureRuntime(
     rememberLog('[bootstrap] REFUSING installer on a bundled install; payload missing or damaged — reinstall the app')
 
     const bundledError: Error & { isBootstrapFailure?: boolean } = new Error(
-      'This app bundles its own Hermes runtime, but the runtime files are missing or damaged. Reinstall Hermes Desktop to restore it.'
+      'This app bundles its own Envoy runtime, but the runtime files are missing or damaged. Reinstall Envoy Desktop to restore it.'
     )
 
     bundledError.isBootstrapFailure = true
@@ -5088,11 +5088,11 @@ async function ensureRuntime(
   }
 
   if (backend.kind === 'bootstrap-needed') {
-    rememberLog('[bootstrap] no Hermes install found; starting first-launch bootstrap')
+    rememberLog('[bootstrap] no Envoy install found; starting first-launch bootstrap')
 
     if (await handOffWindowsBootstrapRecovery('bootstrap-needed')) {
       const handoffError: Error & { isBootstrapFailure?: boolean; bootstrapHandedOff?: boolean } = new Error(
-        'Hermes recovery was handed off to Hermes Setup. The desktop will restart when recovery completes.'
+        'Envoy recovery was handed off to Envoy Setup. The desktop will restart when recovery completes.'
       )
 
       handoffError.isBootstrapFailure = true
@@ -5156,7 +5156,7 @@ async function ensureRuntime(
     bootstrapAbortController = null
 
     if (bootstrapResult.cancelled) {
-      const cancelledError = new Error('Hermes install was cancelled.') as any
+      const cancelledError = new Error('Envoy install was cancelled.') as any
       cancelledError.isBootstrapFailure = true
       cancelledError.bootstrapCancelled = true
       bootstrapFailure = cancelledError
@@ -5236,7 +5236,7 @@ function fetchJson(url, token, options: any = {}) {
         const timeoutMs = resolveTimeoutMs(options.timeoutMs, DEFAULT_FETCH_TIMEOUT_MS)
 
         if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-          reject(new Error(`Unsupported Hermes backend URL protocol: ${parsed.protocol}`))
+          reject(new Error(`Unsupported Envoy backend URL protocol: ${parsed.protocol}`))
 
           return
         }
@@ -5312,7 +5312,7 @@ function fetchJson(url, token, options: any = {}) {
 
         req.on('error', reject)
         req.setTimeout(timeoutMs, () => {
-          req.destroy(new Error(`Timed out connecting to Hermes backend after ${timeoutMs}ms`))
+          req.destroy(new Error(`Timed out connecting to Envoy backend after ${timeoutMs}ms`))
         })
 
         // From here the request goes on the wire: a later transport error can no
@@ -5356,7 +5356,7 @@ function fetchPublicJson(url, options: any = {}) {
         const timeoutMs = resolveTimeoutMs(options.timeoutMs, DEFAULT_FETCH_TIMEOUT_MS)
 
         if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-          reject(new Error(`Unsupported Hermes backend URL protocol: ${parsed.protocol}`))
+          reject(new Error(`Unsupported Envoy backend URL protocol: ${parsed.protocol}`))
 
           return
         }
@@ -5417,7 +5417,7 @@ function fetchPublicJson(url, options: any = {}) {
 
         req.on('error', reject)
         req.setTimeout(timeoutMs, () => {
-          req.destroy(new Error(`Timed out connecting to Hermes backend after ${timeoutMs}ms`))
+          req.destroy(new Error(`Timed out connecting to Envoy backend after ${timeoutMs}ms`))
         })
 
         // Past this point the request is on the wire — see fetchJson.
@@ -5986,7 +5986,7 @@ async function buildReadinessHealthProbe(baseUrl, authMode, token) {
   return { probeHealth: fetchPublicJson, probeIsCredentialed: false }
 }
 
-// Boot-time readiness for a remote connection object. For a Hermes Cloud agent
+// Boot-time readiness for a remote connection object. For an Envoy Cloud agent
 // whose own session cookie has expired, `waitForHermes` ends in the terminal
 // reauth error even though the portal session that can silently re-mint that
 // cookie is still live: the per-agent cascade (`cloudAgentSilentSignIn`) was
@@ -6179,7 +6179,7 @@ function sendOpenFolderRequested() {
 
 // Tell the renderer the machine just woke. Sleep silently drops the
 // renderer's WebSocket to the local backend; the renderer reconnects on this
-// signal so the chat composer doesn't stay stuck on "Starting Hermes...".
+// signal so the chat composer doesn't stay stuck on "Starting Envoy...".
 function sendPowerResume() {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return
@@ -6866,7 +6866,7 @@ function safeFrameOrigin(frame: { origin?: string } | null | undefined): string 
 // ---------------------------------------------------------------------------
 // OAuth remote-gateway auth.
 //
-// Hosted Hermes gateways gate the dashboard behind an OAuth provider (e.g.
+// Hosted Envoy gateways gate the dashboard behind an OAuth provider (e.g.
 // Nous Research) instead of a static session token. The auth model is
 // fundamentally different from the token path:
 //
@@ -6958,7 +6958,7 @@ function getOauthSessionForUrl(url, { connectionId = '', pendingAuthMode = '', p
 // hydrating from disk and return an empty array — even though the user is
 // signed in. That false-negative used to make hasLiveOauthSession() report
 // "not signed in", which on the initial boot path (startHermes → the renderer's
-// single-shot boot() with no retry) surfaced as the "Hermes couldn't start"
+// single-shot boot() with no retry) surfaced as the "Envoy couldn't start"
 // OAuth overlay that vanishes the instant the user clicks Retry.
 //
 // We force the store to hydrate once, up front: flushStorageData() then a
@@ -7087,7 +7087,7 @@ async function hasLiveOauthSession(baseUrl) {
 
   // Cold-start false-negative guard. A `persist:` partition's cookie store
   // loads lazily, so the FIRST read on a fresh boot can come back empty even
-  // for a signed-in user — the exact race that produced the transient "Hermes
+  // for a signed-in user — the exact race that produced the transient "Envoy
   // couldn't start / not signed in" overlay that Retry always cleared. Before
   // trusting a negative, force the store to hydrate and re-read a couple of
   // times with a short backoff. A genuinely signed-out user still resolves
@@ -7235,7 +7235,7 @@ function fetchJsonViaOauthSession(url, options: any = {}) {
       }
 
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        reject(new Error(`Unsupported Hermes backend URL protocol: ${parsed.protocol}`))
+        reject(new Error(`Unsupported Envoy backend URL protocol: ${parsed.protocol}`))
 
         return
       }
@@ -7278,7 +7278,7 @@ function fetchJsonViaOauthSession(url, options: any = {}) {
           // already finished
         }
 
-        reject(new Error(`Timed out connecting to Hermes backend after ${timeoutMs}ms`))
+        reject(new Error(`Timed out connecting to Envoy backend after ${timeoutMs}ms`))
       }, timeoutMs)
 
       request.on('response', (res: Electron.IncomingMessage): void => {
@@ -7636,7 +7636,7 @@ async function freshGatewayWsUrl(profile, webContentsId) {
   return connection.wsUrl
 }
 
-// --- Hermes Cloud discovery + silent per-agent sign-in (cloud-auto-discovery
+// --- Envoy Cloud discovery + silent per-agent sign-in (cloud-auto-discovery
 // Phase 3) ---------------------------------------------------------------
 //
 // The "cloud" connection mode lets a user sign in to the Nous portal ONCE in
@@ -7660,7 +7660,7 @@ const { hasLivePortalSession, hasPortalAccessToken, renewPortalAccessSilently, o
     rememberLog
   })
 
-// Discover the hosted (Hermes Cloud) agents the signed-in user can see. Calls
+// Discover the hosted (Envoy Cloud) agents the signed-in user can see. Calls
 // the NAS trimmed-summary endpoint over the partition-bound net, so the portal
 // session cookie is attached automatically (no bearer needed — NAS accepts the
 // cookie). Returns { agents } on success, or { needsOrgSelection: true, orgs }
@@ -7673,7 +7673,7 @@ async function discoverCloudAgents(org?: string) {
 
   if (!(await hasLivePortalSession())) {
     const err = new Error(
-      'You are not signed in to Hermes Cloud. Open Settings → Gateway, choose Hermes Cloud, and sign in.'
+      'You are not signed in to Envoy Cloud. Open Settings → Gateway, choose Envoy Cloud, and sign in.'
     ) as any
 
     err.needsCloudLogin = true
@@ -7724,7 +7724,7 @@ async function discoverCloudAgents(org?: string) {
       // recover it) — surface it as a re-login, not a generic failure.
       if (error && error.statusCode === 401) {
         const err = new Error(
-          'Your Hermes Cloud session has expired. Open Settings → Gateway and sign in again.'
+          'Your Envoy Cloud session has expired. Open Settings → Gateway and sign in again.'
         ) as any
 
         err.needsCloudLogin = true
@@ -7819,7 +7819,7 @@ async function cloudAgentSilentSignIn(dashboardUrl, { background = false } = {})
   // interactive prompt rather than a silent cascade. Discovery already gates on
   // this, but a selection can arrive after the session lapsed.
   if (!(await hasLivePortalSession())) {
-    const err = new Error('Your Hermes Cloud session has expired. Sign in to Hermes Cloud again.') as any
+    const err = new Error('Your Envoy Cloud session has expired. Sign in to Envoy Cloud again.') as any
     err.needsCloudLogin = true
     throw err
   }
@@ -8363,7 +8363,7 @@ function sanitizeConnectionProfiles(raw: Record<string, any>) {
       cleaned.headers = headers
     }
 
-    // Preserve the Hermes Cloud org tag on cloud-mode entries so Settings can
+    // Preserve the Envoy Cloud org tag on cloud-mode entries so Settings can
     // reopen into the same org for a per-profile cloud connection.
     if (cleaned.mode === 'cloud') {
       const cloudName = String(entry.name || '').trim()
@@ -8787,7 +8787,7 @@ function isHermesProcess(pid) {
 
 // Seed active-profile.json from the best available signal when the file does
 // not yet exist.  Runs exactly once (no-op once the file exists).  Priority:
-//   1. Legacy ~/.hermes/active_profile (explicit CLI choice via hermes profile use)
+//   1. Legacy ~/.hermes/active_profile (explicit CLI choice via envoy profile use)
 //   2. Running gateway (gateway.pid with verified liveness + hermes identity)
 //   3. state.db heuristics (hybrid recency×size score picks the primary workspace)
 // The stored JSON includes _migrated:true so the renderer can optionally surface
@@ -8882,7 +8882,7 @@ async function sanitizeDesktopConnectionConfig(config = readDesktopConnectionCon
     remoteAuthMode: authMode,
     remoteOauthConnected,
     remoteUrl,
-    // The persisted Hermes Cloud org (slug/id) for a cloud connection, or '' for
+    // The persisted Envoy Cloud org (slug/id) for a cloud connection, or '' for
     // remote/local. Lets Settings → Gateway reopen into the same org.
     cloudOrg: mode === 'cloud' ? String(block.org || '') : '',
     remoteTokenPreview: tokenPreview(remoteToken),
@@ -8908,7 +8908,7 @@ async function sanitizeDesktopConnectionConfig(config = readDesktopConnectionCon
 // Build + validate a `{ url, authMode, token }` remote block. OAuth gateways
 // authenticate via the login-window session cookie (verified at connect time in
 // resolveRemoteBackend), so only token-auth remotes require a saved token.
-// `org` (optional) is the Hermes Cloud org slug/id the instance was discovered
+// `org` (optional) is the Envoy Cloud org slug/id the instance was discovered
 // under — persisted so Settings can reopen into the same org; omitted from the
 // block when empty so plain remote connections stay unchanged.
 function buildRemoteBlock(
@@ -8977,7 +8977,7 @@ function coerceDesktopConnectionConfig(input: any = {}, existing = readDesktopCo
   // The block being edited: a per-profile entry or the global remote block.
   const rawExistingBlock = key ? existing.profiles?.[key] || {} : existing.remote || {}
   // Leaving a CLOUD connection unselects it: a cloud block's url/org/token
-  // describe a discovered Hermes Cloud instance, NOT a user-owned remote gateway,
+  // describe a discovered Envoy Cloud instance, NOT a user-owned remote gateway,
   // so switching to local or remote must NOT inherit them (otherwise the stale
   // cloud URL lingers and re-selecting Cloud looks "already connected"). When the
   // saved block was cloud and the new mode is not cloud, start from an empty
@@ -9157,7 +9157,7 @@ async function buildRemoteConnection(
 
   if (!token) {
     throw new Error(
-      'Remote Hermes gateway is selected, but no session token is saved. ' +
+      'Remote Envoy gateway is selected, but no session token is saved. ' +
         'Open Settings → Gateway and save a token, or switch back to Local.'
     )
   }
@@ -10138,7 +10138,7 @@ async function requestJsonForProfile(profile: string, path: string, method: stri
 
 async function probeRemoteAuthMode(rawUrl) {
   // Determine how a remote gateway expects callers to authenticate, WITHOUT
-  // sending any credentials. ``/api/status`` is public on every Hermes
+  // sending any credentials. ``/api/status`` is public on every Envoy
   // gateway (it backs the portal liveness probe) and reports:
   //   auth_required: true  → OAuth gate is engaged (cookie + ws-ticket auth)
   //   auth_required: false → loopback/--insecure: legacy session-token auth
@@ -10253,7 +10253,7 @@ async function testDesktopConnectionConfig(input: any = {}) {
             return {
               reachable: false,
               sshError: 'update-required',
-              error: 'Update Hermes on the remote host before connecting with Desktop SSH.'
+              error: 'Update Envoy on the remote host before connecting with Desktop SSH.'
             }
           }
 
@@ -10330,7 +10330,7 @@ async function testDesktopConnectionConfig(input: any = {}) {
   // connects — a separate transport with separate server-side guards (Host/
   // Origin, ws-ticket/token auth). Validating only the HTTP side produced a
   // false-positive "reachable" while the real boot still failed with "Could not
-  // connect to Hermes gateway". Mirror the renderer's connect here so the test
+  // connect to Envoy gateway". Mirror the renderer's connect here so the test
   // reflects the full path the app actually uses.
   const wsUrl = await resolveTestWsUrl(baseUrl, authMode, token, {
     mintTicket: url => mintGatewayWsTicket(url, testHeaders)
@@ -11429,7 +11429,7 @@ function assertPoolEntryStillOwned(poolKey: string, entry: any) {
 
 // Resolve the connection descriptor for a named profile that is not the
 // primary: attach to (or start) its canonical local gateway via
-// `hermes gateway ensure`, or verify and describe its remote. Mirrors the local
+// `envoy gateway ensure`, or verify and describe its remote. Mirrors the local
 // portion of startHermes() without the boot-progress UI, bootstrap, or
 // first-run handling (those belong to the primary only). `opts.forceLocal`
 // skips remote resolution entirely (the registry 'local' entry means THIS
@@ -11509,7 +11509,7 @@ async function dialPoolBackend(profile, entry, opts: { forceLocal?: boolean; poo
   return { ...connection, profile, logs: hermesLog.slice(-80), ...getWindowState() }
 }
 
-// `hermes gateway restart` drains in-flight turns before the owner exits; the CLI client is
+// `envoy gateway restart` drains in-flight turns before the owner exits; the CLI client is
 // bounded so a wedged drain cannot hang Restart. The gateway's own drain is unaffected by the kill.
 const GATEWAY_RESTART_CLIENT_TIMEOUT_MS = 120_000
 
@@ -11526,19 +11526,19 @@ async function restartLocalGatewayOwner(ownerProfile: string): Promise<void> {
       resolveHermesCwd(),
       HERMES_HOME,
       profileBackendParentEnv({ hermesHome: HERMES_HOME, profile: ownerProfile }),
-      { timeoutMs: GATEWAY_RESTART_CLIENT_TIMEOUT_MS, label: 'hermes gateway restart' }
+      { timeoutMs: GATEWAY_RESTART_CLIENT_TIMEOUT_MS, label: 'envoy gateway restart' }
     )
   }, ownerProfile)
 
   const reason = `${result.stdout}\n${result.stderr}`.trim().split(/\r?\n/).filter(Boolean).pop()
-  rememberLog(`[gateway] hermes --profile ${ownerProfile} gateway restart exited ${result.code}${reason ? `: ${reason}` : ''}`)
+  rememberLog(`[gateway] envoy --profile ${ownerProfile} gateway restart exited ${result.code}${reason ? `: ${reason}` : ''}`)
 }
 
-// A ready gateway whose boot commit differs from this Hermes (it outlived `hermes update`) is
+// A ready gateway whose boot commit differs from this Envoy (it outlived `envoy update`) is
 // restarted once before attaching instead of being re-attached on every dial.
 const restartStaleLocalGateway = createStaleGatewayRestarter(restartLocalGatewayOwner, rememberLog)
 
-// Models-page "Restart Hermes": restart the local gateway behind `profile`'s cached descriptor.
+// Models-page "Restart Envoy": restart the local gateway behind `profile`'s cached descriptor.
 // A remote/SSH descriptor has no gatewayEndpoint, so nothing local is touched for it.
 async function restartAttachedLocalGateway(profile: string): Promise<void> {
   const pending = profile === primaryProfileKey()
@@ -11554,7 +11554,7 @@ async function restartAttachedLocalGateway(profile: string): Promise<void> {
 }
 
 // Forget a cached descriptor. Nothing is killed: the gateway behind it owns its
-// own lifetime (`hermes gateway ensure` attach semantics), so the next
+// own lifetime (`envoy gateway ensure` attach semantics), so the next
 // ensure*() for this key simply re-dials. Every retire path — dispatch probe
 // failure, resume revalidation, registry removal, profile delete/rename, quit —
 // funnels through here so the verb stays in one place.
@@ -11591,7 +11591,7 @@ async function stopAllPoolBackends() {
  * root — it is machine-scoped and shared with the surviving gateway and
  * other installs; image locks there are the updater's pause/resume job.
  * Runs after the graceful backend teardown, skips the pids it owned and
- * every live Hermes runtime process, so it is only the net for what
+ * every live Envoy runtime process, so it is only the net for what
  * detached. Best effort throughout; see package-process-reap.ts.
  */
 function reapInstallRootedStragglers(excludePids: number[]): void {
@@ -11624,7 +11624,7 @@ function reapInstallRootedStragglers(excludePids: number[]): void {
 }
 
 // Closing Desktop never stops the detached gateway: only processes this app
-// still owns are torn down, and the straggler reap protects every live Hermes
+// still owns are torn down, and the straggler reap protects every live Envoy
 // runtime tree (package-process-reap.ts).
 const backendShutdown = createBackendShutdownCoordinator(async (): Promise<void> => {
   const ownedChildren = IS_WINDOWS ? collectOwnedBackendChildren() : []
@@ -11758,7 +11758,7 @@ async function startHermes(requestedProfile?: string) {
   // otherwise SIGTERMs the running instance's live backend (#87295).
   if (!isPrimaryInstance) {
     rememberLog('[boot] non-primary instance: skipping backend machinery')
-    throw new Error('Hermes Desktop is already running in another window.')
+    throw new Error('Envoy Desktop is already running in another window.')
   }
 
   await reapOrphanedBackendsOnce()
@@ -11788,7 +11788,7 @@ async function startHermes(requestedProfile?: string) {
   // E2E: simulate a boot failure without breaking the real backend. The boot
   // progresses a few steps, then fails with the given error message.
   if (BOOT_FAKE_ERROR) {
-    await advanceBootProgress('backend.resolve', 'Resolving Hermes backend', 8)
+    await advanceBootProgress('backend.resolve', 'Resolving Envoy backend', 8)
     const error = new Error(BOOT_FAKE_ERROR) as any
     error.isBootstrapFailure = true
     bootstrapFailure = error
@@ -11841,7 +11841,7 @@ async function startHermes(requestedProfile?: string) {
       // remotes and Apply invalidated this attempt), bail before probing.
       backendConnectionState.assertCurrentAttempt(connectionAttempt)
 
-      await advanceBootProgress('backend.remote', `Connecting to remote Hermes backend at ${remote.baseUrl}`, 24)
+      await advanceBootProgress('backend.remote', `Connecting to remote Envoy backend at ${remote.baseUrl}`, 24)
       await waitForRemoteHermes(remote)
 
       // Second async boundary: the health probe itself can outlive the
@@ -11850,7 +11850,7 @@ async function startHermes(requestedProfile?: string) {
 
       updateBootProgress({
         phase: 'backend.ready',
-        message: 'Remote Hermes backend is ready',
+        message: 'Remote Envoy backend is ready',
         progress: 94,
         running: true,
         error: null
@@ -11859,7 +11859,7 @@ async function startHermes(requestedProfile?: string) {
       return createPrimaryRemoteConnection(remote, hermesLog.slice(-80), getWindowState())
     }
 
-    await advanceBootProgress('backend.resolve', 'Resolving Hermes backend', 8)
+    await advanceBootProgress('backend.resolve', 'Resolving Envoy backend', 8)
     // Resolve for the desktop's primary profile so a per-profile remote
     // override on the active profile is honored (falls back to env / global).
 
@@ -11882,9 +11882,9 @@ async function startHermes(requestedProfile?: string) {
 
     // Pin the desktop's chosen profile via the global --profile flag. This is
     // deterministic (it wins over the sticky ~/.hermes/active_profile file) and
-    // resolves HERMES_HOME the same way `hermes -p <name>` does on the CLI. A
+    // resolves HERMES_HOME the same way `envoy -p <name>` does on the CLI. A
     // launch override is persisted into active-profile.json before startHermes,
-    // so Hermes.exe --profile <name> and hermes -p <name> desktop both land
+    // so Envoy.exe --profile <name> and envoy -p <name> desktop both land
     // here. `activeProfile` is the SAME decision that named routing above —
     // never re-read here (#108417). An unset preference keeps the legacy
     // launch so existing installs are unaffected.
@@ -11899,7 +11899,7 @@ async function startHermes(requestedProfile?: string) {
       ensureLocalRuntime: backend =>
         ensureRuntime(backend, () => backendConnectionState.assertCurrentAttempt(connectionAttempt)),
       prepareLocalBackend: async () => {
-        await advanceBootProgress('backend.runtime', 'Resolving Hermes runtime', 28)
+        await advanceBootProgress('backend.runtime', 'Resolving Envoy runtime', 28)
 
         return resolveHermesBackend(backendArgs)
       },
@@ -11938,7 +11938,7 @@ async function startHermes(requestedProfile?: string) {
       return setup.connection
     }
 
-    // No `attachHostBackend` is wired: `hermes gateway ensure` below IS the
+    // No `attachHostBackend` is wired: `envoy gateway ensure` below IS the
     // attach-or-start step for the canonical local gateway.
     if (setup.kind === 'attached') {
       throw new Error('Unexpected attached backend outcome without a host attach step.')
@@ -11957,8 +11957,8 @@ async function startHermes(requestedProfile?: string) {
     backendConnectionState.assertCurrentAttempt(connectionAttempt)
 
     backendStartFailure = null
-    rememberLog('[backend] Hermes gateway is ready')
-    updateBootProgress({ phase: 'backend.ready', message: 'Hermes gateway is ready', progress: 94, running: true, error: null })
+    rememberLog('[backend] Envoy gateway is ready')
+    updateBootProgress({ phase: 'backend.ready', message: 'Envoy gateway is ready', progress: 94, running: true, error: null })
     bootstrapRepairAttempt = 0
 
     // The primary descriptor names its own profile: a profile-less descriptor
@@ -12274,7 +12274,7 @@ function focusWindow(win) {
   }
 
   // #83998: show() and focus() both seize the Windows OS foreground,
-  // dismissing other apps' native save/confirm dialogs while Hermes streams
+  // dismissing other apps' native save/confirm dialogs while Envoy streams
   // in the background. Reveal without activation, and only take the keyboard
   // when the window doesn't already have focus — a redundant focus() still
   // pumps SetForegroundWindow.
@@ -12300,7 +12300,7 @@ function spawnSecondaryWindow({
     height: SESSION_WINDOW_MIN_HEIGHT,
     minWidth: SESSION_WINDOW_MIN_WIDTH,
     minHeight: SESSION_WINDOW_MIN_HEIGHT,
-    title: 'Hermes',
+    title: 'Envoy',
     titleBarStyle: 'hidden',
     titleBarOverlay: getTitleBarOverlayOptions(),
     trafficLightPosition: IS_MAC ? WINDOW_BUTTON_POSITION : undefined,
@@ -12405,7 +12405,7 @@ function spawnBrowserWindow(tabId) {
     height: BROWSER_WINDOW_HEIGHT,
     minWidth: BROWSER_WINDOW_MIN_WIDTH,
     minHeight: BROWSER_WINDOW_MIN_HEIGHT,
-    title: 'Hermes',
+    title: 'Envoy',
     titleBarStyle: 'hidden',
     titleBarOverlay: getTitleBarOverlayOptions(),
     trafficLightPosition: IS_MAC ? WINDOW_BUTTON_POSITION : undefined,
@@ -12517,7 +12517,7 @@ function createInstanceWindow(
     ...nextInstanceBounds(source),
     minWidth: WINDOW_MIN_WIDTH,
     minHeight: WINDOW_MIN_HEIGHT,
-    title: 'Hermes',
+    title: 'Envoy',
     titleBarStyle: 'hidden',
     titleBarOverlay: getTitleBarOverlayOptions(),
     trafficLightPosition: IS_MAC ? WINDOW_BUTTON_POSITION : undefined,
@@ -12598,7 +12598,7 @@ registerMachineProfile()
 
 // The pet overlay: a single transparent, frameless, always-on-top window that
 // hosts ONLY the floating mascot. Shift-clicking the in-window pet "pops it out"
-// here so it can leave the app's bounds and stay visible while Hermes is
+// here so it can leave the app's bounds and stay visible while Envoy is
 // minimized (Codex-style task-completion glance). It carries no gateway
 // connection of its own — the main renderer is the single source of truth and
 // pushes pet state over IPC (hermes:pet-overlay:state); the overlay just renders
@@ -12646,7 +12646,7 @@ function spawnPetOverlayWindow(bounds) {
     // taskbar/alt-tab entry. On macOS, cmd-tab is app-level and this can make
     // the whole app look like it vanished when the only newly-created visible
     // window is a frameless overlay. Use NSPanel + Mission Control hiding below
-    // instead, leaving the main Hermes app as the Dock/cmd-tab anchor.
+    // instead, leaving the main Envoy app as the Dock/cmd-tab anchor.
     skipTaskbar: !IS_MAC,
     hasShadow: false,
     alwaysOnTop: true,
@@ -12656,7 +12656,7 @@ function spawnPetOverlayWindow(bounds) {
     hiddenInMissionControl: IS_MAC,
     // Non-activating: the overlay must never become the app's key/main window,
     // or it (a frameless, taskbar-skipping panel) becomes the app's switcher
-    // anchor and the Hermes icon drops out of cmd/alt-tab — especially when the
+    // anchor and the Envoy icon drops out of cmd/alt-tab — especially when the
     // main window is minimized. We flip this on only while the composer needs
     // the keyboard (see hermes:pet-overlay:set-focusable).
     focusable: false,
@@ -12699,7 +12699,7 @@ function spawnPetOverlayWindow(bounds) {
   try {
     // Electron docs: macOS may transform process type on each
     // setVisibleOnAllWorkspaces() call unless skipTransformProcessType=true,
-    // which briefly hides the Dock/cmd-tab presence. Keep Hermes in the normal
+    // which briefly hides the Dock/cmd-tab presence. Keep Envoy in the normal
     // ForegroundApplication class so shift-clicking the pet never drops the app
     // out of app switchers.
     win.setVisibleOnAllWorkspaces(
@@ -12826,7 +12826,7 @@ function rehomePetOverlay() {
 // ── HUD mode ────────────────────────────────────────────────────────────────
 //
 // The chrome-free floating chat: a transparent, frameless, always-on-top
-// window showing only the composer and its scrollback, so Hermes can be driven
+// window showing only the composer and its scrollback, so Envoy can be driven
 // while the user works in another app.
 //
 // Unlike the pet overlay / quick entry, this is a FULL app renderer with its
@@ -12844,7 +12844,7 @@ const hudWindows = new WeakSet<BrowserWindow>()
 // live main window exists at HUD-open time, visible or not: the HUD hides the
 // app window itself, so a main window minimized or behind another app when
 // the HUD opened still needs a surface back — arming only on `isVisible()`
-// left the user with NO Hermes window after the second toggle (#88513).
+// left the user with NO Envoy window after the second toggle (#88513).
 let hudRestoreMainWindow = false
 
 // The session the HUD is currently on, reported by its renderer whenever the
@@ -13602,7 +13602,7 @@ function createWindow() {
     ),
     minWidth: WINDOW_MIN_WIDTH,
     minHeight: WINDOW_MIN_HEIGHT,
-    title: 'Hermes',
+    title: 'Envoy',
     // Frameless title bar on every platform so the renderer can paint the
     // "hide sidebar" button (and other left-side titlebar tools) flush with
     // the top edge — matching the macOS layout where the traffic lights sit
@@ -13891,7 +13891,7 @@ function createWindow() {
             errorCode: details?.exitCode,
             errorDescription:
               'The desktop renderer crashed repeatedly (Windows STATUS_STACK_BUFFER_OVERRUN / 0xC0000409). GPU fallback could not recover the window.',
-            repairHint: 'hermes desktop --force-build',
+            repairHint: 'envoy desktop --force-build',
             reloadUrl: DEV_SERVER || pathToFileURL(resolveRendererIndex()).toString()
           })
 
@@ -13948,7 +13948,7 @@ function createWindow() {
           errorCode: details?.errorCode,
           url: details?.url,
           errorDescription: 'The desktop renderer failed to load repeatedly after the update.',
-          repairHint: 'hermes desktop --force-build',
+          repairHint: 'envoy desktop --force-build',
           reloadUrl: DEV_SERVER || pathToFileURL(resolveRendererIndex()).toString()
         })
       },
@@ -13967,7 +13967,7 @@ function createWindow() {
         const exit = details?.exitCode === undefined ? '' : `, exit code ${String(details.exitCode)}`
         rememberLog(`[renderer:main] renderer terminated while live (reason=${reason}${exit}); surfacing recovery page`)
         void loadRendererLoadErrorPage(mainWindow, {
-          title: 'Hermes desktop UI was terminated',
+          title: 'Envoy desktop UI was terminated',
           errorDescription:
             `The desktop UI process was terminated unexpectedly (reason: ${reason}${exit}). ` +
             'Your sessions and the background gateway are unaffected — reload to continue.',
@@ -14009,7 +14009,7 @@ function createWindow() {
       errorCode: 'ERR_FILE_NOT_FOUND',
       errorDescription: `The desktop renderer bundle is incomplete after the last update (${tornAssets.length} missing file(s)).`,
       missingAssets: tornAssets,
-      repairHint: 'hermes desktop --force-build',
+      repairHint: 'envoy desktop --force-build',
       reloadUrl: pathToFileURL(rendererIndex).toString()
     })
   } else {
@@ -14129,7 +14129,7 @@ ipcMain.on('hermes:connection:active-route', (event, route) => recordWindowConne
 // so the 'exit'/'error' handlers that would clear a dead connection promise never
 // fire — once the remote becomes unreachable across a sleep/wake the renderer
 // re-dials the same dead descriptor forever and the composer stays stuck on
-// "Starting Hermes…". Before the renderer's backoff loop reconnects, it asks us
+// "Starting Envoy…". Before the renderer's backoff loop reconnects, it asks us
 // to confirm the cached PRIMARY backend is still reachable; if a remote one is
 // not, we drop the cache so the next getConnection() rebuilds it. Local backends
 // self-heal via their child 'exit' handler, so we never touch them here.
@@ -14277,13 +14277,13 @@ ipcMain.on('hermes:window:relay', (event, payload) => {
 })
 
 // Hand a session to the user's OWN terminal emulator, running the TUI against
-// it (`hermes --tui --resume <id>`). Not the in-app terminal pane: the point is
+// it (`envoy --tui --resume <id>`). Not the in-app terminal pane: the point is
 // to continue the chat in the terminal they already live in.
 //
 // The desktop's runtime is usually a venv Python invoked as
 // `python -m hermes_cli.main`, so we resolve the SAME backend the app itself
 // launches and carry its argv + PYTHONPATH into a launcher script rather than
-// hoping a `hermes` exists on the user's interactive PATH. Resolution only —
+// hoping a `envoy` exists on the user's interactive PATH. Resolution only —
 // never ensureRuntime(), which would kick off a first-run install from a menu
 // click; an unresolved runtime is reported instead.
 ipcMain.handle('hermes:window:openInTerminal', async (_event, sessionId, opts) => {
@@ -14296,7 +14296,7 @@ ipcMain.handle('hermes:window:openInTerminal', async (_event, sessionId, opts) =
     const backend = await resolveHermesBackend(tuiResumeArgs(sessionId.trim(), profile || undefined))
 
     if (!backend.command) {
-      return { ok: false, error: 'Hermes is not installed yet' }
+      return { ok: false, error: 'Envoy is not installed yet' }
     }
 
     const { cwd } = sanitizeWorkspaceCwd(opts?.cwd)
@@ -15149,7 +15149,7 @@ async function requestManagedSshUpdate(rawId) {
 
 ipcMain.handle('hermes:connections:update-managed', async (_event, rawId) => requestManagedSshUpdate(rawId))
 
-// Fan out `hermes update` to every eligible registered connection at once.
+// Fan out `envoy update` to every eligible registered connection at once.
 // Cloud entries are excluded (platform-managed); each dispatch reports
 // independently so one dead LAN box can't wedge the batch. Local reuses the
 // app's own update pipeline; Desktop-managed SSH uses the transactional
@@ -15453,7 +15453,7 @@ ipcMain.handle('hermes:connection-config:oauth-logout', async (_event, rawUrl) =
   return { ok: true, connected }
 })
 
-// --- Hermes Cloud (cloud-auto-discovery Phase 3) ---
+// --- Envoy Cloud (cloud-auto-discovery Phase 3) ---
 // One portal login in the OAuth partition powers both discovery and the silent
 // per-agent cascade. See the discovery/cascade helpers above.
 ipcMain.handle('hermes:cloud:status', async () => ({
@@ -16699,8 +16699,8 @@ ipcMain.on('hermes:translucency:support', event => {
 
 // Feature-flag facts the renderer needs before first paint (same sendSync
 // pattern as translucency). Resolved in feature-flags.ts from the launch
-// argv and the artifact's channel: `--local` (from `hermes desktop --local`
-// or directly on Hermes.exe, a shortcut edit) gates the local-models GUI on
+// argv and the artifact's channel: `--local` (from `envoy desktop --local`
+// or directly on Envoy.exe, a shortcut edit) gates the local-models GUI on
 // stable builds, and canary builds get the same surfaces by default. Launch
 // flags survive self-relaunches because collectRelaunchArgs only strips
 // internal flags.
@@ -16861,7 +16861,7 @@ ipcMain.handle('hermes:quick-entry:submit', (event, payload) => {
   }
 
   if (!mainWindow || mainWindow.isDestroyed()) {
-    return { code: 'no-primary', message: 'The primary Hermes window is unavailable.', ok: false, retryable: true }
+    return { code: 'no-primary', message: 'The primary Envoy window is unavailable.', ok: false, retryable: true }
   }
 
   const target =
@@ -17156,7 +17156,7 @@ function resolveHermesVersion(scope: { connectionId?: string; profile?: string }
   return resolveGatewayVersion(path => handleHermesApiRequest({ ...scope, path, timeoutMs: 5000 }))
 }
 
-// Renderer-bundle skew: `hermes update` moves the SOURCE TREE, but the UI
+// Renderer-bundle skew: `envoy update` moves the SOURCE TREE, but the UI
 // (including bundled plugins like Bot Mode) is compiled into this binary at
 // build time. A terminal-side update — or an in-app update whose bundle-swap
 // leg failed — leaves the new runtime running under an old renderer, so About
@@ -17177,8 +17177,8 @@ async function detectRendererSkew() {
   return checkRendererSkew(resolveUpdateRoot())
 }
 
-// Re-resolve the focused window's live Hermes version just before showing the native About
-// panel, so an in-place `hermes update` shows without a restart. macOS only (no-op elsewhere).
+// Re-resolve the focused window's live Envoy version just before showing the native About
+// panel, so an in-place `envoy update` shows without a restart. macOS only (no-op elsewhere).
 function showAboutPanelFresh(): void {
   const scope = windowConnectionRoutes.versionScopeFor(BrowserWindow.getFocusedWindow() ?? mainWindow)
   void Promise.all([detectRendererSkew(), resolveHermesVersion(scope)]).then(([skew, version]) => {
@@ -17216,7 +17216,7 @@ ipcMain.handle('hermes:version', async (_event, scope?: { connectionId?: string;
     bundleCommitsBehind: skew.desktopCommitsBehind,
     // The install id: sha16 of the canonical install-root path — the key of
     // this install's per-install channel record and its installs/<sha16>/
-    // state folder. Same value `hermes update --install-id` prints; About
+    // state folder. Same value `envoy update --install-id` prints; About
     // renders it as `sha16 (path)`.
     installId: installIdForRoot(resolveUpdateRoot(), canonicalizeInstallPath),
     // The artifact kind of THIS app plus whether the runtime checkout came
@@ -17238,7 +17238,7 @@ ipcMain.handle('hermes:version', async (_event, scope?: { connectionId?: string;
   }
 })
 
-// The About page's "Restart Hermes" button (shown when bundleSwapPending):
+// The About page's "Restart Envoy" button (shown when bundleSwapPending):
 // load the already-swapped bundle without asking the user to quit manually.
 // The relaunch re-executes by path, so the fresh process loads the bundle now there.
 ipcMain.handle('hermes:app:relaunch', async () => {
@@ -17248,7 +17248,7 @@ ipcMain.handle('hermes:app:relaunch', async () => {
 })
 
 /** The latest pm/venv/plugin-operation receipt — the machine-readable
- *  surface every medium reads (CLI: `hermes pm status`). Returned as one
+ *  surface every medium reads (CLI: `envoy pm status`). Returned as one
  *  parsed JSON object: { kind, outcome, venv_rebuild, plugin_bisect,
  *  plugin_checks, ... } or null when no operation has run yet. The file
  *  lives at <HERMES_HOME>/logs/update_receipts/latest.json — written by
@@ -17285,7 +17285,7 @@ function canonicalizeInstallPath(p: string): string {
 /** True when the runtime checkout was created by a bootstrap installer
  *  (install.sh / install.ps1 / the desktop first-launch bootstrap): those all
  *  finish by writing `.hermes-bootstrap-complete` into the checkout root, and
- *  `hermes update` preserves the file, so a manual clone never grows one. A
+ *  `envoy update` preserves the file, so a manual clone never grows one. A
  *  missing checkout (sealed bundled payloads, remote backends) is not
  *  installer-created. */
 export function isInstallerCreatedCheckout(root: string | null = ACTIVE_HERMES_ROOT): boolean {
@@ -17349,7 +17349,7 @@ function resolveHermesRuntime() {
 //
 // The renderer's About → Danger Zone surfaces three options that mirror the
 // CLI exactly: GUI only, Lite (keep user data), Full. We ask the agent to do
-// the actual removal via `hermes uninstall …` so the cross-platform PATH /
+// the actual removal via `envoy uninstall …` so the cross-platform PATH /
 // registry / service / node-symlink cleanup all lives in one place
 // (hermes_cli/uninstall.py + hermes_cli/gui_uninstall.py).
 //
@@ -17449,7 +17449,7 @@ async function runDesktopUninstall(mode: string): Promise<DesktopUninstallResult
     return {
       ok: false,
       error: 'agent-missing',
-      message: `Can't run the uninstaller: no Hermes agent venv at ${VENV_ROOT}.`
+      message: `Can't run the uninstaller: no Envoy agent venv at ${VENV_ROOT}.`
     }
   }
 
@@ -17568,7 +17568,7 @@ ipcMain.handle('hermes:vscode-theme:search', async (_event, query) => searchMark
 
 // ---------------------------------------------------------------------------
 // hermes:// deep links (e.g. hermes://blueprint/morning-brief?time=08:00,
-// hermes://mcp/install?name=NAME&config=B64 — the vendor "Add to Hermes"
+// hermes://mcp/install?name=NAME&config=B64 — the vendor "Add to Envoy"
 // button, or hermes://plugin/install?repo=owner/repo). Dev
 // (`HERMES_DESKTOP_DEV_SERVER`) registers hermes-dev:// instead — bare
 // Electron or a stale OS handler often owns hermes:// on dev machines.
@@ -17763,7 +17763,7 @@ if (!isPrimaryInstance) {
       handleDeepLink(url)
     }
 
-    // #130810: a second Start-menu / shortcut / Hermes.exe launch must never
+    // #130810: a second Start-menu / shortcut / Envoy.exe launch must never
     // silently exit. Log it so a future silent exit stays diagnosable, then
     // restore a live primary with activation (restore + show + focus), or
     // re-create it when it was destroyed.
@@ -17792,7 +17792,7 @@ app.whenReady().then(() => {
 
   // Post-update relaunch detection (App Installer arm): when the previous
   // version wrote the one-shot pending-relaunch marker before quitting into
-  // an OS package swap, consume it here — the renderer toasts "Hermes
+  // an OS package swap, consume it here — the renderer toasts "Envoy
   // updated to vX.Y.Z" once its bridge is up. Same-version markers (update
   // never landed) are deleted silently.
   const relaunchInfo: ConsumedRelaunch = consumePendingRelaunch(app, app.getVersion())
@@ -18215,7 +18215,7 @@ app.on('before-quit', event => {
   hudWindow = null
 
   // Same for the Quick Entry composer — and release its global accelerator so a
-  // quitting Hermes never keeps another app's chord hostage.
+  // quitting Envoy never keeps another app's chord hostage.
   closeQuickEntryWindow()
 
   // Quitting mid-install should stop the installer, not orphan it.

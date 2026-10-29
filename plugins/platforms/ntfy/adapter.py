@@ -357,14 +357,14 @@ async def _standalone_send(
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system at startup."""
+    """Plugin entry point — called by the Envoy plugin system at startup."""
     ctx.register_platform(
         target_ref_syntax_fn=parse_nonempty,
         name="ntfy", label="ntfy", adapter_factory=lambda cfg: NtfyAdapter(cfg),
-        dashboard_description="Chat with Hermes over ntfy push topics (ntfy.sh or self-hosted).",
-        docs_url="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/ntfy",
+        dashboard_description="Chat with Envoy over ntfy push topics (ntfy.sh or self-hosted).",
+        docs_url="https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/messaging/ntfy.md",
         check_fn=check_requirements, validate_config=validate_config, is_connected=is_connected,
-        required_env=["NTFY_TOPIC"], install_hint="pip install httpx   # already a Hermes dependency",
+        required_env=["NTFY_TOPIC"], install_hint="pip install httpx   # already an Envoy dependency",
         env_enablement_fn=_env_enablement,  # env-only setups show in `gateway status`
         cron_deliver_env_var="NTFY_HOME_CHANNEL",
         standalone_sender_fn=_standalone_send,  # out-of-process cron delivery

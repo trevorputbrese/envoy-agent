@@ -215,7 +215,7 @@ def test_secondary_plugin_socket_gets_a_named_refusal(daemon):
 
 
 def test_root_plugins_stay_available_to_a_secondary_profile_in_its_own_host(daemon):
-    """As a standalone ``hermes --profile beta serve`` did: beta scans its own ``plugins/``, then
+    """As a standalone ``envoy --profile beta serve`` did: beta scans its own ``plugins/``, then
     the root's, then the bundled ones; its own copy wins a same-name conflict; its own lists decide;
     the root copy runs in beta's host, never here. (The launch home is the root in this fixture.)"""
     root_imported = _install(daemon.launch, NAME)
@@ -369,7 +369,7 @@ def test_disabled_launch_override_does_not_hide_the_bundled_copy_from_a_secondar
 @pytest.mark.parametrize("selector", [False, True], ids=["ticket", "selector"])
 def test_bundled_plugin_the_launch_profile_disabled_still_serves_a_secondary_profile(
         daemon, tmp_path, monkeypatch, selector):
-    """Bundled plugins are Hermes code and stay in-process; the secondary profile's own lists decide,
+    """Bundled plugins are Envoy code and stay in-process; the secondary profile's own lists decide,
     also for the first request that mounts the router, whether its grant or ``?profile=`` names it."""
     _bundled(tmp_path, monkeypatch, "bundled-probe")
     _plugins(daemon.launch, disabled=["bundled-probe"])

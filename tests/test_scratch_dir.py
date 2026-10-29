@@ -58,7 +58,7 @@ def _idle_entry(scratch: Path, name: str) -> Path:
 
 
 def test_a_short_lived_process_still_completes_its_due_prune(tmp_path):
-    """A `hermes` command that exits right after boot still gets its pass: the detached child
+    """A `envoy` command that exits right after boot still gets its pass: the detached child
     removes the idle entry of the (routed) home the command resolved, after the command is gone,
     and leaves the launch home alone. Red on a daemon-thread prune, which dies with the command.
     The user's shell stays the pass's own even when everything between it and the pass exited
@@ -86,7 +86,7 @@ def test_a_short_lived_process_still_completes_its_due_prune(tmp_path):
         assert not doomed.exists() and kept.exists() and shell_entry.exists()
         assert user_shell.poll() is None, "the user's shell was signalled"
         log = log_file.read_text(encoding="utf-8-sig")
-        assert f"kept {str(shell_entry)!r} — live Hermes process pid={user_shell.pid}" in log, log
+        assert f"kept {str(shell_entry)!r} — live Envoy process pid={user_shell.pid}" in log, log
     finally:
         user_shell.kill()
         user_shell.wait(timeout=30)
@@ -117,7 +117,7 @@ def test_launcher_ancestry_stamp_is_boot_relative_even_for_a_non_utf8_name(tmp_p
 
 
 def test_scratch_env_follows_home_and_respects_user_tmpdir(tmp_path):
-    """Unset temp vars → scratch of env HERMES_HOME; a Hermes-exported value re-derives for a routed
+    """Unset temp vars → scratch of env HERMES_HOME; an Envoy-exported value re-derives for a routed
     home; a user/OS-set value (macOS ``/var/folders``, ``%TEMP%``) is never touched."""
     home_a, home_b = tmp_path / "a", tmp_path / "b"
     env = {"HERMES_HOME": str(home_a)}
@@ -274,7 +274,7 @@ class TestScratchDirPermissionPolicy:
 
     def test_effective_home_marker_does_not_govern_another_homes_scratch(self, tmp_path, monkeypatch):
         # The caller's home decides the policy. A boot caller (``export_scratch_tmp_env``) and
-        # ``hermes doctor`` have already resolved theirs, so the marker lookup must not fall back
+        # ``envoy doctor`` have already resolved theirs, so the marker lookup must not fall back
         # to ``get_hermes_home()``: for a sticky profile with HERMES_HOME unset that lookup warns
         # about the default profile on every command, and it is the wrong home to judge by anyway.
         selected = tmp_path / "home"
@@ -682,10 +682,10 @@ def test_postremoval_unreadable_entry_is_not_counted_as_removed(tmp_path: Path) 
 @pytest.mark.platforms("posix")
 @pytest.mark.live_system_guard_bypass  # a red run must kill the orphan this test made (reparented to init)
 def test_prune_keeps_entry_a_registered_hermes_process_works_in_but_reaps_orphans(tmp_path, monkeypatch):
-    """#132401 live-worker guard: a background process Hermes itself started (tracked in the
+    """#132401 live-worker guard: a background process Envoy itself started (tracked in the
     process registry's ``processes.json``) is never reaped, and the idle entry it works in is
     kept with an audit line. The orphaned grandchild of a registered shell that already exited
-    is no longer Hermes' — it is still reaped and its entry removed. Red on the cwd-only reap."""
+    is no longer Envoy's — it is still reaped and its entry removed. Red on the cwd-only reap."""
     from tools.process_registry import ProcessRegistry
 
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))
@@ -709,7 +709,7 @@ def test_prune_keeps_entry_a_registered_hermes_process_works_in_but_reaps_orphan
     try:
         assert prune_scratch_dir(scratch) == 1
         assert owned_dir.exists() and not orphan_dir.exists()
-        assert worker.process.poll() is None, "registered Hermes worker was reaped"
+        assert worker.process.poll() is None, "registered Envoy worker was reaped"
         def _orphan_gone():
             try:
                 return psutil.Process(orphan).status() == psutil.STATUS_ZOMBIE
@@ -717,7 +717,7 @@ def test_prune_keeps_entry_a_registered_hermes_process_works_in_but_reaps_orphan
                 return True
         wait_until(_orphan_gone, timeout=10, what="orphan reaped")
         log = (tmp_path / "logs" / "scratch-prune.log").read_text(encoding="utf-8-sig")
-        assert f"kept {str(owned_dir)!r} — live Hermes process pid=" in log, log
+        assert f"kept {str(owned_dir)!r} — live Envoy process pid=" in log, log
     finally:
         registry.kill_process(worker.id)
         with contextlib.suppress(psutil.Error):
@@ -726,7 +726,7 @@ def test_prune_keeps_entry_a_registered_hermes_process_works_in_but_reaps_orphan
 
 @pytest.mark.platforms("posix")
 def test_prune_keeps_entry_the_pruning_sessions_own_lineage_works_in(tmp_path, monkeypatch):
-    """#132401 review: a live session inside an idle entry that launches another Hermes
+    """#132401 review: a live session inside an idle entry that launches another Envoy
     command is the pruner's ancestor — never signalled, and its entry must not be deleted
     from under it either."""
     scratch = get_scratch_dir(tmp_path, prune=False)

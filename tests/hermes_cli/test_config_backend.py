@@ -201,7 +201,7 @@ def recording(monkeypatch, tmp_path):
 
 
 class TestPipelinesConsultTheBackend:
-    """Every read pipeline and writer reaches the selected backend, keyed by the hermes home."""
+    """Every read pipeline and writer reaches the selected backend, keyed by the envoy home."""
 
     def test_load_config(self, recording):
         from hermes_cli.config import load_config

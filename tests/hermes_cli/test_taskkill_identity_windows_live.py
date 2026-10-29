@@ -108,7 +108,7 @@ class TestTerminatePidIdentityLive:
 
 class TestPidIsHermesLive:
     def test_foreign_real_process_is_refused(self):
-        """A live non-Hermes process (bare python sleeper in a temp-ish argv)
+        """A live non-Envoy process (bare python sleeper in a temp-ish argv)
         must never be judged safe for taskkill."""
         from hermes_cli._subprocess_compat import pid_is_hermes
 
@@ -118,7 +118,7 @@ class TestPidIsHermesLive:
             # no 'hermes' token; if the checkout path itself contains one this
             # assertion is environment-dependent, so guard for it.
             if "hermes" in sys.executable.lower():
-                pytest.skip("interpreter path names hermes; probe would match")
+                pytest.skip("interpreter path names envoy; probe would match")
             assert pid_is_hermes(proc.pid) is False
         finally:
             _cleanup(proc)

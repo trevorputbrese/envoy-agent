@@ -34,7 +34,7 @@ def _home(tmp_path: Path, name: str = "home", *, env: str = "", config: str = ""
 
 # The uncommented platform_toolsets block cli-config.yaml.example carried (the homeassistant row from
 # 1aa7badb3c until fb9fc8a3dd). The installers (install.sh, install.ps1, the Docker hook) and
-# `hermes doctor` seed config.yaml from that file, so the block alone says nothing about use.
+# `envoy doctor` seed config.yaml from that file, so the block alone says nothing about use.
 _EXAMPLE_PLATFORM_TOOLSETS = (
     "platform_toolsets:\n"
     "  cli: [hermes-cli]\n"
@@ -263,7 +263,7 @@ def test_an_agent_start_install_of_a_platform_keeps_the_restart_hint(tmp_path, m
     assert lcm.recover_at_startup(gateway_start=gateway_start) == ["homeassistant"]
     kept = lcm._claim_notices(home)
     assert kept[0].startswith("✓ Home Assistant moved out of core")
-    assert any("hermes gateway restart" in message for message in kept) is not gateway_start
+    assert any("envoy gateway restart" in message for message in kept) is not gateway_start
 
 
 
@@ -279,7 +279,7 @@ def test_a_malformed_route_url_does_not_abort_the_home_migration(tmp_path, monke
 
 
 def test_the_migration_installs_once_so_a_removal_sticks(tmp_path, monkeypatch):
-    """At most one automatic install per home: after `hermes plugins remove`, neither `hermes update`
+    """At most one automatic install per home: after `envoy plugins remove`, neither `envoy update`
     nor startup reinstalls it. Until an install succeeds (catalog miss, failed install) it retries."""
     import hermes_cli.memory_provider_migration as mpm
     import pm.install
@@ -300,7 +300,7 @@ def test_the_migration_installs_once_so_a_removal_sticks(tmp_path, monkeypatch):
     assert lcm.migrate_home(home, install=install, say=quiet) == ["homeassistant"]
 
     import shutil
-    shutil.rmtree(plugin)  # `hermes plugins remove homeassistant`
+    shutil.rmtree(plugin)  # `envoy plugins remove homeassistant`
     assert lcm.migrate_home(home, install=install, say=quiet) == []
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(pm.install, "lazy_installs_allowed", lambda: True)
@@ -311,7 +311,7 @@ def test_the_migration_installs_once_so_a_removal_sticks(tmp_path, monkeypatch):
 
 def test_a_failed_startup_install_backs_off_and_reports_one_line(tmp_path, monkeypatch):
     """With the catalog or git unreachable, only the first agent start in a while pays the network
-    round trip, and its notice is one line naming the cause; `hermes update` always retries."""
+    round trip, and its notice is one line naming the cause; `envoy update` always retries."""
     import hermes_cli.memory_provider_migration as mpm
     import pm.install
     home = _home(tmp_path, env="HASS_TOKEN=abc\n")
@@ -329,7 +329,7 @@ def test_a_failed_startup_install_backs_off_and_reports_one_line(tmp_path, monke
     assert len(said) == 1 and "\n" not in said[0] and "Could not resolve host: github.com" in said[0]
     assert "plugins install homeassistant" in said[0]
 
-    lcm._attempted.clear()  # the next `hermes chat` process
+    lcm._attempted.clear()  # the next `envoy chat` process
     assert lcm.recover_at_startup(say=said.append) == []
     assert lookups == ["homeassistant"] and len(said) == 1
     assert lcm.migrate_home(home, install=failing, say=said.append) == []
@@ -370,7 +370,7 @@ def test_repeated_startup_failures_back_off_exponentially(tmp_path, monkeypatch)
     assert len(attempts) == 3
     start_after(24 * 7.1)
     assert len(attempts) == 4
-    stamp.write_text("", encoding="utf-8")               # an older Hermes's empty stamp counts once
+    stamp.write_text("", encoding="utf-8")               # an older Envoy's empty stamp counts once
     start_after(1.5)
     assert len(attempts) == 5
 
@@ -392,20 +392,20 @@ def test_spotify_in_use_is_a_stored_login_or_the_toolset(tmp_path, auth_json, co
 
 
 def test_old_spotify_commands_point_at_the_plugin(tmp_path, monkeypatch):
-    """`hermes auth spotify` / `hermes spotify` name the new command and how to get it for this home."""
+    """`envoy auth spotify` / `envoy spotify` name the new command and how to get it for this home."""
     home = _home(tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
-    hint = lcm.moved_command_hint("hermes auth", "spotify", "status")
-    assert "`hermes auth status spotify` is now `hermes spotify status`" in hint
+    hint = lcm.moved_command_hint("envoy auth", "spotify", "status")
+    assert "`envoy auth status spotify` is now `envoy spotify status`" in hint
     assert "plugins install spotify" in hint
-    assert "plugins install spotify" in lcm.moved_command_hint("hermes", "spotify")
+    assert "plugins install spotify" in lcm.moved_command_hint("envoy", "spotify")
     (home / "plugins" / "spotify").mkdir(parents=True)  # installed but disabled
-    assert "plugins enable spotify" in lcm.moved_command_hint("hermes", "spotify")
-    assert lcm.moved_command_hint("hermes", "honcho") == ""
+    assert "plugins enable spotify" in lcm.moved_command_hint("envoy", "spotify")
+    assert lcm.moved_command_hint("envoy", "honcho") == ""
 
 
 def test_old_mcp_serve_spelling_names_the_plugin_command(tmp_path, monkeypatch, capsys):
-    """`hermes mcp serve` (what MCP client configs launch) exits 2 with the new spelling and the install
+    """`envoy mcp serve` (what MCP client configs launch) exits 2 with the new spelling and the install
     line on stderr, never on stdout (the MCP wire); once the plugin is installed only the spelling."""
     import sys
 
@@ -418,17 +418,17 @@ def test_old_mcp_serve_spelling_names_the_plugin_command(tmp_path, monkeypatch, 
         parser.parse_args(["mcp", "serve", "--tools"])
     out, err = capsys.readouterr()
     assert exc.value.code == 2 and out == ""
-    assert "`hermes mcp serve` is now `hermes mcp-serve`" in err
+    assert "`envoy mcp serve` is now `envoy mcp-serve`" in err
     assert "plugins install mcp-serve" in err
     (home / "plugins" / "mcp-serve").mkdir(parents=True)
-    hint = lcm.moved_command_hint("hermes mcp", "serve")
-    assert "is now `hermes mcp-serve`" in hint and "install" not in hint
+    hint = lcm.moved_command_hint("envoy mcp", "serve")
+    assert "is now `envoy mcp-serve`" in hint and "install" not in hint
 
 
 def test_mcp_serve_is_never_installed_automatically(tmp_path):
-    """MCP clients live outside Hermes, so no home shows the feature in use: hint only, no install."""
+    """MCP clients live outside Envoy, so no home shows the feature in use: hint only, no install."""
     installs = []
-    home = _home(tmp_path, config="mcp_servers:\n  hermes:\n    command: hermes\n    args: [mcp, serve]\n")
+    home = _home(tmp_path, config="mcp_servers:\n  hermes:\n    command: envoy\n    args: [mcp, serve]\n")
     assert lcm.migrate_home(home, install=lambda name: installs.append(name) or {"ok": True},
                             say=lambda _m: None) == []
     assert installs == []
@@ -466,7 +466,7 @@ def test_old_langfuse_plugin_key_keeps_naming_the_catalog_plugin(tmp_path, monke
     for name in ("observability/langfuse", "langfuse"):
         message = _unknown_plugin_message(name)
         assert "moved out of core into the 'langfuse' plugin" in message
-        assert "hermes plugins install langfuse" in message
+        assert "envoy plugins install langfuse" in message
     assert "moved out of core" not in _unknown_plugin_message("nonexistent")
 
     plugin_dir = home / "plugins" / "langfuse"

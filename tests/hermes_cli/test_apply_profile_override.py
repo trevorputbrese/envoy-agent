@@ -1,6 +1,6 @@
 """Regression tests for _apply_profile_override HERMES_HOME guard (issue #22502).
 
-When HERMES_HOME is set to the hermes root (e.g. systemd hardcodes
+When HERMES_HOME is set to the envoy root (e.g. systemd hardcodes
 HERMES_HOME=/root/.hermes), _apply_profile_override must still read
 active_profile and update HERMES_HOME to the profile directory.
 
@@ -118,13 +118,13 @@ def test_missing_profile_still_blocks_other_or_explicit_commands(
             active_profile="ray", create_active_profile=False, argv=argv,
         )
     assert exc.value.code == 1
-    assert ("hermes profile use default" in capsys.readouterr().err) is expect_hint
+    assert ("envoy profile use default" in capsys.readouterr().err) is expect_hint
 
 
 class TestApplyProfileOverrideHermesHomeGuard:
     """Regression guard for issue #22502.
 
-    Verifies that HERMES_HOME pointing to the hermes root does NOT suppress
+    Verifies that HERMES_HOME pointing to the envoy root does NOT suppress
     the active_profile check, while HERMES_HOME already pointing to a
     profile directory IS trusted as-is.
     """
@@ -135,8 +135,8 @@ class TestApplyProfileOverrideHermesHomeGuard:
         """HERMES_HOME=/root/.hermes + active_profile=coder must redirect
         HERMES_HOME to .../profiles/coder.
 
-        Bug scenario from #22502: systemd sets HERMES_HOME to the hermes root
-        and the user switches to a profile via `hermes profile use`.
+        Bug scenario from #22502: systemd sets HERMES_HOME to the envoy root
+        and the user switches to a profile via `envoy profile use`.
         Before the fix, the guard returned early and active_profile was ignored.
         """
         hermes_root = tmp_path / ".hermes"
@@ -195,7 +195,7 @@ class TestSupervisedChildIgnoresStickyProfile:
     """The reserved default gateway s6 slot must not follow active_profile.
 
     Inside the Docker s6 image the ``gateway-default`` service slot runs a
-    bare ``hermes gateway run`` (no ``-p``) to mean "the root HERMES_HOME
+    bare ``envoy gateway run`` (no ``-p``) to mean "the root HERMES_HOME
     profile". The run-script exports ``HERMES_S6_SUPERVISED_CHILD=1``.
     Without a guard, ``_apply_profile_override`` would read the sticky
     ``active_profile`` file (set by e.g. the dashboard profile switcher) and
@@ -207,7 +207,7 @@ class TestSupervisedChildIgnoresStickyProfile:
     def test_non_supervised_run_still_follows_active_profile(
         self, tmp_path, monkeypatch
     ):
-        """Without the sentinel, a normal `hermes gateway run` still honors
+        """Without the sentinel, a normal `envoy gateway run` still honors
         active_profile — the guard is scoped strictly to supervised children."""
         result = _run_apply_profile_override(
             tmp_path,
@@ -399,7 +399,7 @@ class TestS6ContainerGatewayRun:
 
 
 def test_module_entry_keeps_an_explicit_default_profile_over_the_sticky_one(tmp_path):
-    """`python -m hermes_cli.main --profile default` (how Hermes spawns its own CLI) stays on the root
+    """`python -m hermes_cli.main --profile default` (how Envoy spawns its own CLI) stays on the root
     home while active_profile names another profile: a second import of the module must not re-read
     the stripped argv and fall to the sticky profile."""
     import subprocess

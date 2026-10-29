@@ -231,14 +231,14 @@ def _installed_vbs(home, configured):
     """The current installed launcher grammar; no script is executed."""
     script = home / 'gateway.vbs'
     script.write_text("\n".join([
-        "' Hermes Agent Gateway", "Option Explicit", "Dim sh, env, existing_pp",
+        "' Envoy Agent Gateway", "Option Explicit", "Dim sh, env, existing_pp",
         'Set sh = CreateObject("WScript.Shell")', 'Set env = sh.Environment("PROCESS")',
         f'env.Item("HERMES_HOME") = "{configured}"',
         'env.Item("HERMES_SUPERVISED_CHILD") = "1"',
-        'env.Item("VIRTUAL_ENV") = "C:\\Hermes"',
+        'env.Item("VIRTUAL_ENV") = "C:\\Envoy"',
         'existing_pp = env.Item("PYTHONPATH")', 'If Len(existing_pp) > 0 Then',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes;" & existing_pp', 'Else',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes"', 'End If',
+        '  env.Item("PYTHONPATH") = "C:\\Envoy;" & existing_pp', 'Else',
+        '  env.Item("PYTHONPATH") = "C:\\Envoy"', 'End If',
         f'sh.CurrentDirectory = "{home}"',
         f'sh.Run "{sys.executable} -m hermes_cli.main gateway run", 0, False',
     ]) + "\n", encoding='utf-8')
@@ -554,7 +554,7 @@ def test_s6_command_timeout_ends_at_the_runtime_deadline(tmp_path, monkeypatch):
 def test_windows_startup_folder_entry_still_restarts_a_stopped_owner(tmp_path, monkeypatch):
     """The Startup-folder fallback is login persistence only (no start verb, no identity): with it
     present and no Scheduled Task registered, ensure takes the same detached direct spawn manual
-    `hermes gateway start` uses instead of refusing until the next login."""
+    `envoy gateway start` uses instead of refusing until the next login."""
     from types import SimpleNamespace
     from hermes_cli import gateway_runtime as runtime, gateway_runtime_service as service, gateway_runtime_start as start
     from hermes_cli import gateway_windows

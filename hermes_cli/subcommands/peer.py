@@ -1,9 +1,9 @@
-"""``hermes peer`` — bot-to-bot DMs across machines/gateways.
+"""``envoy peer`` — bot-to-bot DMs across machines/gateways.
 
-A *peer* is another Hermes gateway running the ``api_server`` platform; its stock
+A *peer* is another Envoy gateway running the ``api_server`` platform; its stock
 API is the transport (no new server surface). ``dm`` resolves the remote canonical
 "Bot Chat" session (creating it when missing) and runs ONE synchronous turn — the
-cross-machine twin of ``hermes -p <bot> chat --in ~ -c "Bot Chat"``. ``run``/``status``
+cross-machine twin of ``envoy -p <bot> chat --in ~ -c "Bot Chat"``. ``run``/``status``
 /``stop`` do the same turn through the async Runs API. Peer labels/URLs live in
 config.yaml (``bot_peers``); the key lives in ``~/.hermes/.env`` as
 ``HERMES_PEER_<NAME>_KEY``. ``<peer>/<profile>`` targets the ``/p/<profile>/`` mirror.
@@ -79,7 +79,7 @@ def _request(
     if headers:
         request_headers.update(headers)
     req = urllib.request.Request(url, data=data, method=method, headers=request_headers)
-    # The peer URL is user-registered (``hermes peer add``); a redirect to a
+    # The peer URL is user-registered (``envoy peer add``); a redirect to a
     # different origin must not carry the Authorization: Bearer key with it —
     # a compromised/MITM'd peer could otherwise harvest it. open_credentialed_url
     # strips non-safelisted headers across a cross-origin redirect.
@@ -118,9 +118,9 @@ def _peer_lacks_profile(exc: Exception) -> bool:
 def _resolve_base(peer: dict, profile: str | None, key: str, peer_name: str = "") -> str:
     """The mirror a target addresses. Bot Mode shows a peer's default profile as @hermes
     (#118076); an upgraded peer aliases ``/p/hermes`` to its default itself, unless it has a real
-    pre-reservation profile named ``hermes``, which keeps the handle. The client never reroutes on
+    pre-reservation profile named ``envoy``, which keeps the handle. The client never reroutes on
     its own: an older peer answers the same generic 404 for "no such profile" and for a real
-    ``hermes`` profile it does not serve (parked, standalone), so guessing ``/p/default`` there
+    ``envoy`` profile it does not serve (parked, standalone), so guessing ``/p/default`` there
     delivers into the wrong agent. That ambiguous answer becomes an error naming the explicit
     ``<peer>/default`` address instead."""
     base = _base_url(peer, profile)
@@ -193,11 +193,11 @@ def _parse_target(target: str) -> tuple[str, str | None]:
     peer = peer.strip()
     profile = profile.strip() or None
     if not peer:
-        raise ValueError("Peer name required (hermes peer dm <peer>[/<agent>] ...)")
+        raise ValueError("Peer name required (envoy peer dm <peer>[/<agent>] ...)")
     if profile and not _PROFILE_RE.match(profile):
         raise ValueError(f"Invalid agent/profile name: {profile!r}")
     if profile:
-        # Profile ids are lowercase (normalize_profile_name); 'box/Hermes' must address the
+        # Profile ids are lowercase (normalize_profile_name); 'box/Envoy's must address the
         # peer's real 'hermes' profile on every peer, including those that compare prefixes exactly.
         from hermes_cli.profiles import normalize_profile_name
         profile = normalize_profile_name(profile)
@@ -219,11 +219,11 @@ def _resolve_peer_target(target: str) -> tuple[str, str | None, dict, str]:
     peer_name, profile = _parse_target(target)
     peer = _load_peers().get(peer_name)
     if not isinstance(peer, dict) or not peer.get("url"):
-        raise LookupError(f"No peer named '{peer_name}'. Run: hermes peer list")
+        raise LookupError(f"No peer named '{peer_name}'. Run: envoy peer list")
     key = _peer_secret(peer_name)
     if not key:
         raise PermissionError(
-            f"No API key for peer '{peer_name}'. Set it: hermes peer add {peer_name} "
+            f"No API key for peer '{peer_name}'. Set it: envoy peer add {peer_name} "
             f"--url <url> --key <key> (or add {_peer_key_env(peer_name)}=<key> to ~/.hermes/.env)")
     return peer_name, profile, peer, key
 
@@ -291,7 +291,7 @@ def _peer_add(args) -> int:
     else:
         print(
             f"Peer '{name}' saved ({url}). No key given — set the peer's API_SERVER_KEY with:\n"
-            f"  hermes peer add {name} --url {url} --key <key>\n"
+            f"  envoy peer add {name} --url {url} --key <key>\n"
             f"  (or add {_peer_key_env(name)}=<key> to ~/.hermes/.env)")
     return 0
 
@@ -311,7 +311,7 @@ def _peer_remove(args) -> int:
 def _peer_list(args) -> int:
     peers = _load_peers()
     if not peers:
-        print("No peers registered. Add one: hermes peer add <name> --url http://host:port --key <API_SERVER_KEY>")
+        print("No peers registered. Add one: envoy peer add <name> --url http://host:port --key <API_SERVER_KEY>")
         return 0
     for name in sorted(peers):
         entry = peers[name] if isinstance(peers[name], dict) else {}
@@ -427,7 +427,7 @@ def _peer_dm(args, message: str, peer_name: str, profile: str | None, base: str,
     # the turn stays in the peer's own transcript, the sending agent never
     # sees NO_REPLY/[SILENT] as a real reply. Same rule as the gateway's live
     # Bot Chat completion, the Desktop bot_relay.deliver RPC and the one-shot
-    # local `hermes chat -Q` transport (tools/bot_mode_dm.py) — this is the
+    # local `envoy chat -Q` transport (tools/bot_mode_dm.py) — this is the
     # 4th Bot Mode delivery door and was missing the same check.
     from gateway.response_filters import is_intentional_silence_response
     if is_intentional_silence_response(reply):
@@ -447,7 +447,7 @@ def cmd_peer(args) -> int:
     if action in _REGISTRY_ACTIONS:
         return _REGISTRY_ACTIONS[action](args)
     if action not in {"dm", "run", "status", "stop"}:
-        print("Unknown peer action. See: hermes peer --help", file=sys.stderr)
+        print("Unknown peer action. See: envoy peer --help", file=sys.stderr)
         return 2
     try:
         peer_name, profile, peer, key = _resolve_peer_target(args.target)
@@ -475,23 +475,23 @@ def cmd_peer(args) -> int:
 def build_peer_parser(subparsers) -> None:
     """Attach the ``peer`` subcommand to ``subparsers``."""
     parser = subparsers.add_parser(
-        "peer", help="Bot-to-bot DMs across machines (peer Hermes gateways)",
-        description="Register other Hermes gateways as peers and message their agents. "
-            "'hermes peer dm <peer>[/<agent>] \"...\"' delivers into the remote "
+        "peer", help="Bot-to-bot DMs across machines (peer Envoy gateways)",
+        description="Register other Envoy gateways as peers and message their agents. "
+            "'envoy peer dm <peer>[/<agent>] \"...\"' delivers into the remote "
             "agent's canonical Bot Chat over the peer's API server and prints "
-            "the reply — the cross-machine twin of 'hermes -p <bot> chat'. "
+            "the reply — the cross-machine twin of 'envoy -p <bot> chat'. "
             "The peer must run the api_server platform; its API_SERVER_KEY is "
             "stored locally as a credential in ~/.hermes/.env.",
         epilog=(
             "Examples:\n"
-            "  hermes peer add spark --url http://spark.lan:8377 --key <API_SERVER_KEY>\n"
-            "  hermes peer list\n"
-            '  hermes peer dm spark "Message from 🤖 dixie (@dixie): disk status?"\n'
-            '  hermes peer dm spark/researcher "..."   # named profile on a multiplexed peer\n'
-            "  hermes peer run spark --idempotency-key ticket-123 < long-task.txt\n"
-            "  hermes peer status spark run_abc123\n"
-            "  hermes peer stop spark run_abc123\n"
-            "  hermes peer remove spark\n"
+            "  envoy peer add spark --url http://spark.lan:8377 --key <API_SERVER_KEY>\n"
+            "  envoy peer list\n"
+            '  envoy peer dm spark "Message from 🤖 dixie (@dixie): disk status?"\n'
+            '  envoy peer dm spark/researcher "..."   # named profile on a multiplexed peer\n'
+            "  envoy peer run spark --idempotency-key ticket-123 < long-task.txt\n"
+            "  envoy peer status spark run_abc123\n"
+            "  envoy peer stop spark run_abc123\n"
+            "  envoy peer remove spark\n"
             "\n"
             "Exit codes: 0 ok, 1 delivery/peer error, 2 usage error."),
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -512,7 +512,7 @@ def build_peer_parser(subparsers) -> None:
         sp = peer_sub.add_parser(name, help=help)
         sp.add_argument("target", help="<peer> or <peer>/<agent> (named profile on a multiplexed peer)")
         if run_id:
-            sp.add_argument("run_id", help="Run ID returned by 'hermes peer run'")
+            sp.add_argument("run_id", help="Run ID returned by 'envoy peer run'")
         else:
             sp.add_argument("message", nargs="?", default=None, help="Message text (or stdin)")
             if name == "run":

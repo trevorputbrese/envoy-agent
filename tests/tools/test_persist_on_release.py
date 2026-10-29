@@ -127,7 +127,7 @@ def test_spawn_local_stamps_persist_on_release(registry, monkeypatch, tmp_path):
 
     from tools import terminal_tool_sudo
 
-    # Stay off the real hermes home: the spawn-path env sanitizer resolves the
+    # Stay off the real envoy home: the spawn-path env sanitizer resolves the
     # real console-script install (_resolve_hermes_bin_dir), which the test
     # suite's HomeIOGuard forbids. None == "no managed install found".
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))

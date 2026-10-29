@@ -10,7 +10,7 @@ export const zhErrorCodes: Partial<ThreadCopy['errorCodes']> = {
   },
   session_read_only: {
     title: '此聊天为只读',
-    body: '它是 Hermes 只能显示、无法继续的已保存历史记录，因此你的消息未被执行。请新建聊天后再发送。'
+    body: '它是 Envoy 只能显示、无法继续的已保存历史记录，因此你的消息未被执行。请新建聊天后再发送。'
   },
   workspace_unavailable: {
     title: '此聊天的文件夹已不存在',

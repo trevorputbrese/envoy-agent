@@ -2,13 +2,13 @@
 name: gitnexus-explorer
 description: Serve an interactive codebase knowledge graph web UI.
 version: 1.0.0
-author: Hermes Agent + Teknium
+author: Envoy Agent + Teknium
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [gitnexus, code-intelligence, knowledge-graph, visualization]
-    related_skills: [hermes-agent, codebase-inspection]
+    related_skills: [envoy-agent, codebase-inspection]
 ---
 
 # GitNexus Explorer

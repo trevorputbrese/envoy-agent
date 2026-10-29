@@ -84,7 +84,7 @@ def _assistant_copy_text(content: Any) -> str:
     return _strip_reasoning_tags(_assistant_content_as_text(content))
 
 
-_ACCENT_ANSI_DEFAULT = "\033[1;38;2;255;215;0m"  # #FFD700 bold fallback
+_ACCENT_ANSI_DEFAULT = "\033[1;38;2;73;175;217m"  # #49AFD9 bold fallback
 
 
 _BOLD = "\033[1m"
@@ -107,7 +107,7 @@ def _hex_to_ansi(hex_color: str, *, bold: bool = False) -> str:
         r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
         return f"\033[{'1;' if bold else ''}38;2;{r};{g};{b}m"
     except (ValueError, IndexError):
-        return _ACCENT_ANSI_DEFAULT if bold else "\033[38;2;184;134;11m"
+        return _ACCENT_ANSI_DEFAULT if bold else "\033[38;2;91;127;149m"  # #5B7F95 (banner_dim)
 
 
 _TRUE_RE = re.compile(r"^(1|true|on|yes|y)$")
@@ -269,9 +269,9 @@ def _detect_light_mode_uncached() -> bool:
 # as STANDALONE foregrounds: ones paired with a dark bg (status bar text on #1a1a2e) would
 # become invisible the other direction, hence #C0C0C0/#888888/#555555/#8B8682 are skipped.
 _LIGHT_MODE_REMAP: dict[str, str] = {
-    "#FFF8DC": "#1A1A1A", "#FFD700": "#9A6B00", "#FFBF00": "#8A5A00", "#B8860B": "#5C4500",
-    "#DAA520": "#6B4F00", "#F1E6CF": "#1A1A1A", "#c9d1d9": "#24292F", "#EAF7FF": "#0F1B26",
-    "#F5F5F5": "#1A1A1A", "#FFF0D4": "#1A1A1A", "#CD7F32": "#8A4F1A", "#FFEFB5": "#3A2A00",
+    "#E3F5FC": "#1A1A1A", "#49AFD9": "#9A6B00", "#0095D3": "#8A5A00", "#5B7F95": "#5C4500",
+    "#89CBDF": "#6B4F00", "#F1E6CF": "#1A1A1A", "#c9d1d9": "#24292F", "#EAF7FF": "#0F1B26",
+    "#F5F5F5": "#1A1A1A", "#FFF0D4": "#1A1A1A", "#0072A3": "#8A4F1A", "#FFEFB5": "#3A2A00",
 }
 
 
@@ -313,7 +313,7 @@ def _install_skin_light_mode_hook() -> None:
 class _SkinAwareAnsi:
     """Lazy ANSI escape resolved from the skin on first use; ``.reset()`` after a ``/skin`` switch."""
 
-    def __init__(self, skin_key: str, fallback_hex: str = "#FFD700", *, bold: bool = False):
+    def __init__(self, skin_key: str, fallback_hex: str = "#49AFD9", *, bold: bool = False):
         self._skin_key = skin_key
         self._fallback_hex = fallback_hex
         self._bold = bold
@@ -343,7 +343,7 @@ class _SkinAwareAnsi:
         self._cached = None
 
 
-_ACCENT = _SkinAwareAnsi("response_border", "#FFD700", bold=True)
+_ACCENT = _SkinAwareAnsi("response_border", "#49AFD9", bold=True)
 
 
 # dim+italic attributes (not a hex) so dim text inherits the terminal foreground in both modes.
@@ -368,9 +368,9 @@ def _accent_hex() -> str:
     """Return the active skin accent color for legacy CLI output lines."""
     try:
         from hermes_cli.skin_engine import get_active_skin
-        return get_active_skin().get_color("ui_accent", "#FFBF00")
+        return get_active_skin().get_color("ui_accent", "#0095D3")
     except Exception:
-        return "#FFBF00"
+        return "#0095D3"
 
 
 def _rich_text_from_ansi(text: str) -> _RichText:
@@ -912,14 +912,14 @@ def _build_compact_banner() -> str:
     def _color(key, default):
         return _skin.get_color(key, default) if _skin else default
 
-    border_color = _color("banner_border", "#FFD700")
-    title_color = _color("banner_title", "#FFBF00")
-    dim_color = _color("banner_dim", "#B8860B")
+    border_color = _color("banner_border", "#49AFD9")
+    title_color = _color("banner_title", "#0095D3")
+    dim_color = _color("banner_dim", "#5B7F95")
 
     if (getattr(_skin, "name", "default") if _skin else "default") == "default":
-        tiny_line = "☤ NOUS HERMES"
+        tiny_line = "◈ ENVOY AGENT"
     else:
-        tiny_line = _skin.get_branding("agent_name", "Hermes Agent") if _skin else "Hermes Agent"
+        tiny_line = _skin.get_branding("agent_name", "Envoy Agent") if _skin else "Envoy Agent"
     line1 = t("cli.render.banner_tagline", name=tiny_line)
 
     if os.environ.get("HERMES_FAST_STARTUP_BANNER") == "1":

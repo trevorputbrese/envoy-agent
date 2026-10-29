@@ -246,7 +246,7 @@ def _open_continuable_cron_thread(job: dict, adapter, chat_id: str, loop) -> Opt
     create_thread = getattr(adapter, "create_handoff_thread", None)
     if not callable(create_thread) or loop is None:
         return None
-    thread_name = f"Hermes — {_cron_display_name(job)}"
+    thread_name = f"Envoy — {_cron_display_name(job)}"
     try:
         from agent.async_utils import safe_schedule_threadsafe
         coro = create_thread(str(chat_id), thread_name)
@@ -1783,7 +1783,7 @@ def _deliver_result(
     # Restart-safe workers have no live gateway adapters: hand the send back through a durable
     # queue so the current or replacement gateway performs it with relay/E2EE parity. The execution
     # id is the idempotency key (the queue never retries an uncertain claimed send). Match on THIS
-    # job's own attempt: a worker's script may dispatch another job in-process (`hermes cron run`),
+    # job's own attempt: a worker's script may dispatch another job in-process (`envoy cron run`),
     # and that nested delivery must not be keyed under the outer execution id.
     external_execution = os.environ.get("_HERMES_CRON_EXTERNAL_WORKER", "")
     if (external_execution and adapters is None
@@ -1813,7 +1813,7 @@ def _deliver_result(
     # Mark live sends FINAL so the platform pushes them (Telegram "important" mode mutes otherwise).
     notify_delivery = _cron_delivery_notify_enabled(user_cfg)
     # Targets acked with NO evidence (bare SendResult(success=True) — Slack/Matrix/Mattermost);
-    # persisted as ``last_delivery_unverified`` so `hermes cron list` shows it.
+    # persisted as ``last_delivery_unverified`` so `envoy cron list` shows it.
     unverified_targets: list = []
     if wrap_response:
         task_name = job.get("name", job["id"])
@@ -1830,7 +1830,7 @@ def _deliver_result(
 
     from gateway.platforms.base import BasePlatformAdapter
     # Bridge media-policy config into the env vars the path validator reads. The gateway does this
-    # at boot; standalone runs (`hermes cron run`) did not, silently dropping files. Idempotent.
+    # at boot; standalone runs (`envoy cron run`) did not, silently dropping files. Idempotent.
     from gateway.media_policy import apply_media_policy_env
     apply_media_policy_env(user_cfg)
     media_files, cleaned_delivery_content = BasePlatformAdapter.extract_media(delivery_content)

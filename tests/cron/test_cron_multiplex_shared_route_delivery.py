@@ -165,7 +165,7 @@ def test_live_native_adapter_without_platform_block_is_not_treated_as_disabled()
 def test_multiplex_tick_routes_desktop_served_satellite_with_only_local_adapter(
     tmp_path, monkeypatch,
 ):
-    """#139825: a satellite profile also chatted with from Hermes Desktop holds
+    """#139825: a satellite profile also chatted with from Envoy Desktop holds
     ``{LOCAL: adapter}`` in ``_profile_adapters``. LOCAL carries no platform credential, so its
     cron tick must still hand it the routed primary view — before, the non-empty map skipped
     ``SharedRouteAdapters`` and delivery fell through to the profile's own credentialless config

@@ -7,16 +7,16 @@ from typing import Callable, List, Optional
 from hermes_cli.platforms import PLATFORMS
 from hermes_cli.toolset_scope import toolset_allowed_for_platform
 
-_NO_TOOLS = "the agent will have no tools on this platform. Run `hermes tools` to reconfigure."
+_NO_TOOLS = "the agent will have no tools on this platform. Run `envoy tools` to reconfigure."
 
 
 def parse_platform_toolsets_value(value: object) -> Optional[list[str]]:
     """The toolset list a saved ``platform_toolsets.<platform>`` value encodes, or None.
 
-    Older ``hermes config set`` builds stored a bare ``[...]`` argument as a plain string, so an
+    Older ``envoy config set`` builds stored a bare ``[...]`` argument as a plain string, so an
     explicit selection like ``'["browser", "terminal"]'`` parses as str, not list (#115866).
     Every reader and writer of the section goes through this one parser so the runtime,
-    ``hermes doctor`` and ``hermes plugins enable`` agree on what the user configured. Any other
+    ``envoy doctor`` and ``envoy plugins enable`` agree on what the user configured. Any other
     shape (null, scalar, unparseable string) is None: the caller decides how to report it.
     """
     if isinstance(value, list):
@@ -44,7 +44,7 @@ def _bundled_platform_names() -> frozenset:
 
 
 def is_known_platform_bundle(platform: object, name: str) -> bool:
-    """True when ``name`` is the ``hermes-<platform>`` bundle of a platform Hermes knows: builtin, shipped
+    """True when ``name`` is the ``hermes-<platform>`` bundle of a platform Envoy knows: builtin, shipped
     under ``plugins/platforms``, a platform that left core for a catalog plugin, or one a loaded plugin
     registered. Installs seeded from cli-config.yaml.example carry such rows for platforms nobody set up
     (teams, google_chat, homeassistant), inert until the plugin loads. A misspelt platform key naming its
@@ -143,7 +143,7 @@ def validate_platform_toolsets(
                 value_detail = f"invalid {type(raw).__name__} toolset value"
             warnings.append(
                 f"platform '{platform}' has {value_detail} — "
-                f"{fallback_detail}. Run `hermes tools` to configure explicitly.")
+                f"{fallback_detail}. Run `envoy tools` to configure explicitly.")
             if platform_valid_count == 0:
                 warnings.append(f"platform '{platform}' has no valid toolsets configured — {_NO_TOOLS}")
             continue
@@ -169,5 +169,5 @@ def validate_platform_toolsets(
     if valid_count == 0:
         warnings.append(
             "platform_toolsets resolves to zero valid toolsets — the agent will "
-            "have no tools. Run `hermes tools` to reconfigure.")
+            "have no tools. Run `envoy tools` to reconfigure.")
     return warnings

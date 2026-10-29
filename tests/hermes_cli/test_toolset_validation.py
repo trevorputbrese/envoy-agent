@@ -1,15 +1,15 @@
 """Unit tests for hermes_cli.toolset_validation (see #38798).
 
 Pure logic — the validity predicate is injected, so these tests need neither the
-tool registry nor a running Hermes.
+tool registry nor a running Envoy.
 """
 
 import pytest
 
 from hermes_cli.toolset_validation import validate_platform_toolsets
 
-# A representative set of real toolset names. `hermes` is deliberately absent —
-# that is the corruption #38798 reported (`hermes-cli` rewritten to `hermes`).
+# A representative set of real toolset names. `envoy` is deliberately absent —
+# that is the corruption #38798 reported (`hermes-cli` rewritten to `envoy`).
 _KNOWN = {
     "hermes-cli",
     "hermes-telegram",
@@ -142,8 +142,8 @@ def test_scalar_platform_value_warns_but_uses_platform_default():
 
 
 def test_list_literal_string_is_validated_as_the_list_it_encodes():
-    """A ``'["web", "terminal"]'`` string (older ``hermes config set``) is the user's real selection:
-    the runtime resolves it, so ``hermes doctor`` must validate its names instead of reporting a
+    """A ``'["web", "terminal"]'`` string (older ``envoy config set``) is the user's real selection:
+    the runtime resolves it, so ``envoy doctor`` must validate its names instead of reporting a
     fallback to the platform default that never happens (follow-up to #115866)."""
     assert validate_platform_toolsets({"cli": '["web", "terminal"]'}, _is_valid) == []
 

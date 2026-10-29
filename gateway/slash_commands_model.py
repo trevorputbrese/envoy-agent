@@ -634,7 +634,7 @@ class GatewayModelCommandsMixin:
         Runs as the adapter's post-delivery callback, so the offer always lands under the reply (the reply
         is sent after this turn returns). The tap switches this session only (never the default) and
         re-sends the refused message, like /retry. No credits button in a chat: anyone in the room could
-        spend the owner's credits, so the Portal is named instead. Hermes never switches on its own."""
+        spend the owner's credits, so the Portal is named instead. Envoy never switches on its own."""
         try:
             adapter = self._delivery_adapter_for(event.source) if event.source is not None else None
             register = getattr(adapter, "register_post_delivery_callback", None)
@@ -907,7 +907,7 @@ class GatewayModelCommandsMixin:
         if raw_args:  # typed path — same applier the picker uses
             return self._apply_reasoning_selection(session_key, platform_key, args, persist_global=persist_global)
         rc = self._reasoning_config
-        # Labels tell the truth about the route: a Hermes-internal step (``ultra``) that the wire
+        # Labels tell the truth about the route: an Envoy-internal step (``ultra``) that the wire
         # clamps is shown as "ultra (sends max on this route)" instead of a distinct level (#61634).
         from agent.reasoning_effort import effort_display_label
         from gateway.run import _load_gateway_config

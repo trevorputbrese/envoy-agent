@@ -27,7 +27,7 @@ def _handle_is_free() -> bool:
 def _prefix_profile(request: Any) -> str:
     """The prefix as a canonical profile id. Profile ids are lowercase on disk and every other
     reader (``get_profile_dir``, ``profile_exists``, the peer client) normalizes case, so
-    ``/p/Hermes/`` must name the same profile ``/p/hermes/`` does, never fall to the alias."""
+    ``/p/Envoy/`` must name the same profile ``/p/hermes/`` does, never fall to the alias."""
     raw = (request.match_info.get("profile") or "").strip()
     if not raw:
         return ""
@@ -50,8 +50,8 @@ def resolve_request_profile(adapter: Any, request: Any):
     """Resolve + validate the /p/<profile>/ prefix: ``None`` (no prefix, or multiplexing off and the
     prefix names this gateway's own profile), the served profile name, or ``_PROFILE_REJECTED``
     (-> 404). Fail closed: a foreign prefix must never be ignored. The default profile's handle
-    ``hermes`` reaches the default profile, because peers address the mirror by the handle their
-    roster shows (#118076), unless the host has a profile literally named ``hermes``."""
+    ``envoy`` reaches the default profile, because peers address the mirror by the handle their
+    roster shows (#118076), unless the host has a profile literally named ``envoy``."""
     from gateway.platforms.api_server import _PROFILE_REJECTED, _prefix_names_served_profile
     profile = _prefix_profile(request)
     if not profile:

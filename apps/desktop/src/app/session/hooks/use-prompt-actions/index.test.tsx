@@ -193,7 +193,7 @@ describe('durable submit acknowledgement', () => {
   })
 
   it('a legacy backend refusing submission_id as version skew (4000) gets one identityless retry', async () => {
-    // `hermes serve` validates params against a strict contract: an unknown key is refused
+    // `envoy serve` validates params against a strict contract: an unknown key is refused
     // as 4000 before any handler ran (surfaced by the remote-topology E2E as "Session unavailable").
     const submits: Array<Record<string, unknown>> = []
 
@@ -202,7 +202,7 @@ describe('durable submit acknowledgement', () => {
       submits.push(params!)
 
       if ('submission_id' in params!) {
-        throw Object.assign(new Error('invalid params for prompt.submit: submission_id: Extra inputs are not permitted — the client and the Hermes backend are out of sync (different versions)'), { code: 4000 })
+        throw Object.assign(new Error('invalid params for prompt.submit: submission_id: Extra inputs are not permitted — the client and the Envoy backend are out of sync (different versions)'), { code: 4000 })
       }
 
       return { status: 'streaming' } as never
@@ -572,7 +572,7 @@ function renderedSeedTexts(seeds: Record<string, unknown>[]): string[] {
 
 // The HUD floats over the app the user is really working in, so the gateway
 // turns this flag into a per-turn hint: read the window underneath and work in
-// it, rather than reaching for Hermes's own browser and panes.
+// it, rather than reaching for Envoy's own browser and panes.
 describe('usePromptActions HUD surface', () => {
   afterEach(() => {
     cleanup()

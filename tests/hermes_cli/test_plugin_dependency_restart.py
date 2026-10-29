@@ -128,7 +128,7 @@ def test_enable_reports_restart_when_the_running_gateway_cannot_import_the_depen
     assert result["activation"]["missing_dependencies"] == [REQ]
     assert result["activation"]["missing_in"] == ["gateway"]
     assert "nothing of this plugin needs" not in hint
-    assert "installed after the running gateway" in hint and "hermes gateway restart" in hint
+    assert "installed after the running gateway" in hint and "envoy gateway restart" in hint
 
 
 def test_restart_names_only_the_process_that_cannot_import(home, monkeypatch):
@@ -143,7 +143,7 @@ def test_restart_names_only_the_process_that_cannot_import(home, monkeypatch):
     hint = plugins_activation.activation_hint(result)
 
     assert result["restart_required"] is True and result["activation"]["missing_in"] == ["backend"]
-    assert "desktop app" in hint and "hermes gateway restart" not in hint
+    assert "desktop app" in hint and "envoy gateway restart" not in hint
 
 
 def test_enable_reports_repair_when_the_dependency_was_never_installed(home, monkeypatch):
@@ -216,7 +216,7 @@ def test_a_plugin_importing_its_new_dependency_at_load_still_asks_for_a_restart(
 def test_restart_follows_what_pm_installs_for_the_plugin(home, shape, restart):
     """The probe reads the declaration the way PM admission does: an authored pyproject.toml, the
     legacy ``pip_dependencies`` alias, and nothing for a ``python_runtime: external`` sidecar (its
-    dependencies never enter Hermes's environment, so no restart or repair can load them)."""
+    dependencies never enter Envoy's environment, so no restart or repair can load them)."""
     from hermes_cli import plugins
 
     _select_generation(home, with_dist=True)

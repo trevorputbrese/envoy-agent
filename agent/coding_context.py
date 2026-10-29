@@ -1,6 +1,6 @@
 """Coding-context awareness: the single place that decides "are we coding?".
 
-In a code workspace on an interactive surface Hermes adopts a **coding posture**: a
+In a code workspace on an interactive surface Envoy adopts a **coding posture**: a
 frozen :class:`RuntimeMode` built from a :class:`ContextProfile` (pure data). The
 system prompt reads ``system_prompt_parts()``; the toolset collapses ONLY under opt-in
 ``focus`` (never strips a user-enabled toolset). ``agent.coding_context``: ``auto``
@@ -397,7 +397,7 @@ def resolve_runtime_mode(
 # ── Functional API (thin wrappers over RuntimeMode) ──────────────────────────
 
 def is_coding_context(*, platform: Optional[str] = None, cwd: Optional[str | Path] = None, config: Optional[dict[str, Any]] = None) -> bool:
-    """Whether Hermes should operate in its coding posture right now."""
+    """Whether Envoy should operate in its coding posture right now."""
     return resolve_runtime_mode(platform=platform, cwd=cwd, config=config).is_coding
 
 
@@ -565,7 +565,7 @@ def build_coding_workspace_block(cwd: Optional[str | Path] = None) -> str:
         # Linked worktree: say so (branches/stashes are shared state) but do NOT expose
         # the primary tree path — a second absolute path makes the model run commands
         # in the wrong directory. Derived from the session's own cwd, so every surface
-        # opened in a worktree (``hermes -w``, Ink, Desktop, ACP) gets the same guidance.
+        # opened in a worktree (``envoy -w``, Ink, Desktop, ACP) gets the same guidance.
         git_dir, common_dir = _git(root, "rev-parse", "--git-dir"), _git(root, "rev-parse", "--git-common-dir")
         if git_dir and common_dir and Path(git_dir).resolve() != Path(common_dir).resolve():
             on_branch = f" on branch {head}" if head and head != "(detached)" else ""

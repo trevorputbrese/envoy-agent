@@ -150,7 +150,7 @@ def test_running_instance_port_requires_live_pid_and_open_port(tmp_path):
 
 def test_agent_attaches_to_human_started_browser(tmp_path, monkeypatch):
     """With a live dock instance on the shared profile the agent's launch ATTACHES to it (never owned, so
-    never killed by Hermes); without one it launches its own Chromium on that profile."""
+    never killed by Envoy); without one it launches its own Chromium on that profile."""
     from tools import browser_launcher as launcher
 
     monkeypatch.setattr(launcher, "_browsers", {})

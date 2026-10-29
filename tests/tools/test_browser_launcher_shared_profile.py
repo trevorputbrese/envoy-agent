@@ -1,4 +1,4 @@
-"""One persistent (shared) profile has ONE Chromium, whichever Hermes home or launcher key reaches it.
+"""One persistent (shared) profile has ONE Chromium, whichever Envoy home or launcher key reaches it.
 
 Two homes (profiles) pinning the same ``browser.user_data_dir``, or one process reaching one dir under two keys
 (a symlinked path), drive one browser: they share its launch record, leases and lock, so the LAST holder stops
@@ -27,7 +27,7 @@ pytestmark = [pytest.mark.platforms("linux"),
 
 _REPO = Path(__file__).resolve().parents[2]
 
-# A Hermes process on a persistent profile: launches or attaches, prints "<pid> <owned>", waits for a line on
+# An Envoy process on a persistent profile: launches or attaches, prints "<pid> <owned>", waits for a line on
 # stdin, then exits normally (the session layer's exit teardown lets go of its browsers).
 _PROFILE_USER = textwrap.dedent("""\
     import os, sys

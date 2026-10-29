@@ -167,7 +167,7 @@ def _managed_install() -> bool:
 
 
 def _secure_cache_dir(new_subpath: str, old_name: str) -> Path:
-    """Resolve a Hermes media-cache dir, creating it owner-only (0700).
+    """Resolve an Envoy media-cache dir, creating it owner-only (0700).
 
     A downloaded image or video is as sensitive as whatever the user pointed
     the agent at — a private attachment, an internal screenshot, a document
@@ -193,7 +193,7 @@ def _secure_cache_dir(new_subpath: str, old_name: str) -> Path:
     they are made lazily at runtime; a hardcoded 0700 here would be the only
     thing setting their mode and would silently override a design that pins
     ``stateDir/.hermes`` to ``2770`` and runs the gateway with ``UMask =
-    "0007"`` so "interactive users in the hermes group can read/write"
+    "0007"`` so "interactive users in the envoy group can read/write"
     gateway-created state. On such a host the gateway and a hostUsers CLI
     share one ``$HERMES_HOME``, so a 0700 cache created by whichever ran
     first makes vision fail with EACCES for the other. Skipping the explicit
@@ -201,9 +201,9 @@ def _secure_cache_dir(new_subpath: str, old_name: str) -> Path:
     ``ensure_hermes_home``'s managed branch and its ``logs/curator``
     lazy-mkdir precedent.
 
-    Running it unconditionally also heals a directory an older Hermes left at
+    Running it unconditionally also heals a directory an older Envoy left at
     0755. That retroactive tighten is safe *here* because this is
-    Hermes-private scratch that the same user re-reads in the same call —
+    Envoy-private scratch that the same user re-reads in the same call —
     there is no user-shared content to strand. Note ``parents=True`` applies
     the mode to the leaf only, so an intermediate ``cache/`` keeps its default
     mode; it is shared with other subsystems and holds only directory names.
@@ -681,7 +681,7 @@ async def _prepare_image(
 def _too_large_message(image_data_url: str) -> str:
     return (
         f"Image too large for vision API: base64 payload is {len(image_data_url) / (1024 * 1024):.1f} MB "
-        f"(limit {_MAX_BASE64_BYTES / (1024 * 1024):.0f} MB) even after resizing. Run `hermes pm repair` "
+        f"(limit {_MAX_BASE64_BYTES / (1024 * 1024):.0f} MB) even after resizing. Run `envoy pm repair` "
         f"to restore Pillow for auto-resize, or compress the image manually.")
 
 
@@ -1107,7 +1107,7 @@ async def _materialize_video(video_url: str, task_id: Optional[str], temp_paths:
         # a caller-supplied destination (tools/image_source.py hands its
         # sibling a /tmp NamedTemporaryFile it owns the mode of), and
         # chmod-ing an arbitrary caller's parent to 0700 would be a
-        # destructive side effect on a path Hermes does not own.
+        # destructive side effect on a path Envoy does not own.
         temp_dir = _secure_cache_dir("cache/video", "temp_video_files")
         path = temp_dir / f"temp_video_{uuid.uuid4()}.mp4"
         temp_paths.append(path)

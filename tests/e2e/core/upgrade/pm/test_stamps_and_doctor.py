@@ -4,7 +4,7 @@ One real install, taken through a dependency-changing ``hermes update`` so the s
 is not the installer's. Then:
 
 * every ``hermes`` the install ships agrees on what the install is. The selected generation's own
-  console script (``<gen>/venv/bin/hermes``) is on PATH for every child a Hermes process spawns
+  console script (``<gen>/venv/bin/hermes``) is on PATH for every child an Envoy process spawns
   (``activate_dependencies`` prepends that ``bin``), so the agent's terminal, workers and scripts
   resolve ``hermes`` to it. It must report the checkout as the install and be able to check for
   updates; it reports the workspace copy instead (gated on #122425 and #122627);
@@ -44,7 +44,7 @@ pytestmark = [
 
 
 def _section(doctor_out: str, title: str) -> list[str]:
-    """The lines of one ``◆ <title>`` section of ``hermes doctor`` output."""
+    """The lines of one ``◆ <title>`` section of ``envoy doctor`` output."""
     lines, inside = [], False
     for line in doctor_out.splitlines():
         if line.startswith("◆ "):
@@ -69,7 +69,7 @@ def updated(tmp_path_factory, provider):
     installed_gen = P.selected_generation(sb)
     target = P.publish_dependency_release(origin, root, 1)
     up = P.update(sb)
-    P.ok(up, "hermes update failed")
+    P.ok(up, "envoy update failed")
     assert P.selected_generation(sb) != installed_gen, "harness: update did not select a new generation"
     assert I.git("rev-parse", "HEAD", cwd=sb.checkout) == target
     return {"sb": sb, "target": target, "update": up, "origin": origin, "root": root}
@@ -82,10 +82,10 @@ def _venv_hermes(sb: I.Sandbox) -> str:
 def test_managed_env_hermes_can_check_for_updates(updated):
     sb = updated["sb"]
     exe = _venv_hermes(sb)
-    assert Path(exe).is_file(), f"harness: selected generation ships no hermes console script: {exe}"
+    assert Path(exe).is_file(), f"harness: selected generation ships no envoy console script: {exe}"
     cp = sb.run([exe, "update", "--check"], timeout=300)
     assert cp.returncode == 0 and "Not a git repository" not in cp.stdout + cp.stderr, (
-        "`hermes update --check` from the managed environment: " + (cp.stdout + cp.stderr).strip()[-400:]
+        "`envoy update --check` from the managed environment: " + (cp.stdout + cp.stderr).strip()[-400:]
         + "\n" + I.describe(cp))
 
 
@@ -94,10 +94,10 @@ def test_managed_env_hermes_reports_the_checkout_as_the_install(updated):
     cp = P.ok(sb.run([_venv_hermes(sb), "--version"], timeout=300))
     shown = re.search(r"Install directory: (.+)", cp.stdout)
     method = re.search(r"Install method: (.+)", cp.stdout)
-    with known_failure(r"managed-environment hermes reports install .*/environments/[0-9a-f]+/workspace",
+    with known_failure(r"managed-environment envoy reports install .*/environments/[0-9a-f]+/workspace",
                        "gated on #122425: the workspace copy carries no install metadata"):
         assert shown and shown.group(1).strip() == str(sb.checkout) and method and method.group(1).strip() == "git", (
-            f"managed-environment hermes reports install {shown and shown.group(1)} "
+            f"managed-environment envoy reports install {shown and shown.group(1)} "
             f"(method {method and method.group(1)}), not the checkout {sb.checkout}:\n{cp.stdout}")
 
 
@@ -108,8 +108,8 @@ def test_doctor_on_a_healthy_pm_install_reports_no_command_installation_problem(
     section = _section(cp.stdout, "Command Installation")
     assert section, "doctor printed no Command Installation section:\n" + I.describe(cp)
     bad = [line for line in section if line.lstrip().startswith(("⚠", "✗"))]
-    assert not bad, f"hermes doctor reports a launcher problem on a healthy PM install: {bad}\n" + I.describe(cp)
-    assert f"Hermes entry point exists ({sb.checkout / 'hermes'})" in cp.stdout, "\n".join(section)
+    assert not bad, f"envoy doctor reports a launcher problem on a healthy PM install: {bad}\n" + I.describe(cp)
+    assert f"Envoy entry point exists ({sb.checkout / 'hermes'})" in cp.stdout, "\n".join(section)
 
 
 def test_pm_status_receipt_reports_the_successful_update(updated):
@@ -117,7 +117,7 @@ def test_pm_status_receipt_reports_the_successful_update(updated):
     receipt = json.loads(P.ok(sb.cli("pm", "status")).stdout)
     code = receipt.get("exit_code", receipt.get("pm_exit_code"))
     assert code == 0 and receipt.get("outcome") in ("ok", "success"), (
-        f"`hermes pm status` does not report the last (successful) update as a success: {receipt}")
+        f"`envoy pm status` does not report the last (successful) update as a success: {receipt}")
 
 
 @pytest.fixture(scope="module")
@@ -139,16 +139,16 @@ def test_doctor_reports_web_extra_drift(drifted):
     flagged = [line for line in cp.stdout.splitlines()
                if re.search(r"(?i)fastapi|dashboard|web extra|\bweb\b.*(missing|not installed)", line)
                and line.lstrip().startswith(("⚠", "✗"))]
-    assert flagged, ("hermes doctor is silent about fastapi missing from the selected environment "
+    assert flagged, ("envoy doctor is silent about fastapi missing from the selected environment "
                      f"(rc={cp.returncode})\n" + I.describe(cp))
 
 
 def test_pm_repair_heals_the_drift(drifted):
     sb, rp = drifted["sb"], drifted["repair"]
-    assert rp.returncode == 0, "hermes pm repair failed on a drifted environment:\n" + P.diagnostics(sb, rp)
+    assert rp.returncode == 0, "envoy pm repair failed on a drifted environment:\n" + P.diagnostics(sb, rp)
     imports = P.managed_imports(sb, "fastapi", "hermes_cli.web_server")
     assert set(imports.values()) == {"ok"}, (
-        f"`hermes pm repair` exited 0 but the dashboard still cannot import: {imports}\n" + P.diagnostics(sb, rp))
+        f"`envoy pm repair` exited 0 but the dashboard still cannot import: {imports}\n" + P.diagnostics(sb, rp))
 
 
 def test_failed_dependency_update_is_an_owed_followup(updated):
@@ -164,7 +164,7 @@ def test_failed_dependency_update_is_an_owed_followup(updated):
     up = P.update(sb)
     receipt = json.loads(P.ok(sb.cli("pm", "status")).stdout)
     assert up.returncode == 0, (
-        "`hermes update` failed although the code committed; a dependency sync after the tree moved "
+        "`envoy update` failed although the code committed; a dependency sync after the tree moved "
         "is an owed follow-up (A6)\n" + P.diagnostics(sb, up))
     assert I.git("rev-parse", "HEAD", cwd=sb.checkout) == target, "the code update did not land\n" + P.diagnostics(sb, up)
     assert re.search(r"⚠ Update follow-up 'dependencies' did not finish: .*dependencies not installed yet",

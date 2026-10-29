@@ -1,7 +1,7 @@
 /**
  * Stop the backends E2E runs start, at three points.
  *
- * Desktop dials its backend through `hermes gateway ensure`, which spawns a detached
+ * Desktop dials its backend through `envoy gateway ensure`, which spawns a detached
  * `gateway run` that outlives the app on purpose (production attach mode). Closing the app
  * therefore never stops it, and an orphan rewrites its sandbox HERMES_HOME after the
  * fixture's rmSync, so the leaked run root reappears. Each layer below covers a teardown the

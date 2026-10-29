@@ -461,7 +461,7 @@ class TestValidateBackupZip:
                 zf.writestr(name, "dummy")
 
     def test_state_db_passes(self, tmp_path):
-        """A zip containing state.db is accepted as a valid Hermes backup."""
+        """A zip containing state.db is accepted as a valid Envoy backup."""
         from hermes_cli.backup import _validate_backup_zip
         zip_path = tmp_path / "backup.zip"
         self._make_zip(zip_path, ["state.db", "sessions/abc.json"])
@@ -729,7 +729,7 @@ class TestImport:
         assert cmd_import(args) is None
         out = capsys.readouterr().out
         assert "Preserved 1 runtime state file(s)" in out
-        assert "Done. Your Hermes configuration has been restored." in out
+        assert "Done. Your Envoy configuration has been restored." in out
 
 
 
@@ -975,7 +975,7 @@ class TestBackupEdgeCases:
         assert run_backup(Namespace(output=str(tmp_path / "out4.zip"))) is True
 
     def test_empty_hermes_home(self, tmp_path, monkeypatch):
-        """Backup handles empty hermes home (no files to back up)."""
+        """Backup handles empty envoy home (no files to back up)."""
         hermes_home = tmp_path / ".hermes"
         hermes_home.mkdir()
         # Only excluded dirs, no actual files
@@ -1650,7 +1650,7 @@ class TestQuickSnapshot:
 
 
 # ---------------------------------------------------------------------------
-# Pre-update backup (hermes update safety net)
+# Pre-update backup (envoy update safety net)
 # ---------------------------------------------------------------------------
 
     # -- security: path traversal regression coverage -----------------------
@@ -1877,7 +1877,7 @@ class TestFailedZipMemberRecovery:
 
 
 class TestPreUpdateBackup:
-    """Tests for create_pre_update_backup — the auto-backup ``hermes update``
+    """Tests for create_pre_update_backup — the auto-backup ``envoy update``
     runs before touching anything."""
 
 
@@ -1891,7 +1891,7 @@ class TestPreUpdateBackup:
 
     def test_backup_contents_match_full_backup(self, hermes_home):
         """Pre-update backup should include the same user data that
-        ``hermes backup`` would, and should exclude the same directories."""
+        ``envoy backup`` would, and should exclude the same directories."""
         from hermes_cli.backup import create_pre_update_backup
         out = create_pre_update_backup(hermes_home=hermes_home)
         assert out is not None
@@ -1911,7 +1911,7 @@ class TestPreUpdateBackup:
         assert "gateway.pid" not in names
 
     def test_pre_update_zip_does_not_nest_the_pre_update_snapshot(self, hermes_home):
-        """``hermes update`` in ``full`` mode takes the quick snapshot *before*
+        """``envoy update`` in ``full`` mode takes the quick snapshot *before*
         the full zip, so the zip walk sees the snapshot it just made. It must
         skip it — otherwise every pre-update zip ships state.db twice."""
         from hermes_cli.backup import (
@@ -2041,12 +2041,12 @@ class TestRunPreUpdateBackup:
 
 
 # ---------------------------------------------------------------------------
-# Pre-migration backup (safety net for agent imports, e.g. hermes import-agent openclaw)
+# Pre-migration backup (safety net for agent imports, e.g. envoy import-agent openclaw)
 # ---------------------------------------------------------------------------
 
 class TestPreMigrationBackup:
     """Tests for create_pre_migration_backup — the auto-backup
-    ``hermes import-agent openclaw`` runs before mutating ~/.hermes/."""
+    ``envoy import-agent openclaw`` runs before mutating ~/.hermes/."""
 
     @pytest.fixture
     def hermes_home(self, tmp_path):
@@ -2057,7 +2057,7 @@ class TestPreMigrationBackup:
 
 
     def test_restorable_with_hermes_import(self, hermes_home, tmp_path):
-        """The zip produced by pre-migration backup must be a valid Hermes
+        """The zip produced by pre-migration backup must be a valid Envoy
         backup — `hermes import` should accept it."""
         from hermes_cli.backup import create_pre_migration_backup, _validate_backup_zip
         out = create_pre_migration_backup(hermes_home=hermes_home)
@@ -2089,7 +2089,7 @@ class TestPreMigrationBackup:
 # ---------------------------------------------------------------------------
 
 class TestRestoreCronJobsIfEmptied:
-    """`hermes update` config migration can leave cron/jobs.json valid-but-empty,
+    """`envoy update` config migration can leave cron/jobs.json valid-but-empty,
     silently dropping every scheduled job. `restore_cron_jobs_if_emptied` is the
     post-migration safety net that restores from the pre-update snapshot."""
 
@@ -2674,7 +2674,7 @@ class TestImportHonorsHermesHomeOverride:
 # ---------------------------------------------------------------------------
 
 def _write_session_db(path: Path, sessions: int, messages_per_session: int) -> None:
-    """Create a minimal Hermes-shaped session database at *path*."""
+    """Create a minimal Envoy-shaped session database at *path*."""
     conn = sqlite3.connect(str(path))
     try:
         conn.execute(
@@ -2701,7 +2701,7 @@ def _write_session_db(path: Path, sessions: int, messages_per_session: int) -> N
 
 
 class TestImportLiveSessionDatabase:
-    """`hermes import` must not swap the inode of a database Hermes holds open.
+    """`hermes import` must not swap the inode of a database Envoy holds open.
 
     Publishing state.db with a rename leaves any live gateway/dashboard/WebUI
     connection reading and writing the unlinked inode, so its sessions vanish

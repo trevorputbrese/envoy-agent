@@ -1,5 +1,5 @@
 """Config step 51 -> 52 (registered in ``hermes_cli.config_migrations.MIGRATIONS``): agent-browser and the
-built-in browser_* tools left Hermes, so ``browser.backend`` / ``browser.extension_control`` go and the
+built-in browser_* tools left Envoy, so ``browser.backend`` / ``browser.extension_control`` go and the
 AGENT_BROWSER_* settings a home's .env gave agent-browser move to the ``browser.*`` keys the launcher reads."""
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ import re
 from typing import Any
 
 
-# AGENT_BROWSER_* (read by agent-browser, which left Hermes) -> the browser.* key Hermes reads now.
+# AGENT_BROWSER_* (read by agent-browser, which left Envoy) -> the browser.* key Envoy reads now.
 _AGENT_BROWSER_ENV_KEYS = (
     ("AGENT_BROWSER_EXECUTABLE_PATH", "executable_path"),
     ("AGENT_BROWSER_PROFILE", "user_data_dir"),
@@ -61,7 +61,7 @@ def _browser_value_from_env(key: str, value: str) -> Any:
     if key == "executable_path" and _inside_pm_store(value):
         return None
     if key == "user_data_dir" and not os.path.isabs(os.path.expanduser(value)):
-        # agent-browser inherited Hermes's cwd and resolved a relative profile there; browser.user_data_dir
+        # agent-browser inherited Envoy's cwd and resolved a relative profile there; browser.user_data_dir
         # anchors relative paths at HERMES_HOME, so pin the directory the logins are in now.
         return os.path.abspath(os.path.expanduser(value))
     return value
@@ -69,7 +69,7 @@ def _browser_value_from_env(key: str, value: str) -> Any:
 
 def _config_decided(key: str, current: Any) -> bool:
     """``browser.<key>`` already won over its AGENT_BROWSER_* var, as core resolved them: ``engine: auto``
-    deferred to AGENT_BROWSER_ENGINE and ``headed`` was config OR env, so those defaults (core's `hermes
+    deferred to AGENT_BROWSER_ENGINE and ``headed`` was config OR env, so those defaults (core's `envoy
     tools` Local Browser row wrote ``engine: auto``; old saves materialised both) do not block the move."""
     if key == "engine":
         return str(current or "").strip().lower() not in ("", "auto")
@@ -82,11 +82,11 @@ def _config_decided(key: str, current: Any) -> bool:
 # ``browser-use`` meant the built-in tools, on whatever browser the value named.
 _BACKEND_REASONS = {
     "browser-use": "browser_exec (Browser Use mode) is the only browser now",
-    "agent-browser": "agent-browser left Hermes; browser_exec is the browser now",
-    "camofox": "Camofox is now the camofox plugin (`hermes plugins install camofox`)",
-    "local": "browser_exec launches Hermes's packaged Chromium itself (browser.cloud_provider: local)",
+    "agent-browser": "agent-browser left Envoy; browser_exec is the browser now",
+    "camofox": "Camofox is now the camofox plugin (`envoy plugins install camofox`)",
+    "local": "browser_exec launches Envoy's packaged Chromium itself (browser.cloud_provider: local)",
     **dict.fromkeys(("browserbase", "firecrawl", "nous"),
-                    "a cloud browser is chosen with browser.cloud_provider (`hermes tools` → Browser Automation)"),
+                    "a cloud browser is chosen with browser.cloud_provider (`envoy tools` → Browser Automation)"),
 }
 
 
@@ -113,9 +113,9 @@ def move_agent_browser_env(home, browser: dict) -> tuple[list[str], list[str]]:
         browser[key] = new
         moved.append(f"{name} → browser.{key}")
         if key == "user_data_dir" and new != value:
-            # Resolved against this process's cwd, which need not be where Hermes ran before.
+            # Resolved against this process's cwd, which need not be where Envoy ran before.
             pinned.append(f"pinned browser.user_data_dir to {new}: {name}={value} was relative to the directory "
-                          f"Hermes ran in; check that the browser logins are there")
+                          f"Envoy ran in; check that the browser logins are there")
     return moved, pinned
 
 
@@ -147,7 +147,7 @@ def adopt_agent_browser_env(home, config: dict) -> list[str]:
 
 
 def migrate_to_52(results: dict[str, Any], quiet: bool) -> None:
-    # 51 -> 52: agent-browser and the built-in browser_* tools left Hermes; browser_exec is the only
+    # 51 -> 52: agent-browser and the built-in browser_* tools left Envoy; browser_exec is the only
     # browser. `browser.backend` chose between the two, so it is dropped (an `off`, the opt-out of
     # browser_exec, gets a notice saying how to turn browsing off now). The AGENT_BROWSER_* settings
     # this home's .env gave agent-browser move to the browser.* keys the launcher reads, never over
@@ -169,9 +169,9 @@ def migrate_to_52(results: dict[str, Any], quiet: bool) -> None:
         backend = browser.pop("backend")
         # YAML 1.1 reads an unquoted `off` as False; core treated that as off too.
         if backend is False or (isinstance(backend, str) and backend.strip().lower() == "off"):
-            # config_added is what `hermes update` re-surfaces on its quiet path, so the notice rides in it.
+            # config_added is what `envoy update` re-surfaces on its quiet path, so the notice rides in it.
             note = ("removed browser.backend: off — the built-in browser tools are gone and browser_exec is the "
-                    "browser now; to turn browsing off, disable the `browser` toolset in `hermes tools`")
+                    "browser now; to turn browsing off, disable the `browser` toolset in `envoy tools`")
             added.append(note)
             messages.append(f"  ✓ {note[0].upper()}{note[1:]}.")
             notices.append(f"{note[0].upper()}{note[1:]}.")

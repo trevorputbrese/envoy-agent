@@ -72,14 +72,14 @@ _OPERATIONS = {
 
 @pytest.mark.parametrize("operation", _OPERATIONS, ids=_OPERATIONS)
 def test_io_guard_denies_protected_roots_before_mutation(protected_home, operation):
-    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL hermes home"):
+    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL envoy home"):
         _OPERATIONS[operation](protected_home / "file.txt")
 
 
 def test_rename_cannot_overwrite_a_protected_destination(protected_home, tmp_path):
     source = tmp_path / "source.txt"
     source.write_text("external", encoding="utf-8")
-    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL hermes home"):
+    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL envoy home"):
         source.replace(protected_home / "file.txt")
     assert source.read_text(encoding="utf-8") == "external"
 
@@ -87,23 +87,23 @@ def test_rename_cannot_overwrite_a_protected_destination(protected_home, tmp_pat
 def test_installed_desktop_app_can_be_read_but_never_changed(tmp_path, monkeypatch):
     from tests import conftest
 
-    app = tmp_path / "Applications" / "Hermes.app"
+    app = tmp_path / "Applications" / "Envoy.app"
     (app / "Contents").mkdir(parents=True)
     plist = app / "Contents" / "Info.plist"
     plist.write_text("unchanged", encoding="utf-8")
-    replacement = tmp_path / "Hermes.app.new"
+    replacement = tmp_path / "Envoy.app.new"
     replacement.mkdir()
     changes = [lambda: shutil.rmtree(app), plist.unlink, lambda: replacement.replace(app),
                lambda: plist.write_text("clobbered", encoding="utf-8")]
     try:  # Windows without Developer Mode cannot create symlinks
         (tmp_path / "linked").symlink_to(app.parent, target_is_directory=True)
-        changes.append(lambda: shutil.rmtree(tmp_path / "linked" / "Hermes.app"))
+        changes.append(lambda: shutil.rmtree(tmp_path / "linked" / "Envoy.app"))
     except OSError:
         pass
     monkeypatch.setattr(conftest, "_REAL_INSTALLED_GUI_APPS", [os.path.normcase(os.path.realpath(app))])
     assert plist.read_text(encoding="utf-8") == "unchanged"
     for change in changes:
-        with pytest.raises(pytest.fail.Exception, match="REAL installed Hermes desktop app"):
+        with pytest.raises(pytest.fail.Exception, match="REAL installed Envoy desktop app"):
             change()
     assert plist.read_text(encoding="utf-8") == "unchanged"
 
@@ -166,7 +166,7 @@ def test_path_metadata_exemption_tracks_path_changes(protected_home, monkeypatch
     monkeypatch.setenv("PATH", str(protected_home))
     guard.check(target, metadata=True)  # executable lookup, not a state read
     monkeypatch.setenv("PATH", str(protected_home.parent))
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL envoy home"):
         guard.check(target, metadata=True)
 
 
@@ -182,13 +182,13 @@ def test_relative_path_metadata_exemption_tracks_working_directory(protected_hom
     monkeypatch.chdir(other)
     guard.check(target, metadata=True)
     monkeypatch.chdir(other / "nested")
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL envoy home"):
         guard.check(target, metadata=True)
 
 
 def test_resolving_a_path_entry_under_the_home_is_command_lookup(protected_home, monkeypatch):
     """Command resolution realpath()s a PATH entry under the home (``~/.hermes/tools/<tool>``)
-    to tell Hermes-managed bin dirs apart; that lstats the entry and each of its ancestors."""
+    to tell Envoy-managed bin dirs apart; that lstats the entry and each of its ancestors."""
     from tests.home_io_guard import HomeIOGuard
 
     entry = protected_home / "tools" / "npm" / "bin"
@@ -196,9 +196,9 @@ def test_resolving_a_path_entry_under_the_home_is_command_lookup(protected_home,
     monkeypatch.setenv("PATH", str(entry))
     guard.check(entry, metadata=True)
     guard.check(entry.parent, metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL envoy home"):
         guard.check(protected_home / "tools" / "other", metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL envoy home"):
         guard.check(entry.parent, metadata=False)
 
 
@@ -212,14 +212,14 @@ def test_checkout_inside_a_guarded_root_is_not_hermes_state():
     guard = HomeIOGuard(lambda: [PROJECT_ROOT.parent])
     guard.check(PROJECT_ROOT / "tests" / "home_io_guard.py")
     guard.check(PROJECT_ROOT / ".venv" / "bin" / "python", metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL envoy home"):
         guard.check(PROJECT_ROOT.parent / "config.yaml")
 
 
 @pytest.mark.parametrize("kind", ["environments", "test-environment"])
 def test_pm_generation_dir_around_the_running_venv_is_the_interpreter(tmp_path, kind):
     """scripts/run_tests.sh runs ``<home>/installs/<key>/<kind>/<gen>/venv`` with HOME pointed at the
-    run's fake home, so that venv sits under the guarded root. `hermes update` probes
+    run's fake home, so that venv sits under the guarded root. `envoy update` probes
     ``<venv>/../hermes_cli/main.py`` (update_owning_install) and must not trip the guard."""
     from tests.home_io_guard import _pm_generation_dirs
 
@@ -232,10 +232,10 @@ def test_pm_generation_dir_around_the_running_venv_is_the_interpreter(tmp_path, 
 
 
 def test_hermes_exported_scratch_tmp_is_not_the_test_temp_root(tmp_path):
-    """A Hermes-launched shell hands pytest TMPDIR=<home>/cache/scratch (tagged by
+    """An Envoy-launched shell hands pytest TMPDIR=<home>/cache/scratch (tagged by
     HERMES_SCRATCH_DIR). With that home guarded, honoring it would put the session
     sandbox, basetemp and every tempfile default inside the guarded root; the
-    conftest must drop Hermes' own export before anything allocates temp space."""
+    conftest must drop Envoy's own export before anything allocates temp space."""
     home = tmp_path / "home"
     scratch = home / "cache" / "scratch"
     scratch.mkdir(parents=True)

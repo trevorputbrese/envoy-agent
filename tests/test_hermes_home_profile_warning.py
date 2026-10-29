@@ -1,6 +1,6 @@
 """Tests for get_hermes_home() profile-mode fallback warning.
 
-Regression test for https://github.com/NousResearch/hermes-agent/issues/18594.
+Regression test for https://github.com/trevorputbrese/envoy-agent/issues/18594.
 
 When HERMES_HOME is unset but an active_profile file indicates a non-default
 profile is active, get_hermes_home() should:
@@ -125,7 +125,7 @@ class TestBootReadersBeforeProfileOverride:
     def test_explicit_home_scratch_dir_never_reads_the_effective_home(
         self, fresh_constants, tmp_path, capsys
     ):
-        """A caller that passes a home (`hermes doctor` for another profile) stays silent."""
+        """A caller that passes a home (`envoy doctor` for another profile) stays silent."""
         hermes_dir = tmp_path / ".hermes"
         profile_dir = hermes_dir / "profiles" / "coder"
         profile_dir.mkdir(parents=True)

@@ -142,7 +142,7 @@ async def test_legacy_adoption_refuses_live_owner_and_foreign_profile_without_wr
 @pytest.mark.asyncio
 async def test_upgraded_oneshot_and_tool_history_resumes_by_id_and_title_but_stays_out_of_pickers(tmp_path, monkeypatch):
     """main's `chat -q` stored ``oneshot`` rows (``--source tool`` stored ``tool``) and printed
-    `hermes --resume <id>` for each. After the upgrade, the native owner adopts them by id and by
+    `envoy --resume <id>` for each. After the upgrade, the native owner adopts them by id and by
     title like ``cli`` history, and they keep their label so human pickers still hide them."""
     from gateway import run
     from gateway.config import GatewayConfig
@@ -182,7 +182,7 @@ async def test_upgraded_oneshot_and_tool_history_resumes_by_id_and_title_but_sta
 async def test_upgraded_desktop_history_resumes_by_id(tmp_path, monkeypatch):
     """main's Desktop stored its chats with ``source='desktop'``. After the upgrade the native owner
     adopts them by id like ``gui`` history, including the ones stamped with the signed-in Nous
-    account. A served remote backend's login stamp (``hermes serve`` basic auth) adopts for that same
+    account. A served remote backend's login stamp (``envoy serve`` basic auth) adopts for that same
     login only. Any other identity still needs its own authority."""
     from gateway import run
     from gateway.config import GatewayConfig
@@ -213,7 +213,7 @@ async def test_upgraded_desktop_history_resumes_by_id(tmp_path, monkeypatch):
     stamped = await native.dispatch({'id': 2, 'method': 'session.resume', 'params': {'session_id': 'old-desktop-account'}})
     assert stamped.get('result', {}).get('session_id') == 'old-desktop-account', stamped
     assert [m['content'] for m in stamped['result']['messages']] == ['OLD-DESKTOP-ACCOUNT']
-    # A served remote backend stamped its basic-auth login on the row at creation (#139818). Hermes
+    # A served remote backend stamped its basic-auth login on the row at creation (#139818). Envoy
     # is single-user and sign-in is owner-only, so that login is the machine owner: the owner's own
     # native ticket (native Desktop, the TUI) adopts it once its serve is gone (gateway.owner_identity).
     caps = ['session:create', 'session:read', 'session:submit', 'session:control', 'session:approve',

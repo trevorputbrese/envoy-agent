@@ -52,11 +52,11 @@ def _fg(hex_color: str, bold: bool = False) -> str:
 
 
 def _brand_glyph() -> tuple[str, str]:
-    """(glyph, name) from the skin's response label, e.g. ``" ☤ Hermes "`` → ("☤", "Hermes")."""
+    """(glyph, name) from the skin's response label, e.g. ``" ◈ Envoy "`` → ("◈", "Envoy")."""
     from hermes_cli.skin_engine import get_active_skin
-    label = get_active_skin().get_branding("response_label", " ☤ Hermes ")
+    label = get_active_skin().get_branding("response_label", " ◈ Envoy ")
     parts = label.split(None, 1)
-    return (parts[0], parts[1].strip()) if len(parts) == 2 else ("☤", label.strip() or "Hermes")
+    return (parts[0], parts[1].strip()) if len(parts) == 2 else ("◈", label.strip() or "Envoy")
 
 
 def prompt_glyph() -> str:
@@ -81,7 +81,7 @@ def separator(accent: bool) -> str:
     a blank line ahead of it, so it also settles a gap the previous block owes."""
     global _GAP_PENDING
     _GAP_PENDING = False
-    color = _fg(_skin_hex("ui_accent", "#FFBF00")) if accent else _DIM
+    color = _fg(_skin_hex("ui_accent", "#0095D3")) if accent else _DIM
     return f"{color}{'─' * _SEPARATOR_WIDTH}{_RST}"
 
 
@@ -109,7 +109,7 @@ def answer_label(timestamp: str = "") -> str:
     """The rows that open an answer: the accent bar, then the skin's brand glyph + name."""
     glyph, name = _brand_glyph()
     stamp = f" {_DIM}{timestamp}{_RST}" if timestamp else ""
-    return f"\n{separator(True)}\n{_fg(_skin_hex('ui_accent', '#FFBF00'), bold=True)}{glyph} {name}{_RST}{stamp}"
+    return f"\n{separator(True)}\n{_fg(_skin_hex('ui_accent', '#0095D3'), bold=True)}{glyph} {name}{_RST}{stamp}"
 
 
 def _full_title(text: str) -> str:
@@ -284,7 +284,7 @@ def _fit(cli, frags: list, width: int) -> list:
 def top_rule_fragments(cli) -> list:
     """``── ⠹ Running tests · 14s ─────────── calc helpers ─``: live status left, session title right."""
     width = max(10, cli._get_tui_terminal_width())
-    rule, accent = rule_style(), f"fg:{_skin_hex('ui_accent', '#FFBF00')} bold"
+    rule, accent = rule_style(), f"fg:{_skin_hex('ui_accent', '#0095D3')} bold"
     busy = getattr(cli, "_agent_running", False) or getattr(cli, "_command_running", False)
     left: list = []
     if busy:
@@ -296,7 +296,7 @@ def top_rule_fragments(cli) -> list:
                 left.append(("class:status-bar-dim bg:default", f" · {extra}"))
         left.append((rule, " "))
     title = cli._get_status_bar_session_title()
-    right = [(rule, " "), (f"fg:{_skin_hex('ui_label', '#DAA520')}", title), (rule, " ─")] if title else []
+    right = [(rule, " "), (f"fg:{_skin_hex('ui_label', '#89CBDF')}", title), (rule, " ─")] if title else []
     used = sum(cli._status_bar_display_width(text) for _, text in left + right)
     if used >= width:
         right, used = [], sum(cli._status_bar_display_width(text) for _, text in left)
@@ -330,7 +330,7 @@ def _render_safely(render, cli) -> list:
         return render(cli)
     except Exception:  # health: allow BLE001 -- a render callback must never take down the app frame
         logger.debug("%s failed", render.__name__, exc_info=True)
-        return [("", f" {getattr(cli, 'model', '') or 'Hermes'}")]
+        return [("", f" {getattr(cli, 'model', '') or 'Envoy'}")]
 
 
 def _status_line_fragments(cli) -> list:

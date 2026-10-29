@@ -1,7 +1,7 @@
 """agent/plan_limits.py: the one rule (what a full allowance blocks), the suggestions after a usage-window
 refusal (the plan's recommended models that still work), and the copy for surfaces without buttons.
 
-Hermes never switches model on its own; these only describe the limit and what to offer.
+Envoy never switches model on its own; these only describe the limit and what to offer.
 """
 
 from __future__ import annotations

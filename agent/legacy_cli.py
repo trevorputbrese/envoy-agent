@@ -13,9 +13,9 @@ from __future__ import annotations
 try:
     import hermes_bootstrap
 except ModuleNotFoundError:
-    pass  # partial `hermes update` — only skips the Windows UTF-8 stdio setup
+    pass  # partial `envoy update` — only skips the Windows UTF-8 stdio setup
 
-# The `hermes-agent` console script lands here without hermes_cli.main: repair a `hermes update` killed
+# The `hermes-agent` console script lands here without hermes_cli.main: repair a `envoy update` killed
 # while git wrote the new tree before importing anything else from the checkout.
 from hermes_cli import _early_recovery
 
@@ -30,10 +30,10 @@ def _build_parser() -> argparse.ArgumentParser:
     from hermes_cli import __release_date__, __version__
 
     parser = argparse.ArgumentParser(
-        prog="hermes-agent",
-        description="Legacy single-query Hermes Agent runner. For the full CLI use `hermes`.",
+        prog="envoy-agent",
+        description="Legacy single-query Envoy Agent runner. For the full CLI use `envoy`.",
     )
-    parser.add_argument("--version", action="version", version=f"Hermes Agent v{__version__} ({__release_date__})")
+    parser.add_argument("--version", action="version", version=f"Envoy Agent v{__version__} ({__release_date__})")
     parser.add_argument("prompt", nargs="*", help="query to run (same as --query)")
     parser.add_argument("--query", "-q", help="natural-language query to run")
     parser.add_argument("--model", default="", help="model id (provider/model)")
@@ -71,7 +71,7 @@ def main(argv: Optional[list[str]] = None, *, run: Optional[Callable[..., object
     query = args.query or positional or None
     if query is None and not args.list_tools:
         parser.print_help()
-        print("\nNo query given: pass one with --query (or run `hermes` for the interactive CLI).")
+        print("\nNo query given: pass one with --query (or run `envoy` for the interactive CLI).")
         return 0
 
     if run is None:

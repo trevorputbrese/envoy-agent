@@ -5,9 +5,9 @@ description: "PM tool pins, Python environments, optional dependencies, and inst
 
 # Package management
 
-`hermes pm` manages Hermes tool binaries and Python dependency environments.
+`envoy pm` manages Envoy tool binaries and Python dependency environments.
 It is not the application updater. Use the installation's
-[update method](../getting-started/updating.md) to update Hermes itself.
+[update method](../getting-started/updating.md) to update Envoy itself.
 
 ## Pins, installed state, and runtime selection
 
@@ -23,7 +23,7 @@ Each file has a separate role:
 | Payload `manifest.json` | Relative payload layout and the completed launch contract from the bundle builder. |
 | `install-stamp.json` | Build provenance and the declared distribution/update owner. |
 
-A lockfile entry does not prove that a package is installed. `hermes pm doctor`
+A lockfile entry does not prove that a package is installed. `envoy pm doctor`
 compares the installed state with the lock and checks the realized bytes.
 Startup uses a cheaper check. It does not query upstream versions on every launch.
 For self-managed source installs, the pre-import launcher compares PM's recorded
@@ -49,7 +49,7 @@ The original command keeps the update lock while waiting; a missing or failed
 completion result cannot report success. Correlated PM failures remain in the
 update receipt, and interrupted restarts retain their fleet obligation.
 Dependency or build failures never retry through pip or a source re-download.
-Use `hermes pm repair` for damaged dependency files. See the developer
+Use `envoy pm repair` for damaged dependency files. See the developer
 [source completion ownership note](../developer-guide/source-update-completion.md).
 
 ## Source installs and packaged builds
@@ -82,10 +82,10 @@ virtual environments. The prepared result binds the source, target and paths;
 missing or changed inputs fail consumption rather than trigger a download.
 Reprepare after a move or input change. Signing and notarization can still use
 the network. See the
-[desktop build guide](https://github.com/NousResearch/hermes-agent/blob/main/apps/desktop/BUILDING.md)
+[desktop build guide](https://github.com/trevorputbrese/envoy-agent/blob/main/apps/desktop/BUILDING.md)
 for native compiler requirements and release verification limits.
 
-A packaged application's base payload is immutable. Hermes runs its backend
+A packaged application's base payload is immutable. Envoy runs its backend
 from that payload, rather than copying a source checkout on first launch.
 The bundle builder checks its files and writes the launch paths into the desktop
 build stamp. Electron uses those paths without probing or repairing the payload.
@@ -108,7 +108,7 @@ which data root a process uses.
 
 | State | Default location |
 |---|---|
-| Shared writable tool entries | `tools/` under the resolved default Hermes root. |
+| Shared writable tool entries | `tools/` under the resolved default Envoy root. |
 | Resumable downloads | `cache/partials/` under that root, not inside a signed payload. |
 | Per-install selection and journal | `installs/INSTALL_KEY/` under the dependency-state root. |
 | Python generations | `installs/INSTALL_KEY/environments/`. |
@@ -162,10 +162,10 @@ including code-only updates that do not require a new environment.
 Plugin selection changes, including pack enables, use the same admission
 transaction. PM reads the latest selection under its shared lock before applying
 each change. A failed candidate does not replace the selected environment or
-silently disable other plugins. If preparation succeeds, a running Hermes process
+silently disable other plugins. If preparation succeeds, a running Envoy process
 can still require a restart to activate the new environment.
 
-Ordinary Hermes application updates preserve user plugin directories. Explicit
+Ordinary Envoy application updates preserve user plugin directories. Explicit
 plugin updates can change the selected plugin's files. A wrapper with no Python
 dependency declaration does not join the shared environment. Its external
 sidecar remains separately owned. See the
@@ -177,7 +177,7 @@ sidecar remains separately owned. See the
 dependencies remain usable when this setting is false.
 
 ```bash
-hermes config set security.allow_lazy_installs false
+envoy config set security.allow_lazy_installs false
 ```
 
 Explicit install commands are distinct from on-demand installation. However,
@@ -216,11 +216,11 @@ interpreter or redirect an installed desktop app to this checkout.
 
 ### Prepare a checkout
 
-Use an ordinary terminal outside the packaged Hermes app. Leave any existing
+Use an ordinary terminal outside the packaged Envoy app. Leave any existing
 Python virtual environment first. On Windows, use native PowerShell with Git.
 On ARM64, PM prepares Visual Studio C++ tools, Clang, native Rust, and static
 OpenSSL development libraries before every dependency build from a checkout:
-setup, `activate.ps1`, `install.ps1`, `hermes update`, and repair alike. It
+setup, `activate.ps1`, `install.ps1`, `envoy update`, and repair alike. It
 reuses existing installations and installs missing prerequisites. Missing
 Visual Studio components need administrator rights: an interactive install
 asks through a UAC prompt, while CI, ssh and scheduled runs need an
@@ -241,7 +241,7 @@ interpreter such as Nix Python. No `CC` default is needed for the current pin.
 Clone the repository and select your branch before preparing dependencies:
 
 ```bash
-git clone https://github.com/NousResearch/hermes-agent.git
+git clone https://github.com/trevorputbrese/envoy-agent.git
 cd hermes-agent
 ```
 
@@ -282,7 +282,7 @@ dependency must not prevent the dependency manager from starting.
 
 uv is a private PM implementation detail. Application code, setup flows, and
 build callers request Python operations, not uv executables or command arguments.
-Do not mutate a Hermes environment with raw pip or uv commands.
+Do not mutate an Envoy environment with raw pip or uv commands.
 
 PM's runtime contains `ruamel.yaml`, `packaging`, `tomli-w`, and `truststore`, not the application
 dependency tree. CLI commands and application-requested installs and repairs run
@@ -301,7 +301,7 @@ against the managed Python on the next invocation; subsequent invocations reuse 
 `pm.venv_is_current()` checks through an existing PM worker, even when lazy
 installs are disabled. It never bootstraps PM for a probe. If the manager
 runtime is unavailable, it returns false without downloading tools or
-dependencies. Run an explicit `hermes pm install` to prepare PM first.
+dependencies. Run an explicit `envoy pm install` to prepare PM first.
 
 Native bundles and Docker images stage this same PM lock through the shared
 runtime builder. Termux supplies its verified offline wheelhouse to that
@@ -328,13 +328,13 @@ assuming that a Zsh startup file has Bash semantics; fish has its own
 Each activation invokes PM's install/sync path and trusts the recorded tool
 digest instead of re-hashing every entry. PM still installs a missing tool and
 rebuilds a stale dependency generation; a deliberate install keeps the byte
-check. Run `python -m pm.cli install` or `hermes update` to re-check realized
+check. Run `python -m pm.cli install` or `envoy update` to re-check realized
 bytes. A setup failure returns an error before changing the activated shell
 environment, including when re-sourcing an already active environment.
 
 After sync, activation prepends installed PM tools to `PATH` and sets
 `PYTHONPATH` to this checkout and its selected dependency tree. It also
-defines `hermes` as a shell function for this worktree. The function runs
+defines `envoy` as a shell function for this worktree. The function runs
 this checkout's CLI and hides the installed command, including an MSIX alias.
 It runs only while the shell is inside this worktree and refuses outside it,
 so a sibling worktree does not inherit the command. The prompt gains a prefix
@@ -363,7 +363,7 @@ python -c "import sys, pm; print(sys.executable); print(pm.__file__)"
 python -c "import httpx; print(httpx.__file__)"
 node --version
 npm --version
-hermes --version
+envoy --version
 ```
 
 `python` must resolve to the PM store interpreter. `pm.__file__` must point
@@ -373,14 +373,14 @@ attention, even if `source ./activate` itself returned successfully.
 
 ### Work on this source tree
 
-`hermes` is this worktree's CLI while the shell is inside it. Outside the
+`envoy` is this worktree's CLI while the shell is inside it. Outside the
 worktree the function refuses, so it cannot run another checkout's tree or
 fall through to an installed command:
 
 ```bash
-hermes setup
-hermes
-hermes --tui
+envoy setup
+envoy
+envoy --tui
 python -m pm.cli status
 ```
 
@@ -399,7 +399,7 @@ npm run dev --workspace apps/desktop
 The website is separate: `npm ci --prefix website`, then
 `npm run build:fast --prefix website`. PM activation supplies tools, not these
 `node_modules` directories or built assets. Native desktop builds have additional
-requirements in the [desktop build guide](https://github.com/NousResearch/hermes-agent/blob/main/apps/desktop/BUILDING.md).
+requirements in the [desktop build guide](https://github.com/trevorputbrese/envoy-agent/blob/main/apps/desktop/BUILDING.md).
 
 ### Refresh dependencies without changing branches
 
@@ -413,7 +413,7 @@ python -m pm.cli install
 
 After a standalone sync, reactivate the environment. Restart affected processes.
 Use `python -m pm.cli doctor` for tool diagnostics and `python -m pm.cli status`
-for the latest sync receipt. Do not run `hermes update` just to refresh a
+for the latest sync receipt. Do not run `envoy update` just to refresh a
 feature branch: it is an application update and can change the source branch.
 
 Managed tool names and Python extra names are different interfaces:
@@ -432,24 +432,24 @@ before starting another Python process.
 ### Syncing after you edit pyproject.toml
 
 1. Edit `pyproject.toml`. Pin every dependency as the
-   [Dependency Pinning Policy](https://github.com/NousResearch/hermes-agent/blob/main/pm/AGENTS.md#dependency-pinning-policy)
+   [Dependency Pinning Policy](https://github.com/trevorputbrese/envoy-agent/blob/main/pm/AGENTS.md#dependency-pinning-policy)
    requires. Express platform limits with PEP 508 markers, or gate a whole
    extra in `[tool.hermes.extras-platforms]`.
 2. Relock:
 
    ```bash
-   hermes pm lock
+   envoy pm lock
    ```
 
    This re-resolves `uv.lock` from `pyproject.toml` with the same settings CI
    checks, including the 3-day `exclude-newer` release-age check. It changes no
    environment. When the lock is already current, it says so and writes
-   nothing. (`hermes pm lock --bump NAME VERSION` is a different operation: it
+   nothing. (`envoy pm lock --bump NAME VERSION` is a different operation: it
    pins a managed tool in `pm/lock.json` and does not touch `uv.lock`.)
 3. Source the activation script again (`source ./activate`, or
    `. .\activate.ps1` in PowerShell) to sync the application venv and the test
    interpreter to the new lock. Activation covers `[all]`. If you added an
-   opt-in extra outside `[all]`, `hermes pm lock` prints the command that also
+   opt-in extra outside `[all]`, `envoy pm lock` prints the command that also
    puts it in the test interpreter, for example
    `source ./activate --test-extras all,NAME`.
 4. Commit `pyproject.toml` and `uv.lock` together.
@@ -483,7 +483,7 @@ remove only that disposable environment first. Then run `scripts/run_tests.sh`
 tests and never enters a packaged runtime.
 
 For editor debugging, select that independent interpreter, set the working
-directory to this checkout, and launch `hermes` as the script. Keep its
+directory to this checkout, and launch `envoy` as the script. Keep its
 `HERMES_HOME` separate from production. Terminal activation does not configure
 an editor that was already running. Do not point an editor at a transient PM
 generation or a signed application's Python executable.
@@ -521,24 +521,24 @@ re-homes that venv onto the interpreter `pm/lock.json` pins (uv2nix cannot build
 against a tarball interpreter). The shell's uv, node, npm, ripgrep and ffmpeg are
 the lock's builds too.
 Package-manager commands for unrelated projects or agent
-sandboxes do not manage Hermes itself.
+sandboxes do not manage Envoy itself.
 
 ## Commands
 
 ```bash
-hermes pm --help
-hermes pm doctor
-hermes pm status
-hermes pm install
-hermes pm install chromium
+envoy pm --help
+envoy pm doctor
+envoy pm status
+envoy pm install
+envoy pm install chromium
 ```
 
 | Command | Effect |
 |---|---|
-| `pm install [names...]` | Install named packages. With no names, provision required tools plus Python, put those tools on PATH, and then sync the `all` extra. A bare install also installs the default optional tools (`chromium`, the browser Hermes launches, and `cua-driver`); a failed download of these prints a warning and does not fail the install. Naming a package you declined earlier undoes that choice. |
-| `pm install --without NAME` | Do a bare install without the default optional package `NAME` (`chromium` or `cua-driver`), and record that choice. Later bare installs and `hermes update` also leave it out. The installers' `--skip-browser` / `-SkipBrowser` and `--skip-computer-use` / `-SkipComputerUse` (`--without cua-driver`) use this. The browser opt-out passes the legacy name `--without agent-browser`, which every PM release accepts and this one reads as `chromium`; a choice recorded under that name still skips `chromium`. |
+| `pm install [names...]` | Install named packages. With no names, provision required tools plus Python, put those tools on PATH, and then sync the `all` extra. A bare install also installs the default optional tools (`chromium`, the browser Envoy launches, and `cua-driver`); a failed download of these prints a warning and does not fail the install. Naming a package you declined earlier undoes that choice. |
+| `pm install --without NAME` | Do a bare install without the default optional package `NAME` (`chromium` or `cua-driver`), and record that choice. Later bare installs and `envoy update` also leave it out. The installers' `--skip-browser` / `-SkipBrowser` and `--skip-computer-use` / `-SkipComputerUse` (`--without cua-driver`) use this. The browser opt-out passes the legacy name `--without agent-browser`, which every PM release accepts and this one reads as `chromium`; a choice recorded under that name still skips `chromium`. |
 | `pm install --tools-only` | Install that tool closure and put it on PATH, then stop. The venv sync does not run. |
-| `pm env [names...]` | Print installed packages' PM-contributed environment values as JSON. It does not install missing packages, though a cold Hermes launch may prepare its own Python runtime first. |
+| `pm env [names...]` | Print installed packages' PM-contributed environment values as JSON. It does not install missing packages, though a cold Envoy launch may prepare its own Python runtime first. |
 | `pm doctor` | Check installed tool identities, files, and digests against the lock. |
 | `pm repair` | Rebuild the recorded Python dependency set in a new generation, validate it, then select it. Does not update pins, features, or plugin configuration. |
 | `pm status` | Print the latest sync/update receipt as JSON, or report that no receipt exists. |
@@ -567,7 +567,7 @@ not substitutes for an installed application's update mechanism.
 
 The complete desktop builder also builds the JavaScript surfaces, generates
 launchers, and invokes native packaging. Maintainers can read
-[Building the Desktop Installers](https://github.com/NousResearch/hermes-agent/blob/main/apps/desktop/BUILDING.md).
+[Building the Desktop Installers](https://github.com/trevorputbrese/envoy-agent/blob/main/apps/desktop/BUILDING.md).
 
 ## Network retries
 
@@ -595,26 +595,26 @@ remain under uv and npm's own retry policies.
 
 ## Release age and package mirrors
 
-Every Python package Hermes itself depends on must be at least three days old
-when Hermes locks it (uv's `exclude-newer`, enforced by CI's lock check), so a
+Every Python package Envoy itself depends on must be at least three days old
+when Envoy locks it (uv's `exclude-newer`, enforced by CI's lock check), so a
 freshly published, possibly compromised release cannot reach `uv.lock`. Users
 install from that lock, and installing or enabling a plugin never re-checks
 dates, so package mirrors that publish no upload times work. The one exemption
 is CA trust stores (`certifi`): a release that distrusts a compromised CA is
 locked the day it ships, since waiting keeps the bad root trusted. Set a mirror with `index-url` in `pip.conf`,
-which Hermes passes to uv, or with `UV_INDEX_URL`.
+which Envoy passes to uv, or with `UV_INDEX_URL`.
 
-`hermes pm lock` is the one step that applies the check. Run against a mirror
+`envoy pm lock` is the one step that applies the check. Run against a mirror
 without upload times, it stops with `has no publish time`; use
 `https://pypi.org/simple` for that step.
 
 ## Diagnostics
 
 - **Slow Python dependency builds:** PM's streamed uv commands enable verbose output. Bundle and build logs show package activity and build-backend stdout/stderr while the build runs, not only after failure.
-- **Missing or outdated tool:** read `hermes pm doctor`, then use an explicit PM install on a writable installation.
-- **New environment requires restart:** restart the affected Hermes process. Do not add a second site-packages tree to its live imports.
-- **Dependency conflict:** read `hermes pm status`. Correct the plugin requirements before retrying admission.
-- **Damaged Python dependencies:** run `hermes pm repair`, then restart Hermes. Repair replays the selected generation's saved workspace and lock without parsing plugin configuration. An unreadable record or missing saved lock fails without selecting a reduced dependency set. Before a generation exists, repair uses the shipped or committed lock and recorded feature set.
+- **Missing or outdated tool:** read `envoy pm doctor`, then use an explicit PM install on a writable installation.
+- **New environment requires restart:** restart the affected Envoy process. Do not add a second site-packages tree to its live imports.
+- **Dependency conflict:** read `envoy pm status`. Correct the plugin requirements before retrying admission.
+- **Damaged Python dependencies:** run `envoy pm repair`, then restart Envoy. Repair replays the selected generation's saved workspace and lock without parsing plugin configuration. An unreadable record or missing saved lock fails without selecting a reduced dependency set. Before a generation exists, repair uses the shipped or committed lock and recorded feature set.
 - **Interrupted dependency install:** startup requests the same PM repair before dependency activation. Automatic attempts are bounded; `pm repair` retries explicitly. A failed repair preserves the previous selection and its retry marker.
 - **Damaged Python executable or application source:** repair or reinstall through the package owner. PM cannot run without those files. Signed payload files are never modified by dependency repair.
 - **Unknown package or extra:** use the declared name. `pm install` takes package names, not Python extra names or pip specifications.

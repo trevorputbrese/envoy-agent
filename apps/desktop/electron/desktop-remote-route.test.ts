@@ -351,7 +351,7 @@ test('local config without overrides returns null', () => {
 //
 // "Make primary" on a registered remote gateway only writes connections.json;
 // the v1 config.mode stays 'local'. The route resolver must still expose that
-// remote transport, or startHermes() spawns a loopback `hermes serve` the
+// remote transport, or startHermes() spawns a loopback `envoy serve` the
 // desktop never uses (duplicated MCP sets, port squat, respawn-on-poll).
 
 test('falls back to a REMOTE registry primary when the v1 mode is local (#91564/#90316)', () => {
@@ -378,7 +378,7 @@ test('falls back to a CLOUD registry primary when the v1 mode is local', () => {
       {
         id: 'cloud-1',
         kind: 'cloud',
-        label: 'Hermes Cloud',
+        label: 'Envoy Cloud',
         url: 'https://agent.hermes.cloud',
         authMode: 'oauth',
         org: 'nous'

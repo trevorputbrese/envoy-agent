@@ -189,7 +189,7 @@ def resolve_remote_target(raw_target: str, roster: list[dict]) -> Any:
 
 def _title_slug(row: dict) -> str:
     """The Bot Mode title's slug form (``"CoS Bot"`` → ``cos-bot``, what the picker inserts); "" when the
-    title is empty, reserved (a bot titled "Hermes") or not a valid handle."""
+    title is empty, reserved (a bot titled "Envoy") or not a valid handle."""
     title = str(row.get("title") or "")
     slug = re.sub(r"[^a-z0-9_-]+", "-", title.strip().lower()).strip("-")
     return slug if slug in alias_forms(title) else ""
@@ -554,7 +554,7 @@ def relaying_principal_author(principal: str) -> dict:
 
 
 def delivery_env(author: Optional[dict], profile_home: str | Path | None = None) -> dict[str, str]:
-    """Environment for one delivery turn's ``hermes -p <profile>`` child. The dispatcher's own
+    """Environment for one delivery turn's ``envoy -p <profile>`` child. The dispatcher's own
     HERMES_TURN_AUTHOR is dropped first so a delivery without an author never inherits the author of the turn
     that sent it. Dispatcher session identity (the canonical ``gateway.session_context`` session env names) is
     dropped too: a nested recipient that ``message_agent``s onward must not stamp that grandchild
@@ -588,14 +588,14 @@ def delivery_env(author: Optional[dict], profile_home: str | Path | None = None)
 
 
 # Two deliveries into the SAME profile must never run Bot Chat turns concurrently.
-# Deliveries are separate ``hermes`` subprocesses, so the lock is a per-profile
+# Deliveries are separate ``envoy`` subprocesses, so the lock is a per-profile
 # lockfile under ``<root>/bot_relay/locks/`` held with ``fcntl.flock`` for exactly
 # the turn window; the kernel releases it on fd close (incl. process death), so a
 # crashed turn can never wedge the profile.
 
 
 # ── per-profile turn lock (#93091) ─────────────────────────────────────────── Two deliveries into the SAME
-# target profile must never run their Bot Chat turns concurrently: deliveries spawn separate ``hermes``
+# target profile must never run their Bot Chat turns concurrently: deliveries spawn separate ``envoy``
 # subprocesses, so an in-memory mutex is useless — the lock is a per-profile lockfile under
 # ``<root>/bot_relay/locks/`` held with ``fcntl.flock`` for exactly the turn execution window. flock is
 # released by the kernel when the holder's fd closes (including process death), so a crashed turn can never

@@ -8,7 +8,7 @@ everything created inside it (#139845, #139485, the ``gateway-locks`` reports in
 ``mkdir`` inherits its parent's ACL instead, which under ``%LOCALAPPDATA%`` names the user, so the
 ``mode=0o700`` sites are the ones that strand the user.
 
-:func:`make_user_dir` is the one place Hermes state/lock/log directories are created. Off Windows,
+:func:`make_user_dir` is the one place Envoy state/lock/log directories are created. Off Windows,
 or in a non-elevated process, it is exactly ``Path.mkdir``. In an elevated Windows process it adds
 an explicit, inheriting full-control ACE for the token's user SID to the directory, so the directory
 and every child created later stay usable by that user after elevation ends. An elevated call on an
@@ -46,7 +46,7 @@ FILE_ATTRIBUTE_DIRECTORY = 0x10
 FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 _READ_CONTROL = 0x00020000
 _WRITE_DAC = 0x00040000
-_FILE_SHARE_ALL = 0x7  # read | write | delete: never block another Hermes process
+_FILE_SHARE_ALL = 0x7  # read | write | delete: never block another Envoy process
 _OPEN_EXISTING = 3
 _FILE_FLAG_BACKUP_SEMANTICS = 0x02000000  # needed to open a directory handle
 _FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000  # open the link itself, never its target
@@ -238,7 +238,7 @@ def _grant(path: Path, is_dir: bool = True, expected: str | None = None,
 
 
 def _components_below_home(path: Path) -> list[Path]:
-    """*path* and each ancestor of it strictly below the Hermes home (lexically), outermost first;
+    """*path* and each ancestor of it strictly below the Envoy home (lexically), outermost first;
     empty when *path* is not under the home. The home itself (and above) is the user's own choice
     and may legitimately be a link; an entry INSIDE it is what same-user code can swap."""
     try:
@@ -262,7 +262,7 @@ def _expected_final(path: Path) -> str | None:
 
 def _warn_refused(path: Path, exc: BaseException) -> None:
     log.warning("Not granting the current user access to %s while elevated (%s): an elevated grant "
-                "never follows a junction or link out of the Hermes home. If this is your own link, "
+                "never follows a junction or link out of the Envoy home. If this is your own link, "
                 "point HERMES_HOME (or the link) at the real directory.", path, exc)
 
 
@@ -296,7 +296,7 @@ def grant_user_access(path: str | Path, *, elevated: bool | None = None, repair_
         return False
     except Exception as exc:  # health: allow BLE001 -- pywintypes.error is not an OSError; never fail the mkdir
         log.warning("Could not grant the current user access to %s created while elevated (%s); a "
-                    "non-elevated Hermes may not be able to use it. To repair, from an elevated prompt run: "
+                    "non-elevated Envoy may not be able to use it. To repair, from an elevated prompt run: "
                     'icacls "%s" /reset /t', target, exc, target)
         return False
     if repair_children and children_owed:
@@ -429,7 +429,7 @@ def make_user_dir(path: str | Path, mode: int = 0o777, *, parents: bool = False,
     except FileExistsError:
         # ``Path.mkdir`` contract: an existing leaf still raises without exist_ok. The directory an
         # earlier elevated run left is repaired first, so the caller's error is never the reason a
-        # non-elevated Hermes stays locked out of it.
+        # non-elevated Envoy stays locked out of it.
         if target.is_dir() and not is_reparse_point(target):
             _grant_dirs(target, [target])
         raise

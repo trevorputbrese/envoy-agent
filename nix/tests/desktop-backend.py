@@ -41,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix="hermes-desktop-backend-") as temporary:
         f"#!{sys.executable}\n"
         "import sys\n"
         "if '--version' in sys.argv:\n"
-        "    print('Hermes legacy fixture')\n"
+        "    print('Envoy legacy fixture')\n"
         "    sys.exit(0)\n"
         "print('WRONG_BACKEND_SELECTED', flush=True)\n"
         "sys.exit(73)\n"
@@ -79,10 +79,10 @@ with tempfile.TemporaryDirectory(prefix="hermes-desktop-backend-") as temporary:
                     output += desktop_log.read_text()
                 assert "WRONG_BACKEND_SELECTED" not in output, output
                 assert child.poll() is None, output
-                # Desktop attaches to `hermes gateway ensure` (the daemon serves the dashboard), so
-                # readiness is Desktop's own attach line, not a spawned `hermes serve` sentinel.
-                if "[backend] Hermes gateway is ready" in output:
-                    assert f"[backend] using existing Hermes CLI at {expected}" in output, output
+                # Desktop attaches to `envoy gateway ensure` (the daemon serves the dashboard), so
+                # readiness is Desktop's own attach line, not a spawned `envoy serve` sentinel.
+                if "[backend] Envoy gateway is ready" in output:
+                    assert f"[backend] using existing Envoy CLI at {expected}" in output, output
                     print("PASS: packaged desktop selected its pinned backend over the mutable install")
                     break
                 time.sleep(0.1)
@@ -95,7 +95,7 @@ with tempfile.TemporaryDirectory(prefix="hermes-desktop-backend-") as temporary:
             except subprocess.TimeoutExpired:
                 os.killpg(child.pid, signal.SIGKILL)
                 child.wait(timeout=5)
-            # The desktop spawns its backend in its own session (hermes serve outlives a
+            # The desktop spawns its backend in its own session (envoy serve outlives a
             # window close on purpose), so killing cage's group leaves that gateway writing
             # under HERMES_HOME while the tempdir is removed. Stop everything still rooted
             # in this home before cleanup; the sandbox has no other processes to confuse.

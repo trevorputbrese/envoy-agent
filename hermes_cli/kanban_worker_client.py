@@ -15,7 +15,7 @@ import sys
 import time
 from typing import Optional
 
-# A worker that loses its owner (a dropped socket, a restart, `hermes update` draining it or a new
+# A worker that loses its owner (a dropped socket, a restart, `envoy update` draining it or a new
 # owner still starting) waits for it instead of exiting: the condition is the host's, not the card's,
 # and a failed exit here spends the card's failure budget and lets the owner end the turn. Asking
 # again is safe: ``kanban.run`` is idempotent per attempt and ``prompt.receipt`` is a read.

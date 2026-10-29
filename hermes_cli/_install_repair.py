@@ -18,10 +18,10 @@ def _is_windows() -> bool:
 
 
 #: Launcher command names install.ps1's Set-PathVariable exposes from the
-#: managed binary dir (the default Hermes root's ``bin``, next to uv.exe)
+#: managed binary dir (the default Envoy root's ``bin``, next to uv.exe)
 #: on the user PATH. Keep in lockstep with WINDOWS_BIN_LAUNCHERS in
 #: hermes_cli/_launchers.py and scripts/install.ps1.
-_WINDOWS_BIN_LAUNCHERS = ("hermes", "hermes-acp")
+_WINDOWS_BIN_LAUNCHERS = ("envoy", "envoy-acp", "hermes", "hermes-acp")
 
 
 def _normalize_windows_path(value) -> str:
@@ -68,7 +68,7 @@ def ensure_windows_bin_launchers(
     python with ``PYTHONPATH=<repo>;<venv>/site-packages``, never the venv
     interpreter (no-boot-through-venv; ``pyvenv.cfg`` is inert dead
     config). The canonical launcher home is
-    the managed binary dir — the default Hermes root's ``bin``
+    the managed binary dir — the default Envoy root's ``bin``
     (``%LOCALAPPDATA%\\hermes\\bin``, next to the managed uv) — which lives
     OUTSIDE the git checkout so no git operation can ever touch it. It is
     a per-machine dir shared by every profile: ``get_hermes_home()`` would
@@ -110,8 +110,8 @@ def ensure_windows_bin_launchers(
 
     root = Path(root)
 
-    # Per-machine anchor: the DEFAULT Hermes root, not get_hermes_home() —
-    # under ``hermes -p <name>`` that returns ``profiles\\<name>``, which
+    # Per-machine anchor: the DEFAULT Envoy root, not get_hermes_home() —
+    # under ``envoy -p <name>`` that returns ``profiles\\<name>``, which
     # would fail the managed-clone gate below and silently skip the heal
     # for profile users. The launcher dir serves the whole machine.
     from hermes_constants import get_default_hermes_root
@@ -207,7 +207,7 @@ def ensure_windows_bin_launchers(
         # closed/broken stderr must not turn a successful heal into a crash.
         with contextlib.suppress(OSError, ValueError):
             print(
-                "  ✓ Restored hermes launcher(s): " + ", ".join(restored),
+                "  ✓ Restored envoy launcher(s): " + ", ".join(restored),
                 file=sys.stderr,
             )
     return restored
@@ -248,7 +248,7 @@ def migrate_windows_bin_path(
 ) -> bool:
     """One-time PATH migration to the ``HERMES_HOME\\bin`` launcher layout.
 
-    Runs from the ``hermes update`` tail (and mirrors what install.ps1's
+    Runs from the ``envoy update`` tail (and mirrors what install.ps1's
     Set-PathVariable does on fresh installs/repairs, which never reach
     existing installs — updates don't run install.ps1):
 
@@ -344,7 +344,7 @@ def migrate_windows_bin_path(
             return False
         with contextlib.suppress(OSError, ValueError):
             print(
-                f"  ✓ hermes launchers now resolve from {home_bin} "
+                f"  ✓ envoy launchers now resolve from {home_bin} "
                 "(legacy PATH entries removed)",
                 file=sys.stderr,
             )

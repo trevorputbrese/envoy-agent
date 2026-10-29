@@ -10,7 +10,7 @@ export const frErrorCodes: Partial<ThreadCopy['errorCodes']> = {
   },
   session_read_only: {
     title: 'Cette conversation est en lecture seule',
-    body: 'C’est un historique enregistré que Hermes peut afficher mais pas poursuivre ; votre message n’a donc pas été exécuté. Démarrez une nouvelle conversation pour l’envoyer.'
+    body: 'C’est un historique enregistré que Envoy peut afficher mais pas poursuivre ; votre message n’a donc pas été exécuté. Démarrez une nouvelle conversation pour l’envoyer.'
   },
   workspace_unavailable: {
     title: 'Le dossier de cette conversation a disparu',

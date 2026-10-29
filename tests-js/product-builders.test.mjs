@@ -468,7 +468,7 @@ test('a Webapp rebuild keeps the previous generation for tabs that booted it, ne
     if (generation === 'gen-two') {
       // An update that could not rebuild gen-two marks it (hermes_cli/webapp.py mark_webapp_stale):
       // the marker still forces the rebuild, and must not cost gen-two's tabs their chunks.
-      writeFileSync(path.join(out, '.hermes-stale'), 'hermes update could not rebuild this bundle\n')
+      writeFileSync(path.join(out, '.hermes-stale'), 'envoy update could not rebuild this bundle\n')
       expect(productCurrent({ source, product: 'webapp', out })).toBe(false)
     }
   }

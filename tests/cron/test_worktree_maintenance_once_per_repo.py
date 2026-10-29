@@ -1,6 +1,6 @@
 """Worktree maintenance must not multiply whole-``.worktrees/`` disk walks.
 
-A multiplexed gateway ticks cron once per served profile, and every profile resolves the hermes
+A multiplexed gateway ticks cron once per served profile, and every profile resolves the envoy
 checkout; each prune pass ends in a footprint probe that used to ``du`` the entire ``.worktrees/``
 (millions of node_modules inodes) even when the tree count alone decided the warning.
 """

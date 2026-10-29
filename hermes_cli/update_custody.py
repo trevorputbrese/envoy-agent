@@ -138,7 +138,7 @@ def _past_commit() -> bool:
     return current is not None and any(stage.get("name") == "apply" for stage in current.data.get("stages") or ())
 
 
-def refusal_notice(command: str = "hermes update") -> str | None:
+def refusal_notice(command: str = "envoy update") -> str | None:
     """What the command's failure path prints when this run refused an update child (m2), in
     place of whatever generic error the refusal turned into downstream; ``None`` otherwise."""
     if _RUN["refused"] is None:
@@ -498,7 +498,7 @@ def _prefetch_for_move(git_cmd: list[str], args: list[str], kwargs: dict) -> Non
 # Only the command's tree: the update job also holds the update's other children. The Windows
 # twin of the POSIX launcher below (_REAP_TREE); the nested job's handle closing (a killed
 # launcher) kills the tree too.
-_CUSTODY_UNAVAILABLE = "hermes: update custody unavailable"
+_CUSTODY_UNAVAILABLE = "envoy: update custody unavailable"
 _REFUSED_EXIT = 87
 _JOIN_JOB = (
     "import ctypes, subprocess, sys, time\n"

@@ -47,7 +47,7 @@ def support_floor_message() -> str:
     return (
         f"This config predates version {SUPPORT_FLOOR_VERSION} (~2 years old) "
         "and can no longer be auto-migrated. Back up "
-        f"{display_hermes_home()}/config.yaml and run `hermes setup` to "
+        f"{display_hermes_home()}/config.yaml and run `envoy setup` to "
         f"regenerate, or manually set _config_version: {SUPPORT_FLOOR_VERSION} "
         "after reviewing the changelog.")
 
@@ -341,7 +341,7 @@ def _migrate_to_21(results: dict[str, Any], quiet: bool) -> None:
         f"{len(grandfathered)} existing plugin(s) into plugins.enabled"
         if grandfathered else
         "  ✓ Plugins now opt-in: no existing plugins to grandfather. "
-        "Use `hermes plugins enable <name>` to activate.")
+        "Use `envoy plugins enable <name>` to activate.")
     _commit(
         config, results, quiet,
         f"plugins.enabled (opt-in allow-list, {len(grandfathered)} grandfathered)", message)
@@ -349,7 +349,7 @@ def _migrate_to_21(results: dict[str, Any], quiet: bool) -> None:
 
 def _migrate_to_23(results: dict[str, Any], quiet: bool) -> None:
     # 22 → 23: seed curator defaults + create logs/curator/. Older configs never wrote the curator
-    # section; deep-merge made it work but users could not see/edit it and `hermes curator status`
+    # section; deep-merge made it work but users could not see/edit it and `envoy curator status`
     # had no stable logs dir. Only keys the user hasn't set are written.
     _c = _cfg()
     DEFAULT_CONFIG = _c.DEFAULT_CONFIG
@@ -391,7 +391,7 @@ def _migrate_to_23(results: dict[str, Any], quiet: bool) -> None:
             if not quiet:
                 print(
                     f"  ✓ {'Curator' if label == 'curator' else label} settings now available "
-                    f"({', '.join(added)}) — edit via `hermes config set`")
+                    f"({', '.join(added)}) — edit via `envoy config set`")
 
 
 def _migrate_to_29(results: dict[str, Any], quiet: bool) -> None:
@@ -549,7 +549,7 @@ def _migrate_to_39(results: dict[str, Any], quiet: bool) -> None:
             config, results, quiet,
             "removed retired 'bfl' toolset from saved toolset lists",
             "  ✓ Removed the retired BFL FLUX 3 toolset from saved toolset "
-            "lists — video generation now lives under `hermes tools` → "
+            "lists — video generation now lives under `envoy tools` → "
             "Video Generation (Nous Subscription or FAL).")
 
 
@@ -623,14 +623,14 @@ def _migrate_to_45(results: dict[str, Any], quiet: bool) -> None:
         config, results, quiet,
         f"enabled the connections toolset for {platforms}",
         f"  ✓ Enabled the Connections toolset (Gmail, Linear, Notion, local MCP servers) for {platforms}. "
-        "Uncheck Connections in `hermes tools` to turn it off.")
+        "Uncheck Connections in `envoy tools` to turn it off.")
 
 
 def _migrate_to_46(results: dict[str, Any], quiet: bool) -> None:
     # 45 → 46: the profile editor used to switch an MCP server off with `disabled: true`, a key no
     # runtime reader consults, so the server kept running. Carry that choice over to `enabled:
     # false` (the key every reader uses) and drop `disabled`, so the editor and runtime agree.
-    # `disabled: true` wins over an explicit `enabled: true`: `hermes mcp add` writes that, and the
+    # `disabled: true` wins over an explicit `enabled: true`: `envoy mcp add` writes that, and the
     # old editor only added `disabled`, so letting `enabled` win would skip nearly every server.
     from hermes_cli.tools_config import _parse_enabled_flag
 
@@ -710,7 +710,7 @@ _RETIRED_TIRITH_KEYS = ("tirith_enabled", "tirith_path", "tirith_timeout", "tiri
 
 
 def _migrate_to_50(results: dict[str, Any], quiet: bool) -> None:
-    # 49 → 50: the bundled tirith scanner left Hermes. Nothing reads its keys now, so they are
+    # 49 → 50: the bundled tirith scanner left Envoy. Nothing reads its keys now, so they are
     # dropped; nothing replaces them.
     config = read_raw_config()
     security = config.get("security")
@@ -722,7 +722,7 @@ def _migrate_to_50(results: dict[str, Any], quiet: bool) -> None:
     for key in present:
         del security[key]
     _commit(config, results, quiet, "removed security.tirith_* (scanner no longer bundled)",
-            "  ✓ Removed security.tirith_* — the tirith scanner is no longer bundled with Hermes.")
+            "  ✓ Removed security.tirith_* — the tirith scanner is no longer bundled with Envoy.")
 
 
 MIGRATIONS: tuple[tuple[int, Callable[[dict[str, Any], bool], None]], ...] = (
@@ -836,7 +836,7 @@ MIGRATIONS: tuple[tuple[int, Callable[[dict[str, Any], bool], None]], ...] = (
         added="curator.archive_after_days=30 (was: 90)",
         message=(
             "  ✓ curator.archive_after_days 90→30 — skills unused for a month are archived to "
-            "skills/.archive/ (recoverable with `hermes curator restore`). Set it back to 90 to keep the old window."))),
+            "skills/.archive/ (recoverable with `envoy curator restore`). Set it back to 90 to keep the old window."))),
     # 44 → 45: saved platform_toolsets lists predate the connections toolset (see _migrate_to_45).
     (45, _migrate_to_45),
     # 45 → 46: legacy editor `disabled: true` on MCP servers becomes `enabled: false` (see _migrate_to_46).
@@ -858,7 +858,7 @@ MIGRATIONS: tuple[tuple[int, Callable[[dict[str, Any], bool], None]], ...] = (
     (49, _migrate_to_49),
     # 49 → 50: security.tirith_* dropped; the bundled scanner is gone (see _migrate_to_50).
     (50, _migrate_to_50),
-    # 50 → 51: cron.bot_chat_delivery_timeout_seconds is gone with the local `hermes chat`
+    # 50 → 51: cron.bot_chat_delivery_timeout_seconds is gone with the local `envoy chat`
     # fallback lane it bounded. Bot Chat deliveries are admitted to the running gateway and
     # settle on its durable receipt; there is no cron-side turn left to time out.
     (51, functools.partial(
@@ -881,7 +881,7 @@ MIGRATIONS: tuple[tuple[int, Callable[[dict[str, Any], bool], None]], ...] = (
 #: ``_config_version`` is current-schema content that was never stamped (installers seed it from
 #: cli-config.yaml.example; targeted writers never stamp), so it gets only these: every other step
 #: decides by a value or an absence that, in such a file, is the user's own choice. v13 is left
-#: out: it clears OPENAI_MODEL from .env, a generic name Hermes never reads but the user's tools may.
+#: out: it clears OPENAI_MODEL from .env, a generic name Envoy never reads but the user's tools may.
 #: v41 is left out too: it rewrites profile SOUL.md on a heading match, an artifact whose
 #: provenance the config stamp says nothing about.
 LEGACY_KEY_STEPS = frozenset({12, 14, 16, 17, 29, 33, 38, 39, 42, 43, 46, 50, 51, 52})

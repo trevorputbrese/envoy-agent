@@ -1,22 +1,22 @@
 ---
 sidebar_position: 16
-title: "Manage Hermes Cloud with MCP"
-description: "Connect Hermes Agent to the Nous Portal MCP server so your local agent can list, start, stop, and manage your Hermes Cloud instances conversationally"
+title: "Manage Envoy Cloud with MCP"
+description: "Connect Envoy Agent to the Nous Portal MCP server so your local agent can list, start, stop, and manage your Envoy Cloud instances conversationally"
 ---
 
-# Manage Hermes Cloud with MCP
+# Manage Envoy Cloud with MCP
 
 Python dependency commands on this page use a
 [PM-prepared source checkout](../reference/package-management.md#developer-workflow).
-After a dependency change, reactivate the checkout and restart Hermes.
+After a dependency change, reactivate the checkout and restart Envoy.
 
-[Hermes Cloud](https://portal.nousresearch.com/cloud) runs hosted Hermes Agent instances for you. Normally you manage them from the `/agents` page in the [Nous Portal](../integrations/nous-portal.md). This guide connects your **local** Hermes Agent to the Portal's MCP server so you can manage those cloud instances by just asking — "list my cloud agents", "restart the stopped one", "what's it costing me" — without leaving your terminal.
+[Envoy Cloud](https://portal.nousresearch.com/cloud) runs hosted Envoy Agent instances for you. Normally you manage them from the `/agents` page in the [Nous Portal](../integrations/nous-portal.md). This guide connects your **local** Envoy Agent to the Portal's MCP server so you can manage those cloud instances by just asking — "list my cloud agents", "restart the stopped one", "what's it costing me" — without leaving your terminal.
 
-It's a standard [MCP](../user-guide/features/mcp.md) server hosted by Nous Research, gated by the same OAuth login you already use for the Portal. Once connected, Hermes gets two tools it can call on your behalf.
+It's a standard [MCP](../user-guide/features/mcp.md) server hosted by Nous Research, gated by the same OAuth login you already use for the Portal. Once connected, Envoy gets two tools it can call on your behalf.
 
 ## What you can do with it
 
-Once connected, the model can call these on your Hermes Cloud org:
+Once connected, the model can call these on your Envoy Cloud org:
 
 | Ask for… | Under the hood |
 |----------|----------------|
@@ -32,7 +32,7 @@ Every call runs against **your** org with your Portal identity, and membership i
 
 ## Prerequisites
 
-- A [Nous Portal](../integrations/nous-portal.md) account with [Hermes Cloud](https://portal.nousresearch.com/cloud) access (at least one instance, or the ability to create one).
+- A [Nous Portal](../integrations/nous-portal.md) account with [Envoy Cloud](https://portal.nousresearch.com/cloud) access (at least one instance, or the ability to create one).
 - MCP support installed. If you used the standard install script it's already there; otherwise:
 
   ```bash
@@ -45,10 +45,10 @@ You do **not** need a separate API key or client secret — the server uses OAut
 ## Step 1: add the server
 
 ```bash
-hermes mcp add --url https://portal.nousresearch.com/mcp --auth oauth hermes-cloud
+envoy mcp add --url https://portal.nousresearch.com/mcp --auth oauth hermes-cloud
 ```
 
-`--auth oauth` tells Hermes this is an OAuth-protected HTTP server. On first connect Hermes:
+`--auth oauth` tells Envoy this is an OAuth-protected HTTP server. On first connect Envoy:
 
 1. Discovers the server's OAuth endpoints automatically (RFC 9728 / 8414 metadata).
 2. Registers itself as a client (RFC 7591 Dynamic Client Registration) — no secret to copy.
@@ -59,18 +59,18 @@ hermes mcp add --url https://portal.nousresearch.com/mcp --auth oauth hermes-clo
 
 If your Portal account belongs to **more than one organization**, the browser shows an **org picker** during authorization — pick which org this connection should manage. The choice is made once, in the browser; there's nothing to pass on the command line. Single-org accounts skip this step and bind automatically.
 
-If you ever need to point the connection at a different org, remove and re-add the server (`hermes mcp remove hermes-cloud`, then the `add` command again) and pick the other org in the browser.
+If you ever need to point the connection at a different org, remove and re-add the server (`envoy mcp remove hermes-cloud`, then the `add` command again) and pick the other org in the browser.
 
 ## Step 2: verify it connected
 
 ```bash
-hermes mcp test hermes-cloud
+envoy mcp test hermes-cloud
 ```
 
 Then start (or reload) a session:
 
 ```bash
-hermes chat
+envoy chat
 ```
 
 ```text
@@ -80,7 +80,7 @@ hermes chat
 Ask a read-only question to confirm the tools are live:
 
 ```text
-List my Hermes Cloud agents and their current status.
+List my Envoy Cloud agents and their current status.
 ```
 
 You should get back the same instances you see on the Portal's `/agents` page.
@@ -100,14 +100,14 @@ Restart the instance called research-bot.
 ```
 
 ```text
-Create a new Hermes Cloud instance named scratch, then tell me when it's ready.
+Create a new Envoy Cloud instance named scratch, then tell me when it's ready.
 ```
 
-Hermes reports what each tool returned — the instance list, the new status, the created instance's details — so you can confirm the action landed.
+Envoy reports what each tool returned — the instance list, the new status, the created instance's details — so you can confirm the action landed.
 
 ## Configuration
 
-After `hermes mcp add`, the server lives in `~/.hermes/config.yaml`:
+After `envoy mcp add`, the server lives in `~/.hermes/config.yaml`:
 
 ```yaml
 mcp_servers:
@@ -131,22 +131,22 @@ mcp_servers:
       include: [agents]
 ```
 
-Run `/reload-mcp` after changing the config. See [Use MCP with Hermes](./use-mcp-with-hermes.md) for the full filtering model (`include`/`exclude`, `prompts`, `resources`).
+Run `/reload-mcp` after changing the config. See [Use MCP with Envoy](./use-mcp-with-hermes.md) for the full filtering model (`include`/`exclude`, `prompts`, `resources`).
 
 ## Troubleshooting
 
 ### The browser shows an org picker and I'm not sure which to choose
 
-You belong to multiple Portal organizations. Pick the org whose Hermes Cloud instances you want to manage from this connection. If you're unsure, it's the org that owns the instances you see on the Portal `/agents` page. You can re-choose later by removing and re-adding the server.
+You belong to multiple Portal organizations. Pick the org whose Envoy Cloud instances you want to manage from this connection. If you're unsure, it's the org that owns the instances you see on the Portal `/agents` page. You can re-choose later by removing and re-adding the server.
 
 ### "invalid_client" or "unknown client" on connect
 
 The stored client registration no longer matches the server (for example, you connected to a different environment previously). Clear this server's cached OAuth state and re-add it:
 
 ```bash
-hermes mcp remove hermes-cloud
+envoy mcp remove hermes-cloud
 rm -f ~/.hermes/mcp-tokens/hermes-cloud.*
-hermes mcp add --url https://portal.nousresearch.com/mcp --auth oauth hermes-cloud
+envoy mcp add --url https://portal.nousresearch.com/mcp --auth oauth hermes-cloud
 ```
 
 ### The tools aren't showing up after adding the server
@@ -161,20 +161,20 @@ Reload MCP inside the session and re-check:
 Tell me which MCP-backed tools are available right now.
 ```
 
-If they're still missing, run `hermes mcp test hermes-cloud` to see the connection error directly.
+If they're still missing, run `envoy mcp test hermes-cloud` to see the connection error directly.
 
 ### It asks me to log in again
 
-OAuth tokens refresh automatically, but if the Portal invalidates your session (password change, revoke, expiry) the next call asks you to re-authorize. Re-run the `hermes mcp add` command — the browser flow re-mints a token.
+OAuth tokens refresh automatically, but if the Portal invalidates your session (password change, revoke, expiry) the next call asks you to re-authorize. Re-run the `envoy mcp add` command — the browser flow re-mints a token.
 
 ### Headless / SSH / remote host
 
-The OAuth browser callback runs on the machine where Hermes is running. On a remote host, forward the loopback port over SSH — the same pattern as any other OAuth login. See [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md).
+The OAuth browser callback runs on the machine where Envoy is running. On a remote host, forward the loopback port over SSH — the same pattern as any other OAuth login. See [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md).
 
 ## See also
 
 - **[Nous Portal](../integrations/nous-portal.md)** — the subscription, models, and Tool Gateway behind the same login
-- **[Use MCP with Hermes](./use-mcp-with-hermes.md)** — connecting and filtering MCP servers in general
-- **[MCP feature overview](../user-guide/features/mcp.md)** — what MCP is and how Hermes uses it
+- **[Use MCP with Envoy](./use-mcp-with-hermes.md)** — connecting and filtering MCP servers in general
+- **[MCP feature overview](../user-guide/features/mcp.md)** — what MCP is and how Envoy uses it
 - **[MCP configuration reference](../reference/mcp-config-reference.md)** — every `mcp_servers` field, including `auth: oauth`
 - **[OAuth over SSH](./oauth-over-ssh.md)** — logging in from remote or browser-only environments

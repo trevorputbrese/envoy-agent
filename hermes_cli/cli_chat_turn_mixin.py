@@ -261,7 +261,7 @@ class CLIChatTurnMixin:
                     _cprint(answer_label())
                 if not turn.box_opened:
                     turn.box_opened = True
-                    label = " ☤ Hermes "
+                    label = " ◈ Envoy "
                     if self.show_timestamps:
                         label = f"{label}{datetime.now().strftime(self.timestamp_format)} "
                     w = self._scrollback_box_width(getattr(self.console, "width", 80))
@@ -708,13 +708,13 @@ class CLIChatTurnMixin:
             try:
                 from hermes_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
-                label = _skin.get_branding("response_label", "☤ Hermes")
-                _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#CD7F32"))
-                _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFF8DC"))
+                label = _skin.get_branding("response_label", "◈ Envoy")
+                _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#0072A3"))
+                _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#E3F5FC"))
             except Exception:
-                label = "☤ Hermes"
-                _resp_color = _maybe_remap_for_light_mode("#CD7F32")
-                _resp_text = _maybe_remap_for_light_mode("#FFF8DC")
+                label = "◈ Envoy"
+                _resp_color = _maybe_remap_for_light_mode("#0072A3")
+                _resp_text = _maybe_remap_for_light_mode("#E3F5FC")
 
             is_error_response = turn.result and (turn.result.get("failed") or turn.result.get("partial"))
             # An interrupted reply that streamed before a tool-call boundary reset the segment
@@ -728,7 +728,7 @@ class CLIChatTurnMixin:
                 (self._stream_started and self._stream_box_opened) or _interrupted_streamed
             ) and not is_error_response
             modern = getattr(self, "_modern_layout", False)
-            # A gateway refusal is Hermes's own copy (quoted user text, a /discard line to copy):
+            # A gateway refusal is Envoy's own copy (quoted user text, a /discard line to copy):
             # markdown stripping or rendering would rewrite the quote and merge the lines.
             mode = ("raw" if turn.result and turn.result.get("failure_reason") == "gateway_connection"
                     else self.final_response_markdown)
@@ -763,13 +763,13 @@ class CLIChatTurnMixin:
             # stays visible instead of scrolling away inside the response prose.
             _limit = (turn.result or {}).get("usage_limit") if turn.result else None
             if isinstance(_limit, dict):
-                # Usage-window plan: what to do next, in commands that always work here. Hermes never
+                # Usage-window plan: what to do next, in commands that always work here. Envoy never
                 # switches on its own; the user picks.
                 try:
                     from agent.plan_limits import limit_next_steps_from_payload
                     ChatConsole().print(Panel(
                         limit_next_steps_from_payload(_limit, markup=True),
-                        title="[#CD7F32 bold]⚡ Limit reached[/]", title_align="left", border_style="#CD7F32",
+                        title="[#0072A3 bold]⚡ Limit reached[/]", title_align="left", border_style="#0072A3",
                         box=rich_box.HORIZONTALS, padding=(1, 4), width=self._scrollback_box_width(),
                     ))
                 except Exception:
@@ -789,8 +789,8 @@ class CLIChatTurnMixin:
                 _cta_lines.append(t("cli.chat.billing_cta_switch"))
                 try:
                     ChatConsole().print(Panel(
-                        "\n".join(_cta_lines), title=f"[#CD7F32 bold]{t('cli.chat.out_of_credits_title')}[/]",
-                        title_align="left", border_style="#CD7F32", box=rich_box.HORIZONTALS,
+                        "\n".join(_cta_lines), title=f"[#0072A3 bold]{t('cli.chat.out_of_credits_title')}[/]",
+                        title_align="left", border_style="#0072A3", box=rich_box.HORIZONTALS,
                         padding=(1, 4), width=self._scrollback_box_width(),
                     ))
                 except Exception:

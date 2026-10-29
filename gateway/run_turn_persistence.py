@@ -362,7 +362,7 @@ class GatewayTurnPersistenceMixin:
 
     def _hmwa_defer_exhaustion_reset(self, session_entry, session_key, source):
         """True when the reset was handed to the authority drain. A LOCAL session (the Bot Chat a
-        ``hermes peer dm`` lands in) resets its target in the store, which refuses while an admission
+        ``envoy peer dm`` lands in) resets its target in the store, which refuses while an admission
         on it is started (``session_busy``): this turn's own. The drain runs the reset right after it
         settles this admission, before it claims any successor (the Bot Chat's retry included)."""
         from gateway.session_ingress import executing_admission
@@ -604,7 +604,7 @@ class GatewayTurnPersistenceMixin:
 
         return response
 
-    # Chat-side next steps keyed by HTTP status; Hermes commands only (/login is the gateway's own
+    # Chat-side next steps keyed by HTTP status; Envoy commands only (/login is the gateway's own
     # sign-in, `{relogin}` the profile-aware host equivalent, filled from the turn's agent provider).
     # Values are catalog keys (``gateway.errors.hint_*``); 401 carries a ``{relogin}`` placeholder.
     _STATUS_HINTS = {

@@ -37,7 +37,7 @@ _OPEN_FLAGS = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLO
 
 
 def desktop_plugins_root() -> Path:
-    """App-level, like Electron's: the Hermes root's folder, whichever profile the request names.
+    """App-level, like Electron's: the Envoy root's folder, whichever profile the request names.
     Created on demand as Electron does, and resolved, so it prefixes every path the routes return."""
     root = get_default_hermes_root() / DESKTOP_PLUGINS_DIR
     root.mkdir(parents=True, exist_ok=True)

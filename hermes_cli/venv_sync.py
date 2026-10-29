@@ -61,7 +61,7 @@ def check_runtime(project_root: Path) -> str | None:
         return None
     steward = sealed_steward(Path(project_root))
     remedy = (f"this {steward}-managed install must rebuild the artifact to fix"
-              if steward else "run `hermes pm install`")
+              if steward else "run `envoy pm install`")
     return f"install out of sync ({'; '.join(problems)}) — {remedy}"
 
 
@@ -130,7 +130,7 @@ def sync(project_root: Path | None = None, *, check: bool = False) -> dict:
 def collect_superseded_generations(project_root: Path) -> None:
     """Collect what a publish just superseded, as the Docker boot already does.
 
-    Without this only a manual `hermes pm gc` reclaimed old environments. Safe
+    Without this only a manual `envoy pm gc` reclaimed old environments. Safe
     right after a sync: the collectors skip leased, selected and day-young
     generations and yield to any in-flight install instead of waiting.
     """
@@ -185,7 +185,7 @@ def arm_completion(project_root: Path) -> Path:
 #: failing re-runs on every launch ("every launch burns ~4 minutes"), so after
 #: this many consecutive failures the tail waits out a backoff window before
 #: trying again, and past the cap it stops self-starting entirely and leaves
-#: the marker for an explicit ``hermes update`` instead. The counter is the
+#: the marker for an explicit ``envoy update`` instead. The counter is the
 #: tail's own attempt record beside the pending marker: same lifetime, same
 #: install scope, cleared by the same success path.
 COMPLETION_RETRY_BACKOFF_ATTEMPTS = 2
@@ -335,7 +335,7 @@ def _supervised_child() -> bool:
     """A launcher-marked child: booted by a manager, not a user's shell.
 
     Launcher markers only — not INVOCATION_ID, which systemd exports to every
-    descendant: an ordinary hermes command inside a CI runner still owes its repair.
+    descendant: an ordinary envoy command inside a CI runner still owes its repair.
     Parsed as a truthy flag, so an explicit ``0``/``false`` does not suppress the tail.
     """
     return any(
@@ -352,7 +352,7 @@ def _tree_matches_completed_stamp(root: Path) -> bool:
     stale venv only needs re-provisioning and a marker armed BEFORE that stamp is a
     leftover from a previous home/install, never a rebuild of the same SHA (fresh
     Windows installs and pristine HERMES_HOMEs hit exactly this: #123314). A marker
-    armed after the stamp is newer debt (a same-commit ``hermes update`` that failed
+    armed after the stamp is newer debt (a same-commit ``envoy update`` that failed
     or was killed) and is still owed. Boot-time adoption also stamps HEAD but builds
     nothing, so its stamp (``adoptedAt``) is not evidence; neither is a dirty tree.
     """
@@ -370,7 +370,7 @@ def _tree_matches_completed_stamp(root: Path) -> bool:
     return info.commit == commit and not info.dirty
 
 
-# `hermes update` flags that report and exit without changing anything (subcommands/update.py).
+# `envoy update` flags that report and exit without changing anything (subcommands/update.py).
 _REPORT_ONLY_UPDATE_FLAGS = frozenset({"--check", "--plan", "--list-venv-holders"})
 
 
@@ -379,25 +379,25 @@ def _may_retry_completion(root: Path, command: list[str], *, current: bool) -> b
     import sys
 
     if not current and command[:1] == ["update"] and not _REPORT_ONLY_UPDATE_FLAGS & set(command):
-        # `hermes update` is the remedy every backed-off launch names: it always tries the repair.
+        # `envoy update` is the remedy every backed-off launch names: it always tries the repair.
         # Its report-only forms change nothing, so they stay inside the backoff like any launch.
         return True
     may_retry, attempts, backoff = completion_retry_state(root)
     if not may_retry and attempts >= COMPLETION_RETRY_MAX_ATTEMPTS:
         # The tail has failed often enough that every relaunch re-running it
         # does more harm than good (#122206: "every launch burns ~4 minutes").
-        # Leave the marker for an explicit `hermes update`; say so once.
+        # Leave the marker for an explicit `envoy update`; say so once.
         print(
-            f"hermes: a source update could not be finished automatically "
-            f"({attempts} attempts); run `hermes update` from a shell to finish it",
+            f"envoy: a source update could not be finished automatically "
+            f"({attempts} attempts); run `envoy update` from a shell to finish it",
             file=sys.stderr, flush=True,
         )
     elif not may_retry and not current:
         # Inside the backoff window a finished-dependencies tail waits silently (the record's age
         # tracks the wait); stale dependencies are worth one line in front of the user.
         print(
-            f"hermes: running with the previous dependencies after {attempts} failed syncs; "
-            f"next automatic retry in {max(1, backoff // 60)} min, or run `hermes update` to finish it",
+            f"envoy: running with the previous dependencies after {attempts} failed syncs; "
+            f"next automatic retry in {max(1, backoff // 60)} min, or run `envoy update` to finish it",
             file=sys.stderr, flush=True,
         )
     return may_retry
@@ -416,8 +416,8 @@ def _relaunch_target(root: Path, python: Path, *, same: bool) -> Path | None:
     import pm
 
     if same and getattr(sys, "_hermes_relaunched", False) and not pm.venv_is_current(project_root=root):
-        print("hermes: relaunching did not leave this install current; running with the "
-              "dependencies it has — run `hermes update` to finish it", file=sys.stderr, flush=True)
+        print("envoy: relaunching did not leave this install current; running with the "
+              "dependencies it has — run `envoy update` to finish it", file=sys.stderr, flush=True)
         return None
     return python
 
@@ -430,7 +430,7 @@ def prepare_launch(project_root: Path, argv: list[str]) -> Path | None:
     so a tail that failed is retried on the next launch WITHOUT rebuilding
     dependencies that are already current. Old updaters need not write a
     marker (and cannot accidentally clear this obligation).
-    A supervised child leaves that tail to ``hermes update`` when its dependencies
+    A supervised child leaves that tail to ``envoy update`` when its dependencies
     are current: its manager restarts it on every start, so a sticky marker would
     re-run the tail (and its environment builds) on each boot until the disk fills.
     Return the store interpreter when this process must restart cleanly.
@@ -490,7 +490,7 @@ def prepare_launch(project_root: Path, argv: list[str]) -> Path | None:
         # keeps a dead update's marker (R6: refused as held, never reclaimed).
         lock = UpdateLock(install_root=root, checkout_first=False)
         if not lock.acquire():
-            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Hermes")
+            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Envoy")
         try:
             # Under the launching update's own claim (its pid is our ancestor) a process it
             # spawned owes no tail: that obligation is the updater's.
@@ -509,13 +509,13 @@ def prepare_launch(project_root: Path, argv: list[str]) -> Path | None:
                 # marker over a held checkout lock is a killed update whose tree (its completion
                 # child) still runs.
                 if not lock.acquire_checkout(root):
-                    raise RuntimeError("an update is still running; wait for it to exit, then relaunch Hermes")
+                    raise RuntimeError("an update is still running; wait for it to exit, then relaunch Envoy")
                 _finish_source_update(root, current=current, pending=pending)
         finally:
             lock.release()
     python = resolve_store_python(root)
     if python is None:
-        raise RuntimeError("source update has no managed Python; run `hermes pm install`")
+        raise RuntimeError("source update has no managed Python; run `envoy pm install`")
     # Lexical identity, never resolve(): PM spells the store path through
     # HERMES_HOME (which may carry '..') while sys.executable arrives
     # normalized, so a raw compare re-execs every child forever (#122513). A
@@ -528,7 +528,7 @@ def prepare_launch(project_root: Path, argv: list[str]) -> Path | None:
     if owed_to_cli:
         # Left owed, not dropped: say so (once, in the process that boots) where an
         # operator of the unit will read it.
-        print("hermes: a source update is unfinished; run `hermes update` from a shell to finish it",
+        print("envoy: a source update is unfinished; run `envoy update` from a shell to finish it",
               file=sys.stderr, flush=True)
     return None
 
@@ -553,7 +553,7 @@ def _prepare_borrowed_launch(root: Path, owner: Path, *, current: bool) -> Path 
     if not current:
         lock = UpdateLock(install_root=root, checkout_first=False)  # R6, as in prepare_launch
         if not lock.acquire():
-            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Hermes")
+            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Envoy")
         try:
             _sync_source_dependencies(root, arm=False, borrowed_from=owner)
         finally:
@@ -563,7 +563,7 @@ def _prepare_borrowed_launch(root: Path, owner: Path, *, current: bool) -> Path 
             raise RuntimeError("dependency sync left this install out of date")
     python = resolve_store_python(root)
     if python is None:
-        raise RuntimeError("source update has no managed Python; run `hermes pm install`")
+        raise RuntimeError("source update has no managed Python; run `envoy pm install`")
     same = os.path.normcase(os.path.abspath(python)) == os.path.normcase(os.path.abspath(sys.executable))
     return python if not current or not same else None
 
@@ -579,8 +579,8 @@ def _finish_source_update(root: Path, *, current: bool, pending: Path) -> None:
         # Current post-sync verification children can boot under a live updater.
         legacy_markers = (root / ".update-incomplete", root / ".lazy-refresh-incomplete")
         if any(_marker_owner_is_live(marker) for marker in legacy_markers):
-            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Hermes")
-        print("hermes: completing source-update dependencies...", file=sys.stderr, flush=True)
+            raise RuntimeError("an update is still running; wait for it to exit, then relaunch Envoy")
+        print("envoy: completing source-update dependencies...", file=sys.stderr, flush=True)
         completed = _tree_matches_completed_stamp(root)
         # ponytail: commit-only match; a product dir deleted by hand is rebuilt on demand
         # by its own entry point (the TUI/web freshness gates), not here.
@@ -604,7 +604,7 @@ def _finish_source_update(root: Path, *, current: bool, pending: Path) -> None:
         clear_completion(root)
         return
     else:
-        print("hermes: finishing an interrupted source update...", file=sys.stderr, flush=True)
+        print("envoy: finishing an interrupted source update...", file=sys.stderr, flush=True)
     # Sync commits the dependency generation, but a source update also owes
     # the product builds and the post-build maintenance -- the tail every
     # install and finished update shares (hermes_cli/source_completion.py).
@@ -632,12 +632,12 @@ def _finish_source_update(root: Path, *, current: bool, pending: Path) -> None:
             inherit_lock=True, cwd=root, env=activation_environment(root), stdout=sys.__stderr__,
         ).returncode
     except CustodyRefused as exc:
-        print(f"hermes: {exc.reason}", file=sys.stderr, flush=True)
+        print(f"envoy: {exc.reason}", file=sys.stderr, flush=True)
         code = 1
     if code != 0:
         _record_completion_attempt(root, failed=True)
         raise RuntimeError(
-            "source update completion failed; run `hermes update` to finish it"
+            "source update completion failed; run `envoy update` to finish it"
         )
     clear_completion(root)
 
@@ -655,10 +655,10 @@ def _sync_source_dependencies(root: Path, *, arm: bool, borrowed_from: Path | No
     from pm.extras import legacy_selection
 
     if borrowed_from is not None:
-        print(f"hermes: preparing dependencies for this data root (the checkout's updates belong to "
+        print(f"envoy: preparing dependencies for this data root (the checkout's updates belong to "
               f"{borrowed_from})...", file=sys.stderr, flush=True)
     elif not arm:
-        print("hermes: preparing dependencies for this update...", file=sys.stderr, flush=True)
+        print("envoy: preparing dependencies for this update...", file=sys.stderr, flush=True)
     refuse_foreign_owned_venv(root)
     if arm:
         # Owed from before the sync commits: a crash between the commit and the
@@ -667,7 +667,7 @@ def _sync_source_dependencies(root: Path, *, arm: bool, borrowed_from: Path | No
     # Main-era installs have no PM ledger; carry what their venv held.
     # Established PM installs retain their recorded extras and plugin union instead.
     extras = legacy_selection(root) if not runtime_facts_path(root).is_file() else None
-    # Same order as `hermes update`: an interrupted update or a hand-run
+    # Same order as `envoy update`: an interrupted update or a hand-run
     # `git pull` leaves this tree's lockfile ahead of the installed tools.
     ensure_tools_for_sync()
     pm.sync_venv(extras, explicit=True, project_root=root, evict_incompatible_plugins=True)

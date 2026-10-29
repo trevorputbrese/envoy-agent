@@ -16,7 +16,7 @@ ICON_SPARKLES = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
 ICON_CHEVRON_RIGHT = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>'
 ICON_SEARCH = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>'
 ICON_SHIELD = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></svg>'
-ICON_HERMES = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>'
+ICON_HERMES = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#49AFD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>'
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -36,7 +36,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             --user-bg: #FFFFFF;
             --assistant-bg: #F1F5F9;
             --border-color: #E2E8F0;
-            --accent-color: #CD7F32;
+            --accent-color: #0072A3;
             --accent-foreground: #FFFFFF;
             --code-bg: #1E293B;
             --code-text: #F8FAFC;
@@ -52,15 +52,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         @media (prefers-color-scheme: dark) {{
             :root {{
                 --bg-color: #000101;
-                --text-color: #FFF8DC;
+                --text-color: #E3F5FC;
                 --secondary-text: #94A3B8;
                 --user-bg: #041c1c;
                 --assistant-bg: #0c1a1a;
-                --border-color: #CD7F32;
-                --accent-color: #FFD700;
+                --border-color: #0072A3;
+                --accent-color: #49AFD9;
                 --code-bg: #000000;
                 --reasoning-bg: #1a1a1a;
-                --reasoning-border: #CD7F32;
+                --reasoning-border: #0072A3;
                 --tool-bg: #0c4a6e;
                 --tool-border: #075985;
                 --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
@@ -559,7 +559,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             {sessions_html}
             
             <footer>
-                Built with ☤ Hermes Agent • Generated on {generated_at}
+                Built with ◈ Envoy Agent • Generated on {generated_at}
             </footer>
         </div>
     </div>
@@ -748,7 +748,7 @@ def _sidebar_html(sessions: list[dict[str, Any]]) -> str:
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-brand">
-                    {ICON_HERMES} Hermes History
+                    {ICON_HERMES} Envoy History
                 </div>
                 <div class="search-container">
                     {ICON_SEARCH}
@@ -772,7 +772,7 @@ def _session_view_html(s: dict[str, Any], is_multi: bool) -> str:
     return f"""
         <div class="{"session-view" if is_multi else "session-view active"}" id="view-{escaped_sid}">
             <header class="fade-in">
-                <h1>{_escape_html(s.get("title") or "Hermes Session")}</h1>
+                <h1>{_escape_html(s.get("title") or "Envoy Session")}</h1>
                 <div class="meta">
                     <div class="meta-item"><strong>ID:</strong> {escaped_sid}</div>
                     <div class="meta-item"><strong>Model:</strong> {_escape_html(s.get("model") or "Unknown")}</div>
@@ -792,7 +792,7 @@ def generate_multi_session_html_export(sessions: list[dict[str, Any]]) -> str:
         return "<html><body><h1>No sessions to export.</h1></body></html>"
     is_multi = len(sessions) > 1
     return HTML_TEMPLATE.format(
-        page_title="Hermes Session Export" if is_multi else _escape_html(sessions[0].get("title") or "Hermes Session"),
+        page_title="Envoy Session Export" if is_multi else _escape_html(sessions[0].get("title") or "Envoy Session"),
         sidebar_html=_sidebar_html(sessions) if is_multi else "",
         sessions_html="\n".join(_session_view_html(s, is_multi) for s in sessions),
         main_margin="var(--sidebar-width)" if is_multi else "0",

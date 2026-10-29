@@ -49,7 +49,7 @@ USE = {
 def test_a_machine_with_only_install_time_files_is_fresh(machine):
     other, places = machine
     # What installers and a first boot write: template config, example .env keys, an empty state.db,
-    # pool rows Hermes seeded from the shell, the PM boot record.
+    # pool rows Envoy seeded from the shell, the PM boot record.
     (other / "config.yaml").write_text("_config_version: 50\nmodel:\n  default: x\n  provider: auto\n", encoding="utf-8")
     (other / ".env").write_text('TERMINAL_ENV=local\n# OPENROUTER_API_KEY=\nOPENROUTER_API_KEY="" # optional\n',
                                 encoding="utf-8")

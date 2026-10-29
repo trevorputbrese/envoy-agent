@@ -30,7 +30,7 @@ function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-sign-cache-test-'))
   const entitlements = path.join(root, 'inherit.plist')
   fs.writeFileSync(entitlements, '<plist/>')
-  const app = path.join(root, 'Hermes.app')
+  const app = path.join(root, 'Envoy.app')
   /** @param {string} relative @param {Buffer | string} bytes @returns {string} */
   const put = (relative, bytes) => {
     const file = path.join(app, 'Contents', relative)
@@ -69,7 +69,7 @@ test('loose payload binaries are found; nested bundles, the main executable and 
   try {
     const loose = f.put('Resources/agent-payload/venv/lib/_core.so', machO('a'))
     f.put('Resources/agent-payload/README.txt', 'text')
-    f.put('MacOS/Hermes', machO('main'))
+    f.put('MacOS/Envoy', machO('main'))
     f.put('Frameworks/Electron Framework.framework/Versions/A/Electron Framework', machO('fw'))
     f.put('Resources/agent-payload/tools/chromium-1/Chromium.app/Contents/MacOS/Chromium', machO('c'))
     expect(looseMachOFiles(f.app, () => false)).toEqual([loose])

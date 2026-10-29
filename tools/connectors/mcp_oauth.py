@@ -91,7 +91,7 @@ class AttemptCanceled(RuntimeError):
 # committed with everything kept. A worker parked inside the token request cannot be interrupted;
 # it is stopped here, at the one point where its result would be adopted.
 _COMMIT_GUARD = threading.Lock()
-# (hermes home, server) -> the newest card attempt. A retry or a new operation replaces an attempt
+# (envoy home, server) -> the newest card attempt. A retry or a new operation replaces an attempt
 # whose worker is still waiting on the browser; the older one is canceled so it cannot commit later.
 _ACTIVE: dict[tuple, Any] = {}
 
@@ -227,7 +227,7 @@ def _start_loopback_receiver(flow) -> http.server.HTTPServer:
                 self.send_response(404)
                 self.end_headers()
                 return
-            body = b"<h1>Authorization received</h1><p>You can close this tab and return to Hermes.</p>"
+            body = b"<h1>Authorization received</h1><p>You can close this tab and return to Envoy.</p>"
             status = 200
             try:
                 flow.deliver_callback(**_parse_redirect_query(parsed.query))

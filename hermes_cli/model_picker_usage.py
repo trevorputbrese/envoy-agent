@@ -27,7 +27,7 @@ _RED_BELOW = 0.2
 # Per-model label on a window plan, as the gateway sends it (``usage_level``). Display words only.
 USAGE_LEVELS = ("free", "low", "medium", "top_tier")
 # Words, limit lines and switch notices come from ``plan_usage.*`` in locales/ (``usage_level_label``,
-# ``_t``); the `hermes model` setup picker passes ``lang="en"`` (its own text is English, as on main).
+# ``_t``); the `envoy model` setup picker passes ``lang="en"`` (its own text is English, as on main).
 # One line for that picker, shown only when a Large row is listed.
 TOP_TIER_FOOTNOTE = "Large models also use your monthly large-model limit."
 # Window pickers split the list here; messaging pickers just order recommended first.
@@ -36,7 +36,7 @@ SECTION_OTHER = "Other models"
 
 _BP_FULL = 10_000
 
-# The server's allowance ids Hermes has its own words for (agent/usage_gauges.py); any other id
+# The server's allowance ids Envoy has its own words for (agent/usage_gauges.py); any other id
 # renders with the server's label.
 GAUGE_TODAY = "day"
 GAUGE_WEEK = "week"
@@ -172,7 +172,7 @@ class PickerUsage:
         plan is paused."""
         if self.paused_reason:
             return "included usage paused"
-        # Only the `hermes model` setup picker shows this, and its own text is English.
+        # Only the `envoy model` setup picker shows this, and its own text is English.
         return self.limit_line(lang="en") or "every model below is included"
 
     def gauges_for_model(self, model_id: str) -> tuple[UsageGauge, ...]:
@@ -500,7 +500,7 @@ def plan_gauge_lines(usage: PickerUsage) -> list[str]:
     stays readable at a normal terminal width."""
     from agent.usage_gauges import paused_for_payment
     paused = (" (paused: renewal unpaid)" if paused_for_payment(usage.paused_reason) else " (paused)") if usage.paused_reason else ""
-    head = (usage.plan or "Hermes plan") + paused
+    head = (usage.plan or "Envoy plan") + paused
     label_w = max((len(_gauge_name(g)) for g in usage.gauges), default=4)
     return [head, *(
         f"{_gauge_name(g):<{label_w}}  {g.bar}  {g.percent_used + ' used':<9}  {format_resets_in(g.resets_at_ms)}"

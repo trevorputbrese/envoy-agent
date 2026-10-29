@@ -1,10 +1,10 @@
 """Tests for the setup wizard's returning-user behavior.
 
 On an existing install:
-- Bare `hermes setup` drops straight into the full reconfigure wizard
+- Bare `envoy setup` drops straight into the full reconfigure wizard
   (every prompt shows the current value as its default).
-- `hermes setup --quick` runs the narrower "fill in missing items" flow.
-- `hermes setup --reconfigure` is a backwards-compat alias for the
+- `envoy setup --quick` runs the narrower "fill in missing items" flow.
+- `envoy setup --reconfigure` is a backwards-compat alias for the
   bare-setup default.
 
 On a fresh install, all three are no-ops — fall through to first-time setup.
@@ -98,7 +98,7 @@ def _enter_fresh_install_patches(stack, **extra):
 
 
 class TestExistingInstallDefault:
-    """Bare `hermes setup` on an existing install = full reconfigure wizard."""
+    """Bare `envoy setup` on an existing install = full reconfigure wizard."""
 
     def test_bare_setup_runs_full_reconfigure_without_menu(self, existing_install):
         """No menu, no prompt_choice — just run every section in sequence."""
@@ -166,6 +166,12 @@ class TestQuickFlag:
         m["tools"].assert_not_called()
 
 
+def _first_time_mode_index(runner: str) -> int:
+    """Menu position of the first-run mode that runs ``setup_quick.<runner>``."""
+    from hermes_cli import setup as setup_mod
+    return next(i for i, (_label, mode) in enumerate(setup_mod._FIRST_TIME_MODES) if mode == runner)
+
+
 class TestFreshInstall:
     """On a fresh install (no active provider), flags are no-ops."""
 
@@ -176,8 +182,9 @@ class TestFreshInstall:
         with ExitStack() as stack:
             m = _enter_fresh_install_patches(
                 stack,
-                prompt=("hermes_cli.setup.prompt_choice", {"return_value": 0}),
-                first="hermes_cli.setup_quick._run_first_time_quick_setup",
+                prompt=("hermes_cli.setup.prompt_choice",
+                        {"return_value": _first_time_mode_index("_run_blank_slate_setup")}),
+                first="hermes_cli.setup_quick._run_blank_slate_setup",
             )
             from hermes_cli.setup import run_setup_wizard
             from hermes_cli import setup as setup_mod
@@ -198,7 +205,8 @@ class TestFreshInstall:
         with ExitStack() as stack:
             m = _enter_fresh_install_patches(
                 stack,
-                prompt=("hermes_cli.setup.prompt_choice", {"return_value": 2}),
+                prompt=("hermes_cli.setup.prompt_choice",
+                        {"return_value": _first_time_mode_index("_run_blank_slate_setup")}),
                 blank="hermes_cli.setup_quick._run_blank_slate_setup",
             )
             from hermes_cli import setup as setup_mod

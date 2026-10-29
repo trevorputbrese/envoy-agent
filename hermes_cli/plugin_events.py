@@ -80,7 +80,7 @@ def broadcast_plugin_event(plugin_id: str, event: str, payload: Optional[dict[st
     try:
         from tui_gateway.server import _broadcast_global_event
     except ImportError:
-        # A plugin-only process (``hermes plugins validate`` importing the backend, a trimmed
+        # A plugin-only process (``envoy plugins validate`` importing the backend, a trimmed
         # install) has no gateway at all: nobody to deliver to, and the handler must not die for it.
         logger.warning("plugin event %s dropped: no tui_gateway in this process", name, exc_info=True)
         return

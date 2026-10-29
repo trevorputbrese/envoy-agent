@@ -1,4 +1,4 @@
-"""Canonical runtime identity for Hermes.
+"""Canonical runtime identity for Envoy.
 
 Resolution order:
 1. Install stamp (``install-stamp.json``) — written at build time by
@@ -316,7 +316,7 @@ def hermes_user_agent(product: str = "hermes-cli") -> str:
     """``<product>/<base version>`` for an outbound request.
 
     Call it where the request is built, never at module level: a source checkout resolves the
-    release from git, so a module-level read made every Hermes start pay that walk whether or not
+    release from git, so a module-level read made every Envoy start pay that walk whether or not
     it ever sent the request.
     """
     return f"{product}/{get_version_info().base_version}"

@@ -1545,7 +1545,7 @@ class SessionSessionsMixin:
         skip_launch_stubs: bool = False,
     ) -> list[dict[str, Any]]:
         """Sessions MRU-first with a computed ``last_active``; ``workspace_key`` scopes to one workspace
-        so ``hermes -c``/``--resume`` picks its last session. ``source`` may be one label or several.
+        so ``envoy -c``/``--resume`` picks its last session. ``source`` may be one label or several.
         ``local_created_sources`` restricts ``source='local'`` rows before LIMIT/OFFSET, and
         ``skip_launch_stubs`` drops empty launch stubs (launch_stub_filter_sql) before it too."""
         where_clauses = [launch_stub_filter_sql(self)] if skip_launch_stubs else []

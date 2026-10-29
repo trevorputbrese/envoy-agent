@@ -137,7 +137,7 @@ class TestCodexBuildKwargs:
         assert "extra_body" in caplog.text
 
     def test_900k_context_variant_suffix_stripped_on_wire(self, transport):
-        """``-900k`` large-context picker variants are Hermes-side aliases —
+        """``-900k`` large-context picker variants are Envoy-side aliases —
         the Codex backend only knows the base slug, so build_kwargs must
         strip the suffix from the wire model id."""
         messages = [{"role": "user", "content": "Hi"}]
@@ -218,7 +218,7 @@ class TestCodexBuildKwargs:
         binding = ProviderProfile(name="acme-responses", base_url="https://api.acme-responses.test",
                                   api_mode="codex_responses", responses_replay_item_ids=False)
         messages = [
-            {"role": "system", "content": "You are Hermes."},
+            {"role": "system", "content": "You are Envoy."},
             {
                 "role": "assistant",
                 "content": "pong",
@@ -250,7 +250,7 @@ class TestCodexBuildKwargs:
 
     def test_non_github_responses_keeps_message_item_id_end_to_end(self, transport):
         messages = [
-            {"role": "system", "content": "You are Hermes."},
+            {"role": "system", "content": "You are Envoy."},
             {
                 "role": "assistant",
                 "content": "pong",
@@ -968,7 +968,7 @@ class TestCodexBuildKwargs:
         assert "hermes_web_search" not in names
 
     def test_xai_renames_client_web_search_when_firecrawl_configured(self, transport, monkeypatch):
-        """Configured Firecrawl (or any non-xai backend) must keep Hermes
+        """Configured Firecrawl (or any non-xai backend) must keep Envoy
         dispatch — rename the wire tool so Grok cannot hijack ``web_search``.
         """
         import agent.transports.codex as codex_mod
@@ -1002,7 +1002,7 @@ class TestCodexBuildKwargs:
         already-requested client ``web_search`` — NOT an additive grant.  A
         turn whose toolset has no ``web_search`` (user never enabled the web
         toolset) must not get Grok server-side search force-injected, which
-        would silently bypass Hermes's web-provider config and tool-trace
+        would silently bypass Envoy's web-provider config and tool-trace
         plumbing for every xai-oauth turn.
         """
         messages = [{"role": "user", "content": "Read this file."}]
@@ -1081,7 +1081,7 @@ class TestCodexBuildKwargs:
         assert "web_extract" in names
 
     def test_openai_native_not_selected_keeps_client_web_search(self, transport, monkeypatch):
-        """A Codex turn that has not selected ``openai-native`` keeps Hermes
+        """A Codex turn that has not selected ``openai-native`` keeps Envoy
         dispatch — the built-in must never be granted additively."""
         import agent.transports.codex as codex_mod
 
@@ -1742,7 +1742,7 @@ class TestCodexTransportXaiReasoningEffort:
 
     @pytest.mark.parametrize("effort", ["max", "ultra"])
     def test_grok_46_clamps_hermes_aliases_to_model_ceiling(self, transport, effort):
-        """Hermes ladder aliases mean "this model's ceiling" — on grok-4.6
+        """Envoy ladder aliases mean "this model's ceiling" — on grok-4.6
         that is xhigh, not one rung below it (#87279)."""
         kw = transport.build_kwargs(
             model="x-ai/grok-4.6-latest",

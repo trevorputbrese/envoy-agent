@@ -94,7 +94,7 @@ def _tick_admitted(
     headless: bool = False):
     """Check and run all due jobs. File-locked so only one tick runs at a time (gateway ticker vs
     standalone daemon / manual tick). ``can_dispatch``: optional gate; false leaves due jobs for the
-    next allowed tick. ``headless``: the tick runs outside any gateway (system crontab, ``hermes
+    next allowed tick. ``headless``: the tick runs outside any gateway (system crontab, ``envoy
     cron tick``) and must refuse agent jobs rather than spawn one. Returns the number of jobs
     executed (0 if another tick holds the lock)."""
     from cron import scheduler as _sched
@@ -112,7 +112,7 @@ def _tick_admitted(
         return 0
 
     try:
-        # `hermes pause` ESTOP: skip dispatch, never touch in-flight runs; check_paused logs once.
+        # `envoy pause` ESTOP: skip dispatch, never touch in-flight runs; check_paused logs once.
         with contextlib.suppress(ImportError):
             from agent.estop import check_paused as _estop_check_paused
             if _estop_check_paused("cron", _sched.logger):

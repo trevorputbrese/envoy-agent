@@ -1,4 +1,4 @@
-"""`hermes import-agent` and `hermes claw` (OpenClaw migration) left core for the agent-importers
+"""`envoy import-agent` and `envoy claw` (OpenClaw migration) left core for the agent-importers
 catalog plugin.
 
 Real parser and real config files under a temp HERMES_HOME; the catalog lookup and the install are
@@ -34,9 +34,9 @@ def test_old_spelling_without_the_plugin_names_the_install(argv, tmp_path, monke
         parser.parse_args(sys.argv[1:])
     err = capsys.readouterr().err
     assert exc.value.code == 2
-    assert f"`hermes {argv[0]}` moved out of core into the 'agent-importers' plugin, which is not loaded" in err
-    assert "hermes plugins install agent-importers" in err
-    assert lcm.moved_command_hint("hermes auth", argv[0]) == ""  # never a `hermes auth` login spelling
+    assert f"`envoy {argv[0]}` moved out of core into the 'agent-importers' plugin, which is not loaded" in err
+    assert "envoy plugins install agent-importers" in err
+    assert lcm.moved_command_hint("envoy auth", argv[0]) == ""  # never a `envoy auth` login spelling
 
 
 def test_only_a_home_with_registered_imports_gets_the_plugin(tmp_path):
@@ -58,12 +58,12 @@ def test_only_a_home_with_registered_imports_gets_the_plugin(tmp_path):
     assert calls == [] and said == []
     assert lcm.migrate_home(synced, install=install, say=said.append) == ["agent-importers"]
     assert calls == ["agent-importers"]
-    assert "✓ `hermes import-agent` moved out of core" in said[0]
+    assert "✓ `envoy import-agent` moved out of core" in said[0]
 
 
 def test_a_scheduled_sync_on_a_home_nothing_migrated_installs_the_plugin_and_runs(tmp_path, monkeypatch, capsys):
-    """An upgrade that ran no `hermes update` (a Docker image swap) leaves a home with sync sources and
-    no plugin; when the scheduled `hermes import-agent --sync` is its only Hermes process, that run
+    """An upgrade that ran no `envoy update` (a Docker image swap) leaves a home with sync sources and
+    no plugin; when the scheduled `envoy import-agent --sync` is its only Envoy process, that run
     installs the plugin and parses as the plugin's own command."""
     home = tmp_path / ".hermes"
     home.mkdir()

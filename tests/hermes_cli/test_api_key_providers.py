@@ -97,7 +97,7 @@ class TestResolveProvider:
 
     def test_alias_chatgpt_every_alias_table(self):
         """Issue #95794: the runtime (providers.py), the /model parser (models_catalog_static via
-        parse_model_input) and ``hermes auth login`` all resolve the ChatGPT alias, not just auth."""
+        parse_model_input) and ``envoy auth login`` all resolve the ChatGPT alias, not just auth."""
         from hermes_cli.providers import normalize_provider
         from hermes_cli.models import parse_model_input
         from hermes_cli.auth_commands import _normalize_provider
@@ -258,7 +258,7 @@ class TestHasAnyProviderConfigured:
 
 
     def test_claude_code_creds_ignored_on_fresh_install(self, monkeypatch, tmp_path):
-        """Claude Code credentials should NOT skip the wizard when Hermes is unconfigured."""
+        """Claude Code credentials should NOT skip the wizard when Envoy is unconfigured."""
         from hermes_cli import config as config_module
         hermes_home = tmp_path / ".hermes"
         hermes_home.mkdir()

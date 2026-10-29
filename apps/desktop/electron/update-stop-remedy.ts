@@ -6,7 +6,7 @@ import path from 'node:path'
 /** The closed token set `hermes_cli.update_receipt.record_stop_reason` records. */
 const STOP_CLASS_TOKEN = /^[a-z][a-z0-9_]{0,39}$/
 
-const UPDATES_GUIDE = 'https://hermes-agent.nousresearch.com/docs/getting-started/updating'
+const UPDATES_GUIDE = 'https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/getting-started/updating.md'
 
 export interface UpdateStop {
   stopClass: string
@@ -21,7 +21,7 @@ export interface UpdateStopExplanation {
 }
 
 /**
- * Receipts live under the ROOT home: `hermes -p <name> update` files its receipt
+ * Receipts live under the ROOT home: `envoy -p <name> update` files its receipt
  * in `<root>/logs/update_receipts/`, and the hand-off script resolves the same
  * root before it reads the receipt back (scripts/desktop-update/posix.sh,
  * `update_committed_after_exit`). A profile home passed here therefore still
@@ -87,12 +87,12 @@ export function readStoppedRun(hermesHome: string, correlationId: string | null)
  */
 const STOP_EXPLANATIONS: Record<string, UpdateStopExplanation> = {
   downgrade_refused: {
-    message: 'Hermes kept your install: the offered release is older than it',
+    message: 'Envoy kept your install: the offered release is older than it',
     detail:
       'The updater refused to move this install back to the release it offered, because that release predates the ' +
       'gateway runtime your session stores already use. Downgrading is unsupported, and nothing was changed: you are ' +
       'still on the version you had.\n\n' +
-      'To follow this checkout instead of the release channel, run `hermes update --set-channel main`, or pick a ' +
+      'To follow this checkout instead of the release channel, run `envoy update --set-channel main`, or pick a ' +
       `channel in About ▸ Updates.\n\n${UPDATES_GUIDE}`
   }
 }

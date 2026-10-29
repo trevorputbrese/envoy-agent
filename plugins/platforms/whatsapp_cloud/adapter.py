@@ -153,7 +153,7 @@ def _optional_module(name: str, unavailable_log: str) -> Any:
         return None
 
 
-# Under the hermes dir so it survives restarts/reloads — same as the Baileys bridge.
+# Under the envoy dir so it survives restarts/reloads — same as the Baileys bridge.
 _INBOUND_MEDIA_CACHE = Path(get_hermes_dir("platforms/whatsapp_cloud/media", "whatsapp_cloud/media"))
 
 
@@ -615,7 +615,7 @@ class WhatsAppCloudAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
     async def send_voice(self, chat_id: str, audio_path: str, caption: Optional[str] = None, reply_to: Optional[str] = None,
                          is_voice: Optional[bool] = None, **kwargs) -> SendResult:
         """Voice message: ``audio/ogg; codecs=opus`` renders as a voice bubble, so a
-        local MP3 (Hermes TTS output) is converted via ffmpeg first; other audio is sent as-is.
+        local MP3 (Envoy TTS output) is converted via ffmpeg first; other audio is sent as-is.
         A plain audio MEDIA file (``is_voice=False``) is never converted into a voice bubble."""
         mime_type: Optional[str] = None
         if is_voice is False and audio_path.lower().endswith(".mp3"):
@@ -1086,7 +1086,7 @@ def _is_connected(config) -> bool:
 
 
 def _interactive_setup() -> None:
-    """``hermes gateway setup`` entry: the same wizard ``hermes whatsapp-cloud`` runs."""
+    """``envoy gateway setup`` entry: the same wizard ``envoy whatsapp-cloud`` runs."""
     from .setup_wizard import run_whatsapp_cloud_setup
     run_whatsapp_cloud_setup()
 
@@ -1103,7 +1103,7 @@ _PLATFORM_HINT = (
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system.
+    """Plugin entry point — called by the Envoy plugin system.
 
     No ``validate_config``: an unconfigured adapter still reaches ``connect()``, which records the
     ``whatsapp_cloud_unconfigured`` fatal error (same outcome as the former core wiring). No
@@ -1113,8 +1113,8 @@ def register(ctx) -> None:
     ctx.register_platform(
         name="whatsapp_cloud", label="WhatsApp Business (Cloud)", adapter_factory=WhatsAppCloudAdapter,
         dashboard_label="WhatsApp Cloud API",
-        dashboard_description="Use Hermes via Meta's hosted WhatsApp Cloud API (no local bridge).",
-        docs_url="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/whatsapp-cloud",
+        dashboard_description="Use Envoy via Meta's hosted WhatsApp Cloud API (no local bridge).",
+        docs_url="https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/messaging/whatsapp-cloud.md",
         check_fn=check_whatsapp_cloud_requirements, is_connected=_is_connected,
         config_connected_fn=config_connected_extra("phone_number_id", "access_token"),
         required_env=["WHATSAPP_CLOUD_PHONE_NUMBER_ID", "WHATSAPP_CLOUD_ACCESS_TOKEN"],

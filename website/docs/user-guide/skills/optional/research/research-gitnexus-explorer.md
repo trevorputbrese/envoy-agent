@@ -14,19 +14,19 @@ Serve an interactive codebase knowledge graph web UI.
 
 | | |
 |---|---|
-| Source | Optional — install with `hermes skills install official/research/gitnexus-explorer` |
+| Source | Optional — install with `envoy skills install official/research/gitnexus-explorer` |
 | Path | `optional-skills/research/gitnexus-explorer` |
 | Version | `1.0.0` |
-| Author | Hermes Agent + Teknium |
+| Author | Envoy Agent + Teknium |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `gitnexus`, `code-intelligence`, `knowledge-graph`, `visualization` |
-| Related skills | [`hermes-agent`](../../bundled/autonomous-ai-agents/autonomous-ai-agents-hermes-agent.md), [`codebase-inspection`](../../bundled/software-development/software-development-codebase-inspection.md) |
+| Related skills | [`envoy-agent`](../../bundled/autonomous-ai-agents/autonomous-ai-agents-envoy-agent.md), [`codebase-inspection`](../../bundled/software-development/software-development-codebase-inspection.md) |
 
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Hermes loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Envoy loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # GitNexus Explorer

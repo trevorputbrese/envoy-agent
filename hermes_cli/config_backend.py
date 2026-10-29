@@ -3,7 +3,7 @@
 Every read and write of a profile's user ``config.yaml`` goes through the backend returned by
 :func:`get_config_backend` (``scripts/check_config_yaml_readers.py`` and
 ``scripts/check_config_yaml_writers.py`` reject direct file access elsewhere). The key per call is
-the hermes home (profile): one multiplexed process serves N profiles, and every config cache
+the envoy home (profile): one multiplexed process serves N profiles, and every config cache
 already keys on the config path, so a backend keeps per-home state.
 
 :class:`FileBackend` (the default) is today's behaviour byte for byte:
@@ -125,7 +125,7 @@ class ConfigBackend(Protocol):
         ...
 
     def doctor_warnings(self, home: Path) -> tuple:
-        """``(warning, hint, issue)`` triples ``hermes doctor`` reports after a successful read."""
+        """``(warning, hint, issue)`` triples ``envoy doctor`` reports after a successful read."""
         ...
 
     def apply_in_memory(self, home: Path, doc: dict) -> None:

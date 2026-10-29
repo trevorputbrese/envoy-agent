@@ -8,7 +8,7 @@
 # HermesHome nested inside -InstallDir) makes the pm tool store land at
 # <InstallDir>\tools, INSIDE the checkout. Two failures follow: the
 # repository stage's occupied-directory preflight refuses every retry after
-# the first run populated the folder ("exists and is not a Hermes git
+# the first run populated the folder ("exists and is not an Envoy git
 # checkout"), and `git stash --include-untracked` would sweep the toolchain
 # into the stash. The installer now refuses the combination up front, before
 # any download, unless HERMES_RUNTIME_DIR parks the store elsewhere.
@@ -76,8 +76,8 @@ function Invoke-ResolvedPaths {
         }
         $exitCode = $LASTEXITCODE
         $raw = @(Get-Content -LiteralPath $outFile -ErrorAction SilentlyContinue)
-        $stdout = ($raw | Where-Object { $_ -notlike '`[hermes`]*' }) -join "`n"
-        $stderr = ($raw | Where-Object { $_ -like '`[hermes`]*' -or $_ -match 'HermesHome|install directory|tool store' }) -join "`n"
+        $stdout = ($raw | Where-Object { $_ -notlike '`[envoy`]*' }) -join "`n"
+        $stderr = ($raw | Where-Object { $_ -like '`[envoy`]*' -or $_ -match 'HermesHome|install directory|tool store' }) -join "`n"
         return @{ ExitCode = $exitCode; Stdout = $stdout; All = ($raw -join "`n") }
     } finally {
         if ($null -eq $savedRuntimeDir) {

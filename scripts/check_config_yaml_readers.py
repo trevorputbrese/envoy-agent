@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail when a user ``config.yaml`` is read by anything but the config backend.
 
-Every read of ``<hermes home>/config.yaml`` must go through ``hermes_cli.config_backend``
+Every read of ``<envoy home>/config.yaml`` must go through ``hermes_cli.config_backend``
 (``get_config_backend()`` / the path helpers there) so a non-file backend (design §4.1, D10) sees
 every reader. A direct ``open`` / ``read_text`` / ``yaml.safe_load`` / ``fast_safe_load`` /
 ``load_yaml_file_readonly`` / ``stat`` of a config path silently keeps reading the local file —
@@ -44,7 +44,7 @@ DEFAULT_TREES = (
     "model_tools.py", "batch_runner.py")
 # The backend module itself, and the on-disk primitives it wraps.
 ALLOWED_FILES = {ROOT / "hermes_cli" / "config_backend.py", ROOT / "utils.py"}
-# Modules whose ``config_path`` / ``path`` names are their OWN config file, never a hermes
+# Modules whose ``config_path`` / ``path`` names are their OWN config file, never a envoy
 # config.yaml (the name heuristic would flag every line of them).
 FOREIGN_CONFIG_FILES = {
     "plugins/memory/honcho": "Honcho's own honcho.json",

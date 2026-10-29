@@ -8,8 +8,8 @@ notification (fire-and-forget). Containment: the schema is injected ONLY into a
 bot's canonical "Bot Chat" session on a Bot-Mode-managed install (same gate as
 ``tools/bot_mode_probe.py``; never in the registry or any toolset), and dispatch
 re-checks that gate so a forged call returns a structured error. Transports:
-local → ``hermes -p <name> chat --in ~ -c "Bot Chat" --create-if-missing -Q
---query-file <tmp>``; peer → ``hermes peer dm <peer>[/<name>] < <tmp>``; both via
+local → ``envoy -p <name> chat --in ~ -c "Bot Chat" --create-if-missing -Q
+--query-file <tmp>``; peer → ``envoy peer dm <peer>[/<name>] < <tmp>``; both via
 ``terminal_tool(background=True, notify_on_complete=True)``.
 """
 
@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 # Top-level imports stay stdlib-only: this module also runs directly as the background
-# delivery runner (``python bot_mode_dm.py --run-delivery …``); Hermes helpers import lazily.
+# delivery runner (``python bot_mode_dm.py --run-delivery …``); Envoy helpers import lazily.
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ _LIVE_WAIT_SECONDS = 300
 # sender's notify slot: past this the runner reports pending (do not resend) and exits.
 _LIVE_WAIT_MAX_SECONDS = 30 * 60
 
-# '<peer>/<agent>' — peer names are lowercase (``hermes peer`` normalizes them).
+# '<peer>/<agent>' — peer names are lowercase (``envoy peer`` normalizes them).
 _PEER_TARGET_RE = re.compile(r"^([a-z0-9][a-z0-9_-]{0,63})/([a-zA-Z0-9][a-zA-Z0-9_-]{0,63})$")
 # Same shape as ``tools.bot_relay._HANDLE_RE`` (kept local: see import note above).
 _LOCAL_TARGET_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
@@ -257,7 +257,7 @@ def message_agent_tool(target: str = "", message: str = "", task_id: Optional[st
         # A peer dm crosses installs: qualify the id with this host so the peer's own '<me>' stays distinct.
         from agent.turn_author import bot_author_id, local_origin
         peer_author = {**author, "id": bot_author_id(me, local_origin())}
-        # Pin the registry-owning profile: `hermes peer` resolves bot_peers via the profile-scoped
+        # Pin the registry-owning profile: `envoy peer` resolves bot_peers via the profile-scoped
         # load_config(), while the roster above reads the machine-root config — the CLI must run
         # in that same profile or a secondary-profile bot sees an empty registry.
         # The delivery runs in a background service context whose PATH lacks the gateway's
@@ -269,7 +269,7 @@ def message_agent_tool(target: str = "", message: str = "", task_id: Optional[st
                                f"@{peer_profile or peer_name} on peer '{peer_name}'", stdin_file=True,
                                author=peer_author, **delivery)
 
-    # A connection-qualified target ('hermes@mini') names a relay row outright; it is the form the relay itself
+    # A connection-qualified target ('envoy@mini') names a relay row outright; it is the form the relay itself
     # hands out for a colliding row, and stamps on replies. Resolved locally first, a local bot whose friendly
     # name slugs to 'hermes-mini' captured it. An '@' name no connection answers to still resolves locally.
     if "@" in raw_target.strip().lstrip("@"):
@@ -616,7 +616,7 @@ def _live_outcome_unknown(dm_file: str, cause: object) -> str:
 def _runner_argv(args: list[str]) -> tuple[Optional[str], str, str, list[str]] | None:
     """Split ``--run-delivery [--author <json>] <mode> <dm_file> <argv…>`` into
     ``(author_json, mode, dm_file, argv)``; None when malformed. Stdlib only: the boot-failure
-    report runs it when no Hermes import is available."""
+    report runs it when no Envoy import is available."""
     if args[:1] != ["--run-delivery"]:
         return None
     rest, author = args[1:], None
@@ -916,10 +916,10 @@ def _session_title(agent: Any) -> str:
 if __name__ == "__main__":  # pragma: no cover - exercised as a background process
     # Spawned as a script with the sender's sys.executable, which under PM is the bare store
     # interpreter (dependencies are activated in-process, never inherited), so boot like every
-    # entry point before the lazy Hermes imports. Run as a path, sys.path[0] is tools/.
+    # entry point before the lazy Envoy imports. Run as a path, sys.path[0] is tools/.
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     # Only the delivery lane boots: the reply waiter is stdlib only and its stdout is the
-    # sender's wake-up, and any other argv exits 2 before a Hermes import.
+    # sender's wake-up, and any other argv exits 2 before an Envoy import.
     if sys.argv[1:2] == ["--run-delivery"]:
         try:
             import hermes_bootstrap
@@ -932,6 +932,6 @@ if __name__ == "__main__":  # pragma: no cover - exercised as a background proce
             parsed = _runner_argv(sys.argv[1:])
             if not booted and parsed and os.path.exists(_live_intent_file(parsed[2])):
                 print(_live_outcome_unknown(parsed[2], "the delivery runner could not activate "
-                                                       "Hermes dependencies (see stderr)"))
+                                                       "Envoy dependencies (see stderr)"))
             raise
     raise SystemExit(_delivery_main(sys.argv[1:]))

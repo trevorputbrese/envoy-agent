@@ -303,7 +303,7 @@ contextBridge.exposeInMainWorld('hermesDesktop', {
     setLastUsed: id => ipcRenderer.invoke('hermes:connections:set-last-used', id),
     test: id => ipcRenderer.invoke('hermes:connections:test', id),
     updateManaged: id => ipcRenderer.invoke('hermes:connections:update-managed', id),
-    // Fan out `hermes update` to every eligible registered connection.
+    // Fan out `envoy update` to every eligible registered connection.
     // Optional excludeIds skips rows the caller updates through another path.
     updateAll: options => ipcRenderer.invoke('hermes:connections:update-all', options),
     // Registry lifecycle push (main → renderer): a connection was removed or
@@ -326,7 +326,7 @@ contextBridge.exposeInMainWorld('hermesDesktop', {
   oauthLoginConnectionConfig: (remoteUrl, options) =>
     ipcRenderer.invoke('hermes:connection-config:oauth-login', remoteUrl, options),
   oauthLogoutConnectionConfig: remoteUrl => ipcRenderer.invoke('hermes:connection-config:oauth-logout', remoteUrl),
-  // Hermes Cloud: one portal login powers discovery + silent per-agent sign-in
+  // Envoy Cloud: one portal login powers discovery + silent per-agent sign-in
   // (cloud-auto-discovery Phase 3).
   cloud: {
     status: () => ipcRenderer.invoke('hermes:cloud:status'),

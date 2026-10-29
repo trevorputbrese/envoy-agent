@@ -42,7 +42,7 @@ def nous_tool_gateway_unavailable_message(capability: str = "the Nous Tool Gatew
             return message
     except Exception:
         pass
-    return (f"{capability} is unavailable. Run `hermes model` to refresh your "
+    return (f"{capability} is unavailable. Run `envoy model` to refresh your "
             "Nous Portal login and billing status.")
 
 
@@ -112,8 +112,8 @@ def _dotenv_value(env_var: str) -> str:
 
 
 def _env_source_suppressed(provider_id: str, env_var: str) -> bool:
-    """``hermes auth remove <provider>`` records ``env:<VAR>`` in ``suppressed_sources`` and promises
-    the variable is ignored until ``hermes auth add``; a value still living in a long-running
+    """``envoy auth remove <provider>`` records ``env:<VAR>`` in ``suppressed_sources`` and promises
+    the variable is ignored until ``envoy auth add``; a value still living in a long-running
     gateway's process environment (inherited across update restarts) must honor that too."""
     if not provider_id:
         return False
@@ -133,7 +133,7 @@ def resolve_provider_secret(env_var: str, provider_id: str, config_value: str = 
     than borrowing another profile's env or pool. Never raises. The env/.env tier is skipped
     entirely while ``env:<env_var>`` is suppressed for ``provider_id`` (#116155).
 
-    Resolution order (fixes #68003 — keys added via ``hermes auth add <provider>`` were invisible to the
+    Resolution order (fixes #68003 — keys added via ``envoy auth add <provider>`` were invisible to the
     voice tools, which only consulted env/.env):
     """
     key = str(config_value or "").strip()
@@ -172,7 +172,7 @@ def resolve_openai_audio_api_key() -> str:
     latter). Must go through the secret scope: a raw ``os.environ`` read could bill another
     profile's account under multiplex.
 
-    Outside a multiplexed turn, ``OPENAI_API_KEY`` additionally falls back to the credential pool (``hermes
+    Outside a multiplexed turn, ``OPENAI_API_KEY`` additionally falls back to the credential pool (``envoy
     auth add openai-api``) via ``resolve_provider_secret`` — same #68003 fix as the other voice providers.
     The dedicated voice-tools override remains env/scope-only.
     """
@@ -196,7 +196,7 @@ NOUS_MANAGED_PROVIDER = "nous"
 # Per-capability keys that also count as "this category has been configured".
 _EXTRA_SELECTION_KEYS = {"web": ("search_backend", "extract_backend")}
 _DEFAULT_NAME_KEYS = ("provider", "backend", "cloud_provider")
-# Key(s) carrying each category's provider selection: one entry per `hermes tools` / Tool Gateway
+# Key(s) carrying each category's provider selection: one entry per `envoy tools` / Tool Gateway
 # category read_selection() serves. A leftover ``browser.backend`` (the pre-v52 driver choice) is
 # not the cloud provider — excluded.
 _SELECTION_NAME_KEYS = {
@@ -227,7 +227,7 @@ def _raw_section(section: str) -> dict[str, Any] | None:
 
 
 def read_selection(section: str) -> str | None:
-    """THE single runtime read of the persisted `hermes tools` selection: ``"nous"`` (managed
+    """THE single runtime read of the persisted `envoy tools` selection: ``"nous"`` (managed
     gateway row), a vendor name (direct, own credentials), or ``None`` (never configured ->
     legacy autodetect allowed). Reads the RAW config.yaml so key presence means "actually
     written", not "schema default"; a raw ``local`` is therefore a real user selection.
@@ -295,8 +295,8 @@ def removed_backend_note(section: str, name: str) -> Optional[str]:
 def selection_error(section: str, selection_name: str, failure: str) -> str:
     """The uniform honest-error contract for a selected-but-broken provider."""
     failure = removed_backend_note(section, selection_name) or failure
-    return (f"{section} is configured to use {selection_name} (set via hermes "
-            f"tools), but {failure}. Run 'hermes tools' to change it.")
+    return (f"{section} is configured to use {selection_name} (set via envoy "
+            f"tools), but {failure}. Run 'envoy tools' to change it.")
 
 
 def fal_key_is_configured() -> bool:

@@ -1,7 +1,7 @@
 """Main's TUI text for the session reads its sidecar answered itself: /status, /context.
 
 On main the TUI's ``slash.exec`` never reached the messaging gateway's handlers: ``/status`` was
-``session.status`` (``Hermes TUI Status``), ``/context`` was ``_format_live_context_output`` (the
+``session.status`` (``Envoy TUI Status``), ``/context`` was ``_format_live_context_output`` (the
 conversation counts, then the desktop gauge's category table). A TUI session on the shared owner
 gets the same lines here, read from the owner's live agent and stored row; every other surface keeps
 the gateway's own handlers (``gateway/session_commands.py``). ``/cron``, the classic CLI's handler
@@ -72,7 +72,7 @@ def _status(authority, ref, live, policy, agent, arg) -> str:
                 getattr(agent, 'base_url', None) or policy.base_url, fields['model'])
     project = server._project_info_for_cwd(policy.cwd)
     return '\n'.join([
-        'Hermes TUI Status', '', *status_lines(fields, 'session_id', 'path'),
+        'Envoy TUI Status', '', *status_lines(fields, 'session_id', 'path'),
         *([f"Project: {project['name']}"] if project else []),
         *status_lines(fields, 'title', 'model', 'created', 'last_activity', 'tokens', 'agent_running')])
 

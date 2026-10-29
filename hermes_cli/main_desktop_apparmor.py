@@ -4,7 +4,7 @@ With ``kernel.apparmor_restrict_unprivileged_userns=1`` (Ubuntu 23.10+), any unc
 may still create a user namespace, but it loses every capability inside it unless an AppArmor
 profile attached to that program's path grants ``userns``. ``unshare --user true`` therefore
 succeeds while Chromium, which needs those capabilities, aborts with ``No usable sandbox!``.
-Only the Hermes binary itself, under whatever profile attaches to its path, can answer whether
+Only the Envoy binary itself, under whatever profile attaches to its path, can answer whether
 its namespace sandbox starts, so on a restricted host the launcher asks that binary.
 """
 
@@ -93,8 +93,8 @@ def profile_text(packaged_executable: Path) -> str:
     name = profile_name(packaged_executable)
     exe = str(packaged_executable.resolve())
     return (
-        "# Hermes Desktop: let Chromium's user-namespace sandbox start under\n"
-        "# kernel.apparmor_restrict_unprivileged_userns=1 (written by `hermes desktop --install-apparmor-profile`).\n"
+        "# Envoy Desktop: let Chromium's user-namespace sandbox start under\n"
+        "# kernel.apparmor_restrict_unprivileged_userns=1 (written by `envoy desktop --install-apparmor-profile`).\n"
         "abi <abi/4.0>,\n"
         "include <tunables/global>\n\n"
         f'profile {name} "{exe}" flags=(unconfined) {{\n'
@@ -208,7 +208,7 @@ def install_profile(packaged_executable: Path) -> bool:
     if verdict is False:
         print("✗ The profile is loaded, but Chromium's sandbox still cannot start for this binary.")
         return False
-    print(f"✓ AppArmor profile installed; Hermes Desktop can use Chromium's user-namespace sandbox ({target}).")
+    print(f"✓ AppArmor profile installed; Envoy Desktop can use Chromium's user-namespace sandbox ({target}).")
     return True
 
 
@@ -223,8 +223,8 @@ def print_no_sandbox_fallback(packaged_executable: Path) -> None:
           " and the Electron sandbox helper could not be configured.")
     helper = shlex.quote(str(packaged_executable.parent / "chrome-sandbox"))
     print("  Ubuntu's AppArmor policy (kernel.apparmor_restrict_unprivileged_userns=1) blocks Chromium's")
-    print("  user-namespace sandbox for Hermes Desktop. To keep the sandbox on, run ONE of these:")
+    print("  user-namespace sandbox for Envoy Desktop. To keep the sandbox on, run ONE of these:")
     print(f"    sudo chown root:root {helper} && sudo chmod 4755 {helper}")
     print("        Chromium's setuid sandbox helper (recommended; redo after each rebuild)")
-    print("    hermes desktop --install-apparmor-profile")
+    print("    envoy desktop --install-apparmor-profile")
     print("        AppArmor profile for this path (survives rebuilds; any program running as you can use it)")

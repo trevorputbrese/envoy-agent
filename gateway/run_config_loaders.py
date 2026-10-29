@@ -524,7 +524,7 @@ class GatewayConfigLoadersMixin:
         chain; only a successful read that genuinely lacks the key clears it.
 
         Cron already does this per job via ``get_fallback_chain``; the gateway previously froze
-        ``self._fallback_model`` at process start, so a chain configured (or changed) after ``hermes
+        ``self._fallback_model`` at process start, so a chain configured (or changed) after ``envoy
         gateway`` was running never reached messaging sessions even though the same process's cron jobs fell
         back correctly. Fixes #60955.
 

@@ -34,7 +34,7 @@ STALE_TMP_PACK_MIN_AGE_SECONDS = STALE_LOCK_MIN_AGE_SECONDS
 # ``shallow.lock`` is the one observed in the wild; the others are the same class of failure
 # (interrupted git operation). Locks held by a live git process are protected by the process guard.
 LOCK_NAMES = ("shallow.lock", "index.lock", "HEAD.lock", "MERGE_HEAD.lock")
-# Object-store indexes a killed git (Hermes kills git trees on timeout) leaves locked. Each lock fails
+# Object-store indexes a killed git (Envoy kills git trees on timeout) leaves locked. Each lock fails
 # every later write of that file, so the commit-graph that keeps ``git tag --merged`` and ancestry
 # walks fast stops refreshing for good (one sat on a real checkout for two months).
 OBJECT_STORE_LOCK_NAMES = (
@@ -155,7 +155,7 @@ def clear_stale_git_locks(repo_root: Path, *, min_age_seconds: Optional[int] = N
 
 def clear_stale_object_store_locks(git_dir: Path) -> list[str]:
     """``OBJECT_STORE_LOCK_NAMES`` only, under ``git_dir`` itself (a linked worktree's or submodule's
-    common dir), for repos Hermes does not own: index.lock / HEAD.lock there are the user's git's."""
+    common dir), for repos Envoy does not own: index.lock / HEAD.lock there are the user's git's."""
     return _sweep_locks(Path(git_dir), OBJECT_STORE_LOCK_NAMES, None)
 
 
@@ -164,7 +164,7 @@ def release_dead_index_lock(repo_root: Path) -> bool:
 
     A git killed while it held the index lock (an update's tree killed by the user, a probe killed
     by its own timeout) leaves it behind, and every later merge/stash/reset refuses with "File
-    exists". The age floor above keeps such a lock for 10 minutes, so the next ``hermes update``
+    exists". The age floor above keeps such a lock for 10 minutes, so the next ``envoy update``
     died at its fast-forward (#132089; the Windows crash cell ``mid_fetch``).
 
     Two conditions, both required. A killed update run must be behind the lock
@@ -252,7 +252,7 @@ def _windows_git_in_checkout(root: Path) -> bool | None:
     """Whether any git (``git.exe``, a dashed ``git-<sub>.exe``) works in ``root``; None when unknowable.
 
     Works in: its cwd, a path argument or a ``GIT_DIR``-style variable is inside the checkout or
-    its git dir, compared by path components (``hermes-backup`` is not inside ``hermes``). Scoped to
+    its git dir, compared by path components (``hermes-backup`` is not inside ``envoy``). Scoped to
     the checkout: a system-wide check would keep the lock whenever any editor or terminal elsewhere
     runs git, which on Windows is most of the time. A git whose cwd cannot be read keeps the lock.
     """
@@ -527,7 +527,7 @@ class _ShallowLock:
         except OSError as exc:
             raise RuntimeError(f"cannot create shallow lock: {exc}") from exc
         try:
-            os.write(fd, b"hermes shallow maintenance\n")
+            os.write(fd, b"envoy shallow maintenance\n")
         finally:
             os.close(fd)
         return self
@@ -618,7 +618,7 @@ def prune_stale_shallow_grafts(repo_root: Path) -> int:
     Every ``git fetch --depth 1`` appends the fetched tip to ``.git/shallow`` as a new
     graft and never removes the previous one, so a long-lived shallow installer checkout
     accumulates one graft per update check (57 observed in the wild). The stale grafts
-    break ``merge-base`` and push ``hermes update`` into the orphan-divergence reset path
+    break ``merge-base`` and push ``envoy update`` into the orphan-divergence reset path
     on every run. Keep only the boundaries that still protect referenced tips (HEAD,
     FETCH_HEAD, and every ref tip): the dropped commits are already unreachable and their
     objects are left for ``git gc``. Fetch reflogs naming a dropped graft are expired

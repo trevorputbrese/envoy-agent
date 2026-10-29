@@ -8,7 +8,7 @@ own ``cron-worktree-prune`` thread. Those threads used to fork ``git`` side by s
 - **One sweep at a time.** The tick is sequential, the sweeps it dispatches are not; serialising
   them (discovery included) keeps the number of concurrent ``git`` children at one regardless of
   profile count. A waiting sweep holds no resources, so the wait is capped rather than unbounded.
-- **One prune per repo per interval.** Served profiles mostly resolve the same repos (the hermes
+- **One prune per repo per interval.** Served profiles mostly resolve the same repos (the envoy
   checkout at least), and every prune pass ends in a footprint probe of the whole ``.worktrees/``,
   so the second profile to reach a shared repo within the interval has nothing to do.
 """

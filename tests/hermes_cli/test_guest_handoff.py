@@ -1,6 +1,6 @@
 """The guest handoff step: a Nous account replacing the free tier moves the free tier's apps into it.
 
-Driven end to end through Hermes' real writers, stores and HTTP client against a fake account
+Driven end to end through Envoy's real writers, stores and HTTP client against a fake account
 service (``anon_portal.FakePortal`` plus the claim and token-refresh routes).
 """
 

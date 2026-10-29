@@ -682,7 +682,7 @@ def test_default_spawn_does_not_auto_load_any_skill(kanban_home, monkeypatch):
     when the task carries no per-task skills.
 
     We intercept Popen to capture the argv without actually spawning a
-    hermes subprocess (which would hang trying to call an LLM).
+    envoy subprocess (which would hang trying to call an LLM).
     """
     captured = {}
 
@@ -1324,11 +1324,11 @@ def test_notify_sub_starts_caught_up_on_active_task(kanban_home):
 
 _WORKER_LOG_TAIL = (
     "Query: work kanban task\n"
-    "╭─ ☤ Hermes ───────────────────╮\n"
+    "╭─ ◈ Envoy ───────────────────╮\n"
     "│ the board protocol requires reassigning this card to orchestrator, but the │\n"
     "│ native kanban_* tools available here have no reassignment operation.       │\n"
     "╰──────────────────────────────╯\n"
-    "\nResume this session with:\n  hermes --resume 20260915_000000_abc\n\n"
+    "\nResume this session with:\n  envoy --resume 20260915_000000_abc\n\n"
     "Session:        20260915_000000_abc\nMessages:       3 (1 user, 2 tool calls)\n"
 )
 

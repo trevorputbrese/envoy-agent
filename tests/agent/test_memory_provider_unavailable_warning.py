@@ -1,4 +1,4 @@
-"""Regression tests for NousResearch/hermes-agent#2765.
+"""Regression tests for trevorputbrese/envoy-agent#2765.
 
 A memory provider configured via ``memory.provider`` but reporting
 ``is_available() == False`` (e.g. missing credentials, or a systemd/gateway
@@ -69,7 +69,7 @@ def test_parked_provider_is_reported_and_never_reinstalled(monkeypatch):
     assert agent_init.resolve_memory_provider("parkedmem", say=said.append) is None
     assert agent_init.resolve_memory_provider("parkedmem", say=said.append) is None
     assert len(said) == 1
-    assert "hermes plugins enable parkedmem" in said[0] and "requires Python <3.14" in said[0]
+    assert "envoy plugins enable parkedmem" in said[0] and "requires Python <3.14" in said[0]
 
 
 def test_provider_that_still_fails_after_recovery_is_reported(monkeypatch):

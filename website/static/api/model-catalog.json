@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updated_at": "2026-10-26T19:00:43Z",
+  "updated_at": "2026-10-29T00:35:21Z",
   "metadata": {
     "source": "hermes-agent repo",
-    "docs": "https://hermes-agent.nousresearch.com/docs/reference/model-catalog"
+    "docs": "https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/reference/model-catalog.md"
   },
   "providers": {
     "openrouter": {
       "metadata": {
         "display_name": "OpenRouter",
-        "note": "Descriptions drive picker badges. Live /api/v1/models filters curated ids by tool-calling support and free pricing. The entry labeled \"default\": true is the model Hermes silently lands on when the user never picked one."
+        "note": "Descriptions drive picker badges. Live /api/v1/models filters curated ids by tool-calling support and free pricing. The entry labeled \"default\": true is the model Envoy silently lands on when the user never picked one."
       },
       "models": [
         {
@@ -314,7 +314,7 @@
     "nous": {
       "metadata": {
         "display_name": "Nous Portal",
-        "note": "The entry labeled \"default\": true is the model Hermes silently lands on when the user never picked one."
+        "note": "The entry labeled \"default\": true is the model Envoy silently lands on when the user never picked one."
       },
       "models": [
         {

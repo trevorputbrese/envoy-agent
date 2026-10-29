@@ -1,8 +1,8 @@
-"""Regression tests for the parked-branch guard in ``hermes update``.
+"""Regression tests for the parked-branch guard in ``envoy update``.
 
 Live incident (2026-08-17, Teknium's Linux box): the source checkout was
 parked on a stale feature branch (``claude-code-inspired/local-terminal-
-memory-limit``, days behind main) left there by earlier tooling. ``hermes
+memory-limit``, days behind main) left there by earlier tooling. ``envoy
 update`` autostashed, refreshed lazy backends, synced skills and printed
 "✓ Code updated!" / "✓ Update complete!" — while the checkout stayed on the
 stale branch with none of main's new code. Two sessions burned time on
@@ -352,7 +352,7 @@ def _patch_update_flow(monkeypatch, repo, run_real_git=True):
     monkeypatch.setattr(main_install_repair, "_is_windows", lambda: False)
     monkeypatch.setattr(
         hermes_main, "_get_origin_url",
-        lambda *a, **k: "https://github.com/NousResearch/hermes-agent.git",
+        lambda *a, **k: "https://github.com/trevorputbrese/envoy-agent.git",
     )
     monkeypatch.setattr(update_cmd, "_is_fork", lambda *a, **k: False)
     monkeypatch.setattr(update_cmd, "_discard_lockfile_churn", lambda *a, **k: None)

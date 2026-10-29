@@ -1,7 +1,7 @@
 """Hand root-written sandbox files back to the host user when a root Docker container is removed.
 
 The Docker backend runs the image's default user (root) unless ``docker_run_as_host_user`` is set,
-so everything the container writes into the Hermes-created bind mounts (``<sandbox>/home`` at
+so everything the container writes into the Envoy-created bind mounts (``<sandbox>/home`` at
 ``/root``, ``<sandbox>/workspace`` at ``/workspace``) lands on the host owned by uid 0, and the user
 cannot delete it. Until the container is removed, a root container with its volumes can ``chown``
 those trees back; once it is gone only ``sudo`` can. The handback runs after it stopped, so files a
@@ -22,7 +22,7 @@ re-chowned to its own uid, which clears the bits and ``security.capability`` and
 A persistent container is never removed, so it gets this strip when a session detaches from it,
 before reattaching and before the stale-container sweep removes it. The strip reads the sandbox
 binds from the container itself (a container shared across profiles has its creator's dirs) but
-only keeps those under a sandbox root this host derives from its own Hermes root.
+only keeps those under a sandbox root this host derives from its own Envoy root.
 """
 
 from __future__ import annotations
@@ -75,7 +75,7 @@ def _daemon_remaps_users(docker_exe: str) -> bool:
 
 def _handback_ids(docker_exe: str) -> Optional[tuple[int, int]]:
     """Host ``(uid, gid)`` to hand sandbox files to, or ``None`` when no handback applies: the
-    host is not Linux (Docker Desktop bind mounts are not root-owned on the host), Hermes itself
+    host is not Linux (Docker Desktop bind mounts are not root-owned on the host), Envoy itself
     runs as root, or the daemon remaps users."""
     if sys.platform != "linux" or os.geteuid() == 0:  # windows-footgun: ok — linux-gated
         return None
@@ -83,7 +83,7 @@ def _handback_ids(docker_exe: str) -> Optional[tuple[int, int]]:
 
 
 def _record_path(mounts: list[tuple[str, str]]) -> Optional[Path]:
-    """The record lives in the per-task sandbox dir, the parent of every Hermes bind source."""
+    """The record lives in the per-task sandbox dir, the parent of every Envoy bind source."""
     return Path(mounts[0][0]).parent / HANDBACK_RECORD if mounts else None
 
 
@@ -114,10 +114,10 @@ def _may_set_file_caps(info: dict) -> bool:
 
 
 def _sandbox_binds(info: dict) -> list[tuple[str, str]]:
-    """The container's Hermes sandbox binds (``<root>/<task>/{home,workspace}`` at ``/root`` and
+    """The container's Envoy sandbox binds (``<root>/<task>/{home,workspace}`` at ``/root`` and
     ``/workspace``) as ``(realpath, destination)``. *root* is derived on this host only, never from
     container metadata (labels and binds are settable via extra args or the image): this process's
-    ``<sandbox>/docker`` or the default one of any profile of this Hermes root (shared containers)."""
+    ``<sandbox>/docker`` or the default one of any profile of this Envoy root (shared containers)."""
     hermes_root = get_default_hermes_root()
     roots = {os.path.realpath(d / "sandboxes" / "docker") for d in [hermes_root, *hermes_root.glob("profiles/*")]}
     roots.add(os.path.realpath(get_sandbox_dir() / "docker"))

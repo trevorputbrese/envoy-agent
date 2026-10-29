@@ -1,6 +1,6 @@
 """HTTP client for the agent routes of the config plane (contract.md §7.1, §7.2).
 
-Plain HTTP (D9), stdlib only: it runs inside ``load_hermes_dotenv`` before most of Hermes is
+Plain HTTP (D9), stdlib only: it runs inside ``load_hermes_dotenv`` before most of Envoy is
 imported. Every request re-resolves the bearer (contract §10.2).
 """
 from __future__ import annotations

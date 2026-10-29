@@ -34,7 +34,7 @@ def prepare(request: dict) -> tuple[Path, dict[str, str]]:
 
     # The historical updater already moved the tree: owe the tail and the fleet restart before the
     # first slow step, exactly like a current updater's commit point, so a kill from here on leaves
-    # both for the next launch / `hermes update` instead of nothing.
+    # both for the next launch / `envoy update` instead of nothing.
     refuse_foreign_owned_venv(root)
     arm_completion(root)
     _arm_fleet_obligation(root)
@@ -144,7 +144,7 @@ def main() -> int:
         root = Path(request["root"])
         python = resolve_store_python(root)
         if python is None:
-            print("Cannot resume stopped backends: no selected Hermes interpreter", file=sys.stderr)
+            print("Cannot resume stopped backends: no selected Envoy interpreter", file=sys.stderr)
             return 1
         return subprocess.run(
             [str(python), "-I", "-B", "-X", "utf8", str(root / "hermes_cli/update_serve_resume.py"),
@@ -207,7 +207,7 @@ def _record_owed_finish(request: dict, result: Path, detail: str) -> None:
     from contextlib import suppress
 
     print(f"  ⚠ The update is installed, but its finishing steps did not run: {detail}. "
-          "The next `hermes` launch finishes them.", file=sys.stderr, flush=True)
+          "The next `envoy` launch finishes them.", file=sys.stderr, flush=True)
     saved = None
     # Receipt/exit-code writes are best effort: a committed update exits 0 whatever they hit.
     with suppress(Exception):  # health: allow BLE001 -- post-commit boundary: a receipt error never fails the update

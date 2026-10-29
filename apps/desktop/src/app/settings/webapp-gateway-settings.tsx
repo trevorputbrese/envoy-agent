@@ -13,7 +13,7 @@ interface ServingHost {
 }
 
 /**
- * Gateways in the Webapp. The page is served by one Hermes host and can only
+ * Gateways in the Webapp. The page is served by one Envoy host and can only
  * talk to it, so the native connection controls (mode, Cloud, saved
  * connections, logs) have nothing to act on. What does apply is which host
  * this is and, behind the sign-in gate, signing out of it.

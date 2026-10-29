@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live test harness for Hermes Agent's Tool Search feature.
+"""Live test harness for Envoy Agent's Tool Search feature.
 
 Spins up a real AIAgent against a real model, registers ~20 fake "MCP" tools
 with realistic shapes (github-like, slack-like, calendar-like, search-like),
@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Tuple
 # Scenario D reads this file back; lives in the temp dir, never a hard-coded /tmp.
 FIXTURE_NOTES = Path(tempfile.gettempdir()) / "livetest" / "notes.txt"
 
-# Force-isolate the test environment BEFORE any hermes imports.
+# Force-isolate the test environment BEFORE any envoy imports.
 ORIGINAL_HOME = os.environ.get("HERMES_HOME")
 ORIGINAL_AUTH = Path.home() / ".hermes" / "auth.json"
 

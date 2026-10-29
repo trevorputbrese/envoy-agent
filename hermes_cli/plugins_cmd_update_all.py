@@ -1,4 +1,4 @@
-"""``hermes plugins update`` with no name: update every installed plugin that has an update.
+"""``envoy plugins update`` with no name: update every installed plugin that has an update.
 
 The list comes from the read-only ``check-updates`` probe (:func:`hermes_cli.plugins_updates.run_checks`);
 each plugin is then updated through the single-plugin
@@ -15,9 +15,9 @@ import sys
 from dataclasses import dataclass, field
 from typing import Any
 
-# Only these classes have an update path `hermes plugins update <name>` can drive: a catalog install
+# Only these classes have an update path `envoy plugins update <name>` can drive: a catalog install
 # re-pins to the reviewed sha, a tracked git install pulls. A pip row is a PyPI distribution that
-# Hermes never upgrades (#132494), so offering it would promise an update nothing applies.
+# Envoy never upgrades (#132494), so offering it would promise an update nothing applies.
 _UPDATE_KIND = {"catalog": "catalog re-pin", "git": "git pull"}
 logger = logging.getLogger(__name__)
 
@@ -45,11 +45,11 @@ def plan_update_all(results: list[Any]) -> UpdatePlan:
         if row.needs_fixing:
             plan.skipped.append((row, f"needs fixing: {row.needs_fixing}"))
         elif row.update_available is True and (held := held_for_newer_hermes(row)):
-            plan.skipped.append((row, f"update available after updating Hermes ({held})"))
+            plan.skipped.append((row, f"update available after updating Envoy ({held})"))
         elif row.update_available is True and row.klass in _UPDATE_KIND:
             plan.movable.append(row)
         elif row.update_available is True:
-            plan.skipped.append((row, f"{row.klass} distribution; Hermes does not upgrade it"))
+            plan.skipped.append((row, f"{row.klass} distribution; Envoy does not upgrade it"))
         elif row.update_available is None:
             plan.skipped.append((row, row.reason or "update status unknown"))
         elif row.reason:  # up to date by construction but worth naming (pinned)
@@ -103,7 +103,7 @@ def _print_plan(console, plan: UpdatePlan) -> None:
 
 
 def cmd_update_all(*, yes: bool = False) -> None:
-    """``hermes plugins update [--yes]``: list the plugins with an update and update them all.
+    """``envoy plugins update [--yes]``: list the plugins with an update and update them all.
 
     A terminal asks once (``Update all N? [Y/n]``); without one nothing moves unless ``--yes`` is
     given. Each plugin then goes through ``update_one``, interactive only when a terminal is present,

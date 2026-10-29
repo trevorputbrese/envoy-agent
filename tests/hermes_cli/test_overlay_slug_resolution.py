@@ -1,7 +1,7 @@
 """Test that overlay providers with mismatched models.dev keys resolve correctly.
 
 HERMES_OVERLAYS keys may be models.dev IDs (e.g. "kimi-for-coding") while
-_PROVIDER_MODELS and config.yaml use Hermes IDs ("kimi-coding").  The slug
+_PROVIDER_MODELS and config.yaml use Envoy IDs ("kimi-coding").  The slug
 resolution in list_authenticated_providers() Section 2 must bridge this gap.
 
 Covers: #5223, #6492

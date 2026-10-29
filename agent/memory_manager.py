@@ -140,7 +140,7 @@ def _redact_messages_for_egress(messages: Optional[list[Any]]) -> Optional[list[
 
 
 class _StuckCallGate:
-    """Process-wide admission for one kind of external provider call, keyed by (Hermes home, provider).
+    """Process-wide admission for one kind of external provider call, keyed by (Envoy home, provider).
 
     A new MemoryManager is built per agent, so a per-instance view would let every fresh manager start
     one more call against a hung backend and pin one more thread. Shared, the gate closes once
@@ -701,7 +701,7 @@ class MemoryManager:
         """
         if not self._owner_allows("on_pre_compress"):
             if require_checkpoint:  # the caller keeps the uncompressed transcript
-                raise RuntimeError("Memory pre-compress checkpoint refused; see `hermes logs errors`")
+                raise RuntimeError("Memory pre-compress checkpoint refused; see `envoy logs errors`")
             return ""
         parts = []
         checkpoint_succeeded = False
@@ -912,7 +912,7 @@ class MemoryManager:
         for provider in (p for p in before if not any(p is kept for kept in self._providers)):
             message = (f"⚠ Memory provider {provider.name!r} is disabled for this profile: it handed out the "
                        "provider instance another profile already uses. Built-in memory still works; the "
-                       "operator can see why with `hermes logs errors`.")
+                       "operator can see why with `envoy logs errors`.")
             (say or logger.warning)(message)
         return self._has_external
 

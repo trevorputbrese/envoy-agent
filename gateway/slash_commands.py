@@ -126,7 +126,7 @@ def _restart_notify_payload(event: MessageEvent) -> dict:
 
 
 def _spawn_detached_update(hermes_cmd, output_path, exit_code_path) -> None:
-    """Spawn ``hermes update --gateway`` detached so it survives the gateway restart it may trigger.
+    """Spawn ``envoy update --gateway`` detached so it survives the gateway restart it may trigger.
     setsid is portable (works where ``systemd-run --user`` lacks a D-Bus session); ``--gateway``
     enables file-based IPC so interactive prompts are forwarded; PYTHONUNBUFFERED lets the gateway
     stream output live.  Windows has no setsid: an inline helper runs the updater as a module under
@@ -288,7 +288,7 @@ class GatewaySlashCommandsMixin(
         return None
 
     def _typed_command_prefix_for(self, platform) -> str:
-        """The prefix users can always type to reach Hermes commands (adapter ``typed_command_prefix``,
+        """The prefix users can always type to reach Envoy commands (adapter ``typed_command_prefix``,
         default "/"). Slack and Matrix use "!" because typed "/" is blocked/reserved there; their
         adapters rewrite "!command" to "/command"."""
         adapter = self.adapters.get(platform) if getattr(self, "adapters", None) else None
@@ -608,7 +608,7 @@ class GatewaySlashCommandsMixin(
         return reply
 
     async def _handle_version_command(self, event: MessageEvent) -> str:
-        """Handle /version — show the running Hermes Agent version."""
+        """Handle /version — show the running Envoy Agent version."""
         return _execute("version").text
 
     def _catalog_options(self, event: MessageEvent) -> dict:
@@ -936,7 +936,7 @@ class GatewaySlashCommandsMixin(
             return t("gateway.skills.unknown_subcommand")
 
         # Chat bubbles can't hold a full skill diff — truncate and point at the pending JSON file
-        # (NOT `hermes skills diff <name>`, which diffs a bundled skill against its stock version).
+        # (NOT `envoy skills diff <name>`, which diffs a bundled skill against its stock version).
         if sub == "diff" and len(out) > 3000:
             pending_id = args[1] if len(args) > 1 else "<id>"
             out = out[:3000] + t("gateway.skills.diff_truncated", pending_id=pending_id)
@@ -1007,7 +1007,7 @@ class GatewaySlashCommandsMixin(
             return f"{description}\n" + t("gateway.verbose.save_failed", error=e)
 
     async def _handle_busy_command(self, event: MessageEvent) -> str | EphemeralReply:
-        """Handle /busy — control what happens when messaging while Hermes is working."""
+        """Handle /busy — control what happens when messaging while Envoy is working."""
         from gateway.session_setting_commands import local_live, session_busy_mode
         arg = event.get_command_args().strip().lower()
         live = local_live(self, event.source)
@@ -1248,7 +1248,7 @@ class GatewaySlashCommandsMixin(
         return await self._deliver_approval_confirmation(event, confirmation_text, "deny")
 
     async def _handle_curator_command(self, event: MessageEvent) -> str:
-        """Handle /curator — the ``hermes curator`` handler set (status by default), as main's CLI ran
+        """Handle /curator — the ``envoy curator`` handler set (status by default), as main's CLI ran
         it in-process; its printed report is the reply. Runs in the executor with the session's
         context so the profile's skills tree and curator state are the ones read and written."""
         import io
@@ -1271,7 +1271,7 @@ class GatewaySlashCommandsMixin(
 
     async def _handle_debug_command(self, event: MessageEvent) -> str:
         """Handle /debug — upload ONLY the summary (system info + log tails), never full logs, to
-        protect privacy; ``hermes debug share`` from the CLI does full uploads."""
+        protect privacy; ``envoy debug share`` from the CLI does full uploads."""
         from hermes_cli.debug import (_GATEWAY_PRIVACY_NOTICE, _best_effort_sweep_expired_pastes,
                                       _capture_dump, _is_dpaste_url, _schedule_auto_delete,
                                       collect_debug_report, upload_to_pastebin)
@@ -1317,7 +1317,7 @@ class GatewaySlashCommandsMixin(
         return await self._run_in_executor_with_context(_collect_and_upload)
 
     async def _handle_update_command(self, event: MessageEvent) -> str:
-        """Handle /update — spawn ``hermes update`` detached (``setsid``) so it survives the gateway
+        """Handle /update — spawn ``envoy update`` detached (``setsid``) so it survives the gateway
         restart it may trigger; marker files let this or the next gateway process notify the user."""
         import json
         from gateway.run import _hermes_home, _resolve_hermes_bin
@@ -1340,7 +1340,7 @@ class GatewaySlashCommandsMixin(
 
         # Not a git-managed install (docker/nix/desktop-app/source): refuse
         # with the steward's own update mechanism instead of git-pulling a
-        # tree `hermes update` does not own.
+        # tree `envoy update` does not own.
         try:
             from hermes_cli.config import (
                 detect_install_method,

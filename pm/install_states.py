@@ -1,7 +1,7 @@
 """Reclaim per-checkout dependency state whose checkout is gone.
 
 Dependency state lives under ``<home>/installs/<install_key>`` where the key hashes the
-checkout path (:func:`pm.environments.install_key`). Every ``hermes -w`` worktree, review tree
+checkout path (:func:`pm.environments.install_key`). Every ``envoy -w`` worktree, review tree
 or scratch clone that boots the agent therefore commits a full environment (venv, test venv,
 PM runtime, ~200 MB each), and nothing removed it when the tree was deleted: one developer
 host carried 402 such orphans (80 GB) after a fortnight of worktree campaigns.
@@ -20,7 +20,7 @@ be proved deleted, so its missing checkout alone would keep the state forever. I
 once the state has also gone unused for ``worktrees.install_state_retention_days``: every sync
 recreates ``inputs/`` and every launch takes a generation lease (moving its
 ``.leases`` dir), so a checkout that still exists behind a mount boundary and is used at all keeps
-its state. One unused for longer is rebuilt by ``hermes pm repair`` / the next activation.
+its state. One unused for longer is rebuilt by ``envoy pm repair`` / the next activation.
 """
 
 from __future__ import annotations

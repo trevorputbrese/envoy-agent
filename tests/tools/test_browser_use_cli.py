@@ -1,4 +1,4 @@
-"""Tests for ``browser_exec`` (tools/browser_use_cli.py), Hermes' only core browser tool.
+"""Tests for ``browser_exec`` (tools/browser_use_cli.py), Envoy's only core browser tool.
 
 Covers the seams the integration relies on:
 
@@ -457,7 +457,7 @@ class TestBackendCdpResolution:
         assert _fake_managed_chromium == ["t1"]
 
     def test_picker_managed_selection_resolves_gateway_provider(self, monkeypatch):
-        """``cloud_provider: nous`` (the `hermes tools` managed row) must resolve through the
+        """``cloud_provider: nous`` (the `envoy tools` managed row) must resolve through the
         provider: the picker never writes the legacy ``use_gateway`` flag, and the direct-API
         branch leaves browser_exec with no CDP endpoint at all (#108310)."""
         class _BUProvider:
@@ -579,7 +579,7 @@ class TestOwnTabPreamble:
 
 
 class TestProviderPickerIntegration:
-    """The `hermes tools` Browser Automation picker rows."""
+    """The `envoy tools` Browser Automation picker rows."""
 
     def test_picker_row_names_stay_unique(self):
         """The CLI row is named "Browser Use"; the legacy plugin API row must

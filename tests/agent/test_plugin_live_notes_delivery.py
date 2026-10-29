@@ -105,7 +105,7 @@ def test_a_plugin_installed_during_a_tool_is_told_in_its_result_and_not_again_ne
 
     in_turn = requests[1]  # the model call right after the tool result
     tool_row = next(m for m in in_turn if m.get("role") == "tool")
-    # After the tool's output and outside the untrusted-data wrapper a web result gets: Hermes' own note.
+    # After the tool's output and outside the untrusted-data wrapper a web result gets: Envoy's own note.
     assert TOOL_OUTPUT in tool_row["content"]
     assert tool_row["content"].endswith(f"</untrusted_tool_result>\n\n{NOTE}")
     assert OLD_NOTE not in json.dumps(in_turn)  # a reinstall replaces the plugin's older notice

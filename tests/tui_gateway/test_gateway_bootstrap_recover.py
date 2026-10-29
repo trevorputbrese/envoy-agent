@@ -2,7 +2,7 @@
 
 Main's TUI owned its own sidecar and never depended on an external daemon, so an open TUI must come
 back on its own after ANY end of the shared gateway: a crash, its idle exit, or a planned
-`hermes gateway stop` while the TUI is open. The bounded recovery slot (gatewayClient.ts
+`envoy gateway stop` while the TUI is open. The bounded recovery slot (gatewayClient.ts
 OWNER_RECOVERY_LIMIT) is what keeps a crash-looping owner from being respawned forever."""
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ def _load_bootstrap():
 
 @pytest.mark.parametrize("record", [
     {"gateway_state": "running", "pid": 999999},  # SIGKILL / OOM: dead process still claims live
-    {"gateway_state": "stopped", "pid": 999999},  # `hermes gateway stop` while the TUI is open
+    {"gateway_state": "stopped", "pid": 999999},  # `envoy gateway stop` while the TUI is open
     {"gateway_state": "running", "desired_state": "stopped"},  # durable operator stop intent
     {"gateway_state": "stopped", "exit_reason": "auto-started gateway idle for 600s "
      "(gateway.unmanaged_idle_exit_seconds)"},
@@ -94,16 +94,16 @@ def test_failure_names_the_reason_and_its_remedy(monkeypatch, tmp_path):
     monkeypatch.setattr(hermes_constants, "get_hermes_home", lambda: home)
     monkeypatch.setattr(gateway_runtime, "ensure_gateway_runtime", lambda h, timeout=30, idle_exit=False:
                         SimpleNamespace(state="incompatible", endpoint=None, reason_code="runtime_protocol",
-                                        detail="the gateway belongs to another Hermes install; stop it there"))
+                                        detail="the gateway belongs to another Envoy install; stop it there"))
     with pytest.raises(RuntimeError) as err:
         module.bootstrap(True)
     assert str(err.value).splitlines() == [
         "gateway incompatible: runtime_protocol",
-        "gateway incompatible: the gateway belongs to another Hermes install; stop it there"]
+        "gateway incompatible: the gateway belongs to another Envoy install; stop it there"]
 
 
 def test_started_daemon_does_not_inherit_the_launch_time_kanban_board(monkeypatch, tmp_path):
-    """`hermes --tui` pins HERMES_KANBAN_BOARD for its own launch; the shared daemon this bootstrap
+    """`envoy --tui` pins HERMES_KANBAN_BOARD for its own launch; the shared daemon this bootstrap
     starts (spawn_unmanaged_gateway copies os.environ) must keep the profile's current board."""
     module = _load_bootstrap()
     home = (tmp_path / "home").resolve()

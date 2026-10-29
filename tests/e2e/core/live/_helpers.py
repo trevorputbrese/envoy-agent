@@ -69,7 +69,7 @@ MAX_USD_PER_TEST = 0.12
 @dataclass(frozen=True)
 class LiveCase:
     id: str
-    provider: str  # hermes provider id passed to resolve_runtime_provider
+    provider: str  # envoy provider id passed to resolve_runtime_provider
     key_env: str
     model_prefs: tuple[str, ...]
     hosts: tuple[str, ...]  # the only hosts allowed to see the credential
@@ -154,7 +154,7 @@ class WireRecord:
 
 @dataclass
 class WireLog:
-    """Every HTTP exchange made through httpx (all SDKs Hermes uses sit on it)."""
+    """Every HTTP exchange made through httpx (all SDKs Envoy uses sit on it)."""
 
     secret: str
     records: list[WireRecord] = field(default_factory=list)

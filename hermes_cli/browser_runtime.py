@@ -38,7 +38,7 @@ def _pm_executable() -> str | None:
 def _baked_executable() -> str | None:
     try:
         value = BAKED_EXECUTABLE_FILE.read_text(encoding="utf-8-sig").strip()
-    except OSError:  # not a Hermes Docker image: nothing baked
+    except OSError:  # not an Envoy Docker image: nothing baked
         return None
     return value if value and os.path.isfile(value) else None
 
@@ -78,14 +78,14 @@ def chromium_missing_hint() -> str:
 
     if pinned := _configured_executable():  # the pin wins over every other source, so name it
         return (f"browser.executable_path is set to {pinned}, which is not a browser on this machine: fix the "
-                "path, or clear it to use Hermes's Chromium.")
+                "path, or clear it to use Envoy's Chromium.")
     if is_termux():
         return ("No Chromium found: pm builds none for Termux. Install one with "
                 "`pkg install x11-repo && pkg install chromium`, or set browser.executable_path.")
     if BAKED_EXECUTABLE_FILE.exists():
-        return ("The image's Chromium is missing: pull the current Hermes image and recreate the "
+        return ("The image's Chromium is missing: pull the current Envoy image and recreate the "
                 "container (a volume mounted over the image's tool store hides it).")
     if _pm_has_no_chromium():
         return ("No Chromium found: pm builds none for this platform. Install your distribution's "
                 "chromium package, or set browser.executable_path.")
-    return "Chromium is not installed: run `hermes pm install chromium`."
+    return "Chromium is not installed: run `envoy pm install chromium`."

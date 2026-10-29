@@ -67,7 +67,7 @@ describe('VersionDetails', () => {
       visible: ['Desktop app (installer)'],
       absent: ['Desktop app (MSIX)', 'Microsoft Store']
     },
-    // `hermes desktop` packs the same bootstrap payload from a source checkout;
+    // `envoy desktop` packs the same bootstrap payload from a source checkout;
     // a locally built stamp names the source install, never the installer.
     {
       version: {
@@ -77,12 +77,12 @@ describe('VersionDetails', () => {
         source: 'local',
         installedByScript: true
       },
-      visible: ['Source (install script) + hermes desktop'],
+      visible: ['Source (install script) + envoy desktop'],
       absent: ['Desktop app (installer)']
     },
     {
       version: { distribution: 'desktop-app', updateMechanism: 'self', payload: 'bootstrap', source: 'local' },
-      visible: ['Source + hermes desktop'],
+      visible: ['Source + envoy desktop'],
       absent: ['Desktop app (installer)']
     },
     // install.sh / install.ps1 checkout (receipt present) vs a manual git
@@ -134,7 +134,7 @@ describe('VersionDetails', () => {
 
     await waitFor(() => {
       expect(openExternal).toHaveBeenCalledWith(
-        'https://github.com/NousResearch/hermes-agent/commit/d233b6d7a9c5b79288e48dfb3b29e2ead106ac73'
+        'https://github.com/trevorputbrese/envoy-agent/commit/d233b6d7a9c5b79288e48dfb3b29e2ead106ac73'
       )
     })
     expect($previewTabs.get()).toHaveLength(0)

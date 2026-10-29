@@ -124,7 +124,7 @@ def test_existing_treeless_checkout_is_refetched_before_update(tmp_path, install
     pytest.param("ps1", marks=pytest.mark.skipif(POWERSHELL is None, reason="needs PowerShell")),
 ])
 def test_clone_failure_reason_carries_gits_own_error(tmp_path, installer):
-    """Hermes-Setup shows the stage reason as-is: it must name git's cause, not only the step."""
+    """Envoy-Setup shows the stage reason as-is: it must name git's cause, not only the step."""
     missing = tmp_path / "no-such-repo.git"
     result = _run_repository_stage(installer, tmp_path, tmp_path / "install", missing.as_uri())
     output = result.stdout + result.stderr

@@ -141,7 +141,7 @@ def _print_save_refusal(error) -> None:
 
 
 def _export_on_gateway(connection, session_id, fmt, filename, redact):
-    """The owner's ``/save`` rendering of its stored row (``session.export``: the snapshot ``hermes
+    """The owner's ``/save`` rendering of its stored row (``session.export``: the snapshot ``envoy
     sessions export`` writes, with title, metadata and archived rows), never this process's
     in-memory history. Nothing is written on the gateway host, so a remote owner's disk is never
     taken for this machine's. None when refused (printed), and also None when an older gateway
@@ -297,11 +297,11 @@ class CLISessionMixin:
         try:
             from hermes_cli.skin_engine import get_active_skin
             skin = get_active_skin()
-            separator_color = skin.get_color("banner_dim", "#B8860B")
-            accent_color = skin.get_color("ui_accent", "#FFBF00")
-            label_color = skin.get_color("ui_label", "#DAA520")
+            separator_color = skin.get_color("banner_dim", "#5B7F95")
+            accent_color = skin.get_color("ui_accent", "#0095D3")
+            label_color = skin.get_color("ui_label", "#89CBDF")
         except Exception:
-            separator_color, accent_color, label_color = "#B8860B", "#FFBF00", "cyan"
+            separator_color, accent_color, label_color = "#5B7F95", "#0095D3", "cyan"
         sep = f" [dim {separator_color}]·[/] "
         toolsets_info = ""
         if self.enabled_toolsets and "all" not in self.enabled_toolsets:
@@ -481,7 +481,7 @@ class CLISessionMixin:
                 continue
 
             _cli_visible_print(
-                f"\n  {t('cli.session.history_assistant_header', agent_name='Hermes', index=visible_index)}{_ts_suffix(msg)}")
+                f"\n  {t('cli.session.history_assistant_header', agent_name='Envoy', index=visible_index)}{_ts_suffix(msg)}")
             n_calls = len(msg.get("tool_calls") or [])
             if not content_text:
                 suffix = ""
@@ -896,7 +896,7 @@ class CLISessionMixin:
         return ""
 
     def _write_terminal_breadcrumb(self) -> None:
-        """Record this terminal's live session for bare ``hermes -c``. Called whenever
+        """Record this terminal's live session for bare ``envoy -c``. Called whenever
         ``self.session_id`` is (re)assigned so a later bare ``-c`` in THIS terminal resumes
         this conversation's live tip. Best-effort; no-op without a terminal identity."""
         with contextlib.suppress(Exception):
@@ -1208,9 +1208,9 @@ class CLISessionMixin:
         except Exception:
             _active_profile = "default"
         profile_flag = "" if _active_profile in ("default", "custom") else f" -p {_active_profile}"
-        print(f"  hermes --resume {self.session_id}{profile_flag}")
+        print(f"  envoy --resume {self.session_id}{profile_flag}")
         if session_title:
-            print(f"  hermes -c \"{session_title}\"{profile_flag}")
+            print(f"  envoy -c \"{session_title}\"{profile_flag}")
         print()
         print(t("cli.session.exit_label_session", session_id=self.session_id))
         if session_title:

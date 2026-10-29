@@ -1,4 +1,4 @@
-"""Logical working directories attached to Hermes-owned Relay scopes."""
+"""Logical working directories attached to Envoy-owned Relay scopes."""
 
 from pathlib import Path
 

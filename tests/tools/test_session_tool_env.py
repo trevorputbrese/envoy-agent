@@ -85,7 +85,7 @@ def test_execute_code_child_env_starts_from_the_sessions_toolchain(daemon_env, t
     assert '/daemon/bin' in _parts(_build_child_env(**kwargs))
 
 
-# execute_code's secret names (BEARER, CREDS, DSN, WEBHOOK...) and Hermes control names never travel, even
+# execute_code's secret names (BEARER, CREDS, DSN, WEBHOOK...) and Envoy control names never travel, even
 # under a built-in prefix (NODE_, CONDA_) or a profile's configured extra names.
 REFUSED = {'NODE_BEARER': 'b', 'NODE_CREDS': 'c', 'CONDA_DSN': 'postgres://u:p@h/db', 'DEPLOY_WEBHOOK': 'https://h',
            'HERMES_KANBAN_DB': '/board.db', 'HERMES_DELEGATED_CHILD_CONTEXT': '1'}

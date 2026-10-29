@@ -29,7 +29,7 @@ from tests.e2e.core.upgrade.network import _seed as S
 
 pytestmark = [
     pytest.mark.platforms("linux"),
-    # Every `hermes update` here targets a throwaway sandboxed install, never the real checkout.
+    # Every `envoy update` here targets a throwaway sandboxed install, never the real checkout.
     pytest.mark.live_system_guard_bypass,
     pytest.mark.skipif(H.sandbox_required_reason() is not None, reason=str(H.sandbox_required_reason())),
     pytest.mark.skipif(N.netns_required_reason() is not None, reason=str(N.netns_required_reason())),
@@ -78,7 +78,7 @@ def test_pip_mirror_update_restages_pm_runtime_through_the_mirror(inst):
 
 def test_npm_registry_mirror_serves_pm_npm_download(inst):
     """``~/.npmrc`` names the mirror; the npm tool's store entry is missing, so
-    `hermes pm install npm` has to fetch its pinned tarball: from the mirror, never from
+    `envoy pm install npm` has to fetch its pinned tarball: from the mirror, never from
     registry.npmjs.org."""
     tool = S.installed_tool(inst, "npm")
     version = tool["version"]

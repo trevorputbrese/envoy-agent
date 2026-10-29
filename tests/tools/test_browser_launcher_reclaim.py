@@ -1,6 +1,6 @@
 """The reaper never deletes the throwaway profile of a Chromium that is still running on it.
 
-A Hermes process SIGKILLed mid-launch can leave a live Chromium whose launch record is missing or cannot
+An Envoy process SIGKILLed mid-launch can leave a live Chromium whose launch record is missing or cannot
 prove the pid (``tools/browser_launcher.py``: ``_reclaim_throwaway_dirs``, ``_reap_record``). Deleting the dir
 under it corrupts a running browser, so the dir waits until that Chromium is gone.
 """
@@ -26,7 +26,7 @@ _REPO = Path(__file__).resolve().parents[2]
 
 
 def _dir_of_a_dead_owner() -> Path:
-    """A throwaway profile dir named for a Hermes process that has exited (it died mid-launch)."""
+    """A throwaway profile dir named for an Envoy process that has exited (it died mid-launch)."""
     from hermes_constants import hermes_home_key
     code = ("import sys\n"
             "from tools.browser_launcher import _default_user_data_dir, _prepare_dir\n"

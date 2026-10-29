@@ -1,6 +1,6 @@
 """Hard-deleted gateway sessions must not resurrect through the routing index (#42422).
 
-A hard delete (Desktop remote mode -> ``DELETE /api/sessions/<id>``, or ``hermes
+A hard delete (Desktop remote mode -> ``DELETE /api/sessions/<id>``, or ``envoy
 sessions delete`` / TUI deletes out of process) removes the state.db rows but used to
 leave the gateway's durable channel->session routing index intact. The next inbound
 Discord/Telegram message then resolved the SAME session id, and run_agent's INSERT OR
@@ -99,7 +99,7 @@ class TestOutOfProcessDeleteSelfHeals:
         db = store._db_for_key(key)
         assert db.get_session(entry.session_id) is not None
 
-        # Out-of-process hard delete (CLI `hermes sessions delete`, TUI): only the
+        # Out-of-process hard delete (CLI `envoy sessions delete`, TUI): only the
         # durable row goes; the gateway's in-memory index is untouched.
         assert db.delete_session(entry.session_id, sessions_dir=store.sessions_dir)
 

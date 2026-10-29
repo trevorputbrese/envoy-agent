@@ -91,7 +91,7 @@ class AgentPluginPackage:
 
 
 _SERVER_DECLARATION_KEYS = frozenset({"app", "requires", "liveness", "trust", "timeout", "costs", "spend_limit", "cost_unit"})
-# Hermes call-policy keys: alone they configure a server, they do not declare an application.
+# Envoy call-policy keys: alone they configure a server, they do not declare an application.
 _SERVER_POLICY_KEYS = frozenset({"trust", "timeout", "costs", "spend_limit", "cost_unit"})
 
 
@@ -109,7 +109,7 @@ def _server_declarations(
             raise AgentPluginError(f"server declaration '{name}' has no matching mcp.json server")
         if not isinstance(raw, dict):
             raise AgentPluginError(f"server declaration '{name}' must be an object")
-        # A key added by a newer Hermes must not make the package uninstallable here: the older
+        # A key added by a newer Envoy must not make the package uninstallable here: the older
         # release ignores it with a diagnostic, like unknown top-level fields. A key whose absence
         # would be unsafe needs the catalog entry's requires_hermes, not a hard failure on every release:
         # plugin.json has no version floor, and install/update by catalog name enforce the entry's
@@ -118,7 +118,7 @@ def _server_declarations(
         if unknown:
             if diagnostics is not None:
                 diagnostics.append(AgentPluginDiagnostic(
-                    f"server:{name}", f"ignored unknown keys {sorted(unknown)} (needs a newer Hermes)"))
+                    f"server:{name}", f"ignored unknown keys {sorted(unknown)} (needs a newer Envoy)"))
             raw = {key: value for key, value in raw.items() if key not in unknown}
             if not raw:
                 continue
@@ -144,7 +144,7 @@ def _server_declarations(
 
 
 def _server_trust(manifest: Mapping[str, Any], mcp_servers: Mapping[str, dict[str, Any]]) -> dict[str, str]:
-    """Servers the package asks Hermes to gate: ``extensions.com.nousresearch.hermes.servers.<name>.trust``.
+    """Servers the package asks Envoy to gate: ``extensions.com.nousresearch.hermes.servers.<name>.trust``.
 
     The package may only narrow access. ``untrusted`` makes every write-capable call to that server
     ask the user first (the native ``trust: untrusted`` gate); ``full`` is the default and so changes
@@ -165,7 +165,7 @@ def _server_trust(manifest: Mapping[str, Any], mcp_servers: Mapping[str, dict[st
 
 
 def _server_timeouts(manifest: Mapping[str, Any], mcp_servers: Mapping[str, dict[str, Any]]) -> dict[str, float]:
-    """Translate optional Hermes call deadlines without changing other servers' defaults."""
+    """Translate optional Envoy call deadlines without changing other servers' defaults."""
     raw_servers = manifest.get("extensions", {}).get(_HERMES_EXTENSION, {}).get("servers", {})
     timeouts: dict[str, float] = {}
     for name, raw in (raw_servers.items() if isinstance(raw_servers, dict) else ()):
@@ -522,7 +522,7 @@ def load_agent_plugin(plugin_root: Path, data_root: Path) -> AgentPluginPackage:
 
 def manifest_hermes_extension(manifest: Any) -> dict:
     """``extensions.com.nousresearch.hermes`` of a parsed ``plugin.json`` (Agent Plugins v1 forbids
-    unknown top-level fields, so Hermes-specific fields such as ``config_keys`` live here), else ``{}``."""
+    unknown top-level fields, so Envoy-specific fields such as ``config_keys`` live here), else ``{}``."""
     extensions = manifest.get("extensions") if isinstance(manifest, dict) else None
     hermes = extensions.get(_HERMES_EXTENSION) if isinstance(extensions, dict) else None
     return hermes if isinstance(hermes, dict) else {}

@@ -1,7 +1,7 @@
 # Configuration, Toolsets & Voice
 
-Edit with `hermes config edit` or `hermes config set section.key value`.
-Full reference: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+Edit with `envoy config edit` or `envoy config set section.key value`.
+Full reference: https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/configuration.md
 
 ### Config Sections (most-used keys)
 
@@ -22,11 +22,11 @@ Full reference: https://hermes-agent.nousresearch.com/docs/user-guide/configurat
 | `checkpoints` | `enabled`, `max_snapshots` (50) |
 | `curator` | `enabled`, `consolidate` (false, opt-in aux-model consolidation), `interval_hours`, `stale_after_days` |
 
-`hermes config check` reports sections missing from an older config.
+`envoy config check` reports sections missing from an older config.
 
 ### Toolsets
 
-Enable/disable via `hermes tools` (interactive) or `hermes tools enable/disable NAME`.
+Enable/disable via `envoy tools` (interactive) or `envoy tools enable/disable NAME`.
 Full enumeration: `TOOLSETS` dict in `toolsets.py` (`_HERMES_CORE_TOOLS` is the default bundle most platforms inherit).
 
 | Toolset | What it provides |
@@ -55,9 +55,9 @@ Full enumeration: `TOOLSETS` dict in `toolsets.py` (`_HERMES_CORE_TOOLS` is the 
 | `kanban` | Multi-agent work-queue tools (gated to workers) |
 | `debugging` | Extra introspection tools (off by default) |
 | `safe` | Minimal low-risk toolset for locked-down sessions |
-| `discord`, `discord_admin`, `feishu_doc`, `feishu_drive`, `yuanbao` | Service integrations (gated on their credentials). `homeassistant` (`ha_*` tools) and `spotify` (`spotify_*` tools) are not built in: they come from the `homeassistant` / `spotify` catalog plugins (`hermes plugins install <name>`) |
+| `discord`, `discord_admin`, `feishu_doc`, `feishu_drive`, `yuanbao` | Service integrations (gated on their credentials). `homeassistant` (`ha_*` tools) and `spotify` (`spotify_*` tools) are not built in: they come from the `homeassistant` / `spotify` catalog plugins (`envoy plugins install <name>`) |
 
-Camofox is no longer built in: `hermes plugins install camofox` adds it as the `camofox` toolset with its own browser tools. Existing Camofox setups are migrated automatically on `hermes update`.
+Camofox is no longer built in: `envoy plugins install camofox` adds it as the `camofox` toolset with its own browser tools. Existing Camofox setups are migrated automatically on `envoy update`.
 
 Tool changes take effect on `/reset` (new session) — never mid-conversation, to preserve prompt caching.
 

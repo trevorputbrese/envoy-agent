@@ -65,7 +65,7 @@ async function fixture(): Promise<{
     bundleEnv: {},
     identity: {
       token: '1234567890abcdef',
-      displayName: 'Hermes fresh-preview-29',
+      displayName: 'Envoy fresh-preview-29',
       appId: 'chat.nous.hermes.h1234567890abcdef',
       appNamePascal: 'HermesH1234567890abcdef',
       artifactNamePascal: 'HermesH1234567890abcdef',
@@ -89,7 +89,7 @@ async function fixture(): Promise<{
         version: next.version,
         identity: build.identity.appId,
         teamId: 'ABCDE12345',
-        artifact: { key: `${prefix}darwin/Hermes.zip`, sha256: 'd'.repeat(64), size: 100 },
+        artifact: { key: `${prefix}darwin/Envoy.zip`, sha256: 'd'.repeat(64), size: 100 },
         feed: { key: `${prefix}darwin/stable-mac.yml`, channel: 'stable' }
       }
     ]
@@ -234,7 +234,7 @@ test('protected canary accepts bounded Windows revisions without relaxing stable
       identity: f.build.identity.msixAppIdWithOrg,
       publisher: 'CN=Nous Research',
       artifact: {
-        key: `releases/channel-builds/${f.manifest.request.buildId}/win32/Hermes.msixbundle`,
+        key: `releases/channel-builds/${f.manifest.request.buildId}/win32/Envoy.msixbundle`,
         sha256: 'd'.repeat(64),
         size: 100
       },
@@ -281,7 +281,7 @@ test.each(['rc.1-v0.21.5', 'rc.12-v1.0.0'] as const)(
       archiveRef: attempt
     })
     f.manifest.packages[0].version = '0.21.5'
-    f.manifest.packages[0].artifact.key = `releases/tag/${attempt}/darwin/Hermes.zip`
+    f.manifest.packages[0].artifact.key = `releases/tag/${attempt}/darwin/Envoy.zip`
     f.manifest.packages[0].feed.key = `releases/tag/${attempt}/darwin/stable-mac.yml`
     f.publish()
 
@@ -302,7 +302,7 @@ test('the protected archive prefix falls back closed to the bare release tag', a
   Object.assign(f.manifest.request, { releaseTag: 'v1.2.3', version: '1.2.3', windowsVersion: '1.2.3.0' })
   f.manifest.packages[0].version = '1.2.3'
   const attempt = 'rc.2-v1.2.3'
-  f.manifest.packages[0].artifact.key = `releases/tag/${attempt}/darwin/Hermes.zip`
+  f.manifest.packages[0].artifact.key = `releases/tag/${attempt}/darwin/Envoy.zip`
   f.manifest.packages[0].feed.key = `releases/tag/${attempt}/darwin/stable-mac.yml`
   const resolver = new ChannelResolver({ build: f.build, platform: 'darwin', arch: 'arm64', signer: 'ABCDE12345' })
   // A stable request without archiveRef can never admit attempt-scoped bytes.
@@ -493,7 +493,7 @@ test('discontinued retirement surfaces the notice and never downloads or applies
     expect(request).toMatch(/^\/releases\/(channels\/|channel-builds\/[a-f0-9]+\/build\.json$)/)
   }
 
-  expect(f.requests).not.toContain('/releases/channel-builds/cccccccccccccccccccccccccccccccc/darwin/Hermes.zip')
+  expect(f.requests).not.toContain('/releases/channel-builds/cccccccccccccccccccccccccccccccc/darwin/Envoy.zip')
   // The ordinary apply path refuses rather than downloading.
   expect(await strategy.apply()).toMatchObject({ ok: false })
 })
@@ -649,7 +649,7 @@ test('Windows resolves its numeric native version, publisher and immutable descr
       identity: f.build.identity.msixAppIdWithOrg,
       publisher: 'CN=Nous Research',
       artifact: {
-        key: `releases/channel-builds/${f.manifest.request.buildId}/win32/Hermes.msixbundle`,
+        key: `releases/channel-builds/${f.manifest.request.buildId}/win32/Envoy.msixbundle`,
         sha256: 'd'.repeat(64),
         size: 100
       },
@@ -728,7 +728,7 @@ test('long-offline previews retain the qualified migration target after stable a
     version: '1.3.0',
     artifact: {
       ...f.manifest.packages[0].artifact,
-      key: `releases/channel-builds/${f.manifest.request.buildId}/darwin/Hermes.zip`
+      key: `releases/channel-builds/${f.manifest.request.buildId}/darwin/Envoy.zip`
     },
     feed: { key: `releases/channel-builds/${f.manifest.request.buildId}/darwin/stable-mac.yml`, channel: 'stable' }
   }

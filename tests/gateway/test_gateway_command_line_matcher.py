@@ -1,6 +1,6 @@
 """Tests for the strict gateway command-line matcher.
 
-Regression guard for the Windows ``hermes gateway restart`` silent-outage bug:
+Regression guard for the Windows ``envoy gateway restart`` silent-outage bug:
 the previous loose substring match (``"... gateway" in cmdline``) false-matched
 ``gateway status``/``dashboard`` siblings and unrelated processes such as
 ``python -m tui_gateway``, which let ``restart()`` race a still-draining old
@@ -27,19 +27,19 @@ ACCEPT = [
     "python gateway/run.py",
     "python -m gateway.run",   # module spelling of the dedicated entrypoint
     "hermes-gateway.exe",
-    "hermes gateway",          # bare `hermes gateway` defaults to run
-    "hermes gateway run",
+    "envoy gateway",          # bare `envoy gateway` defaults to run
+    "envoy gateway run",
     # profile selector AFTER the `gateway` token (argv is profile-position
     # agnostic — _apply_profile_override strips --profile/-p anywhere)
-    "hermes gateway --profile work run",
+    "envoy gateway --profile work run",
     "python -m hermes_cli.main gateway -p work run",
-    "hermes gateway --profile=work run",
+    "envoy gateway --profile=work run",
     # a profile literally NAMED "gateway"
-    "hermes -p gateway gateway run",
+    "envoy -p gateway gateway run",
     "python -m hermes_cli.main --profile gateway gateway run",
     # quoted Windows paths with spaces (shlex-aware tokenization)
-    r'"C:\Program Files\Hermes\hermes-gateway.exe"',
-    r'"C:\Program Files\Hermes\gateway\run.py" run',
+    r'"C:\Program Files\Envoy\hermes-gateway.exe"',
+    r'"C:\Program Files\Envoy\gateway\run.py" run',
     r'"C:\Program Files\Py\pythonw.exe" -m hermes_cli.main gateway run',
 ]
 
@@ -151,13 +151,13 @@ def test_spawn_intent_ignores_inline_source_without_a_gateway_argv():
     assert spawn_intent('python -c "import time; time.sleep(1)" 14980') is None
 
 
-# Atomic Hermes' bundled desktop runner (regression for #22418): it shares
+# Atomic Envoy's bundled desktop runner (regression for #22418): it shares
 # HERMES_HOME with the CLI and must be recognised as a gateway so
 # ``gateway run --replace`` enters the replace/lock-handoff path instead of
 # colliding with the desktop runner's still-held scoped locks.
 ATOMIC_DESKTOP = (
-    "/Applications/Atomic Hermes.app/Contents/Resources/python-server/python "
-    "/Applications/Atomic Hermes.app/Contents/Resources/python-server/desktop-gateway.py"
+    "/Applications/Atomic Envoy.app/Contents/Resources/python-server/python "
+    "/Applications/Atomic Envoy.app/Contents/Resources/python-server/desktop-gateway.py"
 )
 
 

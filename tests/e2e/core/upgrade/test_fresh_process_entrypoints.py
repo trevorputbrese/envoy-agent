@@ -116,7 +116,7 @@ _POST_PURGE_IMPORTS = (
     "hermes_cli.gateway_migrate", "hermes_cli.profiles", "hermes_cli.backup", "hermes_cli.model_catalog",
     "hermes_cli.plugin_compat", "agent.curator", "tools.skills_sync", "tools.browser_tool",
 )
-# What the pre-hand-off ``hermes update`` process had imported before the pull.
+# What the pre-hand-off ``envoy update`` process had imported before the pull.
 _OLD_UPDATER_GRAPH = ("hermes_cli.main", "hermes_cli.update_cmd", "hermes_cli.config", "hermes_cli.gateway")
 
 _READY_RE = re.compile(r"^HERMES_(?:BACKEND|DASHBOARD)_READY port=(\d+)", re.MULTILINE)  # electron/backend-ready.ts

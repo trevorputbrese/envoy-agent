@@ -499,7 +499,7 @@ class TestMemoryManager:
         """#134392: a new MemoryManager is built per agent init, so the in-flight
         registry must be process-wide — fresh managers against a wedged provider keep at
         most ``_MAX_STUCK_CALLS`` live ``memory-prefetch-*`` threads, not one per manager. It
-        is keyed per Hermes home: another profile's same-named provider still recalls.
+        is keyed per Envoy home: another profile's same-named provider still recalls.
         """
         import agent.memory_manager as mm
         from hermes_constants import reset_hermes_home_override, set_hermes_home_override

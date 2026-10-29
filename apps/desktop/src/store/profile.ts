@@ -492,7 +492,7 @@ export const $hydrationSyncProfile = atom<string | null>(null)
 
 // ── Hover-intent backend pre-warm ───────────────────────────────────────────
 // A cold switch to a profile whose gateway descriptor isn't cached pays the
-// `hermes gateway ensure` round-trip plus the socket connect before the sidebar
+// `envoy gateway ensure` round-trip plus the socket connect before the sidebar
 // can repopulate. The pointer entering a profile square in the rail signals the
 // switch a few hundred ms before the click lands, so we run the same dial +
 // connect chain then (openGatewayForProfile — without activating).
@@ -519,7 +519,7 @@ export function prewarmProfileBackend(name: string, connectionId: null | string 
   }
 
   // SSH sources are connect-on-demand (#89756): dialing one bootstraps the
-  // tunnel and spawns `hermes -p <profile> serve --isolated` on the remote
+  // tunnel and spawns `envoy -p <profile> serve --isolated` on the remote
   // box, so a hover sweep across the roster spawned one isolated backend per
   // bot and knocked the primary chat over. Only an explicit open may dial SSH.
   if (connection && registryConnectionKind(connection) === 'ssh') {

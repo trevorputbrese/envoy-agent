@@ -1088,7 +1088,7 @@ class TestBackgroundOwnershipPolicyConsistency:
 # ---------------------------------------------------------------------------
 # Pinned-skill guard — skill_manage refuses only `delete` on pinned skills.
 # Patches and edits go through so pinned skills can still evolve as pitfalls
-# come up. The user unpins via `hermes curator unpin <name>` to delete.
+# come up. The user unpins via `envoy curator unpin <name>` to delete.
 # ---------------------------------------------------------------------------
 
 class TestPinnedGuard:

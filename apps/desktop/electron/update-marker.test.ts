@@ -281,7 +281,7 @@ test('a dead owner with a LIVE delegate keeps the marker live (C1 rule 6)', asyn
 
   const live = await readLiveUpdateMarker(home)
 
-  assert.ok(live, 'a killed hand-off script must not hide a still-running hermes update')
+  assert.ok(live, 'a killed hand-off script must not hide a still-running envoy update')
   assert.equal(live!.pid, delegate.pid)
   delegate.kill('SIGKILL')
   await new Promise(resolve => delegate.once('exit', resolve))

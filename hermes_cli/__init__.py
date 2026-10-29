@@ -1,4 +1,4 @@
-"""Hermes CLI - Unified command-line interface for Hermes Agent."""
+"""Envoy CLI - Unified command-line interface for Envoy Agent."""
 
 import sys
 
@@ -42,9 +42,9 @@ def __getattr__(name: str) -> str:
 def _ensure_utf8() -> bool:
     """Force UTF-8 stdout/stderr to prevent UnicodeEncodeError crashes; True when a stream was repaired.
 
-    The CLI prints box-drawing characters and the ☤ glyph in the setup wizard, doctor, and status
+    The CLI prints box-drawing characters and the ◈ glyph in the setup wizard, doctor, and status
     banners; under a non-UTF-8 codec that raises before the command can even start (e.g.
-    `hermes setup` on a fresh Pi).
+    `envoy setup` on a fresh Pi).
     """
     repaired = False
     for stream_name in ("stdout", "stderr"):

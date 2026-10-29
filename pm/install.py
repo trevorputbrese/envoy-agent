@@ -140,7 +140,7 @@ def installed_package(name: str, *, allow_outdated: bool = False) -> InstalledPa
 
 def uv_launcher(name: str) -> Path | None:
     """PM's installed ``uv``/``uvx`` for a user-declared MCP stdio ``command:``, so a bare
-    ``uvx`` server runs the packaged uv, never the user's. Read-only; Hermes's own Python
+    ``uvx`` server runs the packaged uv, never the user's. Read-only; Envoy's own Python
     work still goes through PM operations, not this executable."""
     if name not in ("uv", "uvx"):
         raise ValueError(f"{name!r} is not a uv launcher")
@@ -219,7 +219,7 @@ def _refuse_lazy(name: str, what: str) -> InstallError:
     error = InstallError(
         name,
         f"not installed and lazy installs are disabled: {what}",
-        "enable security.allow_lazy_installs or run `hermes pm install`",
+        "enable security.allow_lazy_installs or run `envoy pm install`",
     )
     receipt.record_refusal("lazy-install", str(error))
     return error
@@ -255,12 +255,12 @@ _SET_ASIDE_PREFIX = ".reclaim-"
 def _discard_entry(store: Store, entry_name: str) -> None:
     """Drop a tree a finished publish or restore left behind as garbage.
 
-    A running Hermes process can keep the replaced interpreter's DLLs mapped
+    A running Envoy process can keep the replaced interpreter's DLLs mapped
     far past the retry window, and failing here reports a completed install
     as broken (#124807). Windows still allows renaming a tree with mapped
     images, so it moves to a `.reclaim-*` name: its slot is free for the next
     publish, no restore ever picks it up, and the next install or
-    `hermes pm gc` deletes it once the hold is gone.
+    `envoy pm gc` deletes it once the hold is gone.
     """
     import uuid
 
@@ -274,7 +274,7 @@ def _discard_entry(store: Store, entry_name: str) -> None:
     except OSError:
         LOG.warning("could not remove or set aside %s: %s", entry_name, error)
         return
-    LOG.warning("%s is still in use (%s); set aside for the next install or `hermes pm gc`",
+    LOG.warning("%s is still in use (%s); set aside for the next install or `envoy pm gc`",
                 entry_name, error)
 
 
@@ -393,7 +393,7 @@ def _refresh_recorded_env(package, facts, store, entry, previous, target) -> Non
 
 
 def _refresh_found_env(package, location, target, operation) -> None:
-    """:func:`_refresh_recorded_env` for an entry ``ensure`` found installed: `hermes update` skips
+    """:func:`_refresh_recorded_env` for an entry ``ensure`` found installed: `envoy update` skips
     installed defaults, so no install would re-record it. Only the writable store is re-recorded, under
     its install lock (a sealed store's facts ship with the artifact)."""
     facts, store = location
@@ -449,7 +449,7 @@ def _install(
     version = lockfile.version(package.name)
     if version is None:
         raise InstallError(
-            package.name, "not in the lockfile", "add it with `hermes pm lock --bump`"
+            package.name, "not in the lockfile", "add it with `envoy pm lock --bump`"
         )
 
     reason = package.missing_reason(target)
@@ -482,7 +482,7 @@ def _install(
             raise InstallError(
                 package.name,
                 f"no artifact for {target} in the lockfile",
-                "run `hermes pm lock --bump` for this package",
+                "run `envoy pm lock --bump` for this package",
             )
         with store.scratch() as scratch:
             staged = scratch / "tree"
@@ -571,8 +571,8 @@ def ensure(
     download_progress: ProgressFn | None = None,
     _operation: _InstallOperation | None = None,
 ) -> Runner:
-    """``explicit`` marks a deliberate install command (`hermes pm
-    install`, `hermes pm bundle`) — those ARE the remedy the lazy-install
+    """``explicit`` marks a deliberate install command (`envoy pm
+    install`, `envoy pm bundle`) — those ARE the remedy the lazy-install
     policy names, so the policy does not apply to them.
 
     ``verify`` re-hashes an already-recorded entry and repairs it when the
@@ -762,8 +762,8 @@ def _venv_install_lock(*, patient: bool):
         if not held:
             error = InstallError(
                 "venv",
-                f"another Hermes process is installing dependencies (waited {INSTALL_LOCK_TIMEOUT_SECONDS:.0f}s)",
-                "retry in a moment, or run `hermes pm install` to install explicitly",
+                f"another Envoy process is installing dependencies (waited {INSTALL_LOCK_TIMEOUT_SECONDS:.0f}s)",
+                "retry in a moment, or run `envoy pm install` to install explicitly",
             )
             receipt.record_refusal("install-busy", str(error))
             raise error
@@ -844,8 +844,8 @@ def sync_venv(extras: Optional[list[str]] = None, *, explicit: bool = False,
     the installed state (one ledger); no-op when the stamp already matches.
     ``repair`` restores the recorded dependency graph into a fresh generation,
     bypassing both that shortcut and config discovery. It cannot add features.
-    ``explicit`` marks a deliberate install command (`hermes pm install`,
-    `hermes update`) — those are the remedy the lazy-install policy points
+    ``explicit`` marks a deliberate install command (`envoy pm install`,
+    `envoy update`) — those are the remedy the lazy-install policy points
     at, so the policy does not apply to them. ``plugins`` names the one
     source of plugin members (see pm.plugin_inputs); None discovers them from config.
     ``evict_incompatible_plugins`` is the update's contract: a discovered plugin that
@@ -1050,7 +1050,7 @@ def activate(*, allow_incomplete: bool = False) -> list[str]:
 
 def store_first_path(path: str) -> str:
     """``path`` with the installed store's tool dirs moved to the front, for
-    Hermes's own children whose PATH gets other dirs prepended after activate."""
+    Envoy's own children whose PATH gets other dirs prepended after activate."""
     import os
 
     dirs = _store_path_dirs()

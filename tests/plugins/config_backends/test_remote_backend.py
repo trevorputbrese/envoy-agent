@@ -1120,7 +1120,7 @@ def test_instance_id_from_the_managed_dotenv_boots(plane, monkeypatch, tmp_path)
 
 
 def test_child_for_another_profile_keeps_the_remote_deployment(plane, monkeypatch, tmp_path):
-    """F5: the deployment came from the launch profile's .env. A Hermes child built for another
+    """F5: the deployment came from the launch profile's .env. An Envoy child built for another
     profile must still read that profile's config remotely, never fall back to its local file."""
     import os
     import subprocess

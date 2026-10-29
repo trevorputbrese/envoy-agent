@@ -308,7 +308,7 @@ def test_records_of_a_live_owner_are_left_alone(tmp_path, fake_chromium):
     assert list(_records().glob("*.json"))
 
 
-# A Hermes process on a persistent profile: launches (or attaches to) its Chromium, prints the pid, waits
+# An Envoy process on a persistent profile: launches (or attaches to) its Chromium, prints the pid, waits
 # for a line on stdin, then exits normally (the session layer's exit teardown stops its browsers).
 _SHARED_PROFILE_USER = textwrap.dedent("""\
     import os, sys
@@ -349,7 +349,7 @@ def _kill_fake(pid: int, fake_chromium) -> None:
 @pytest.mark.platforms("linux")
 @pytest.mark.live_system_guard_bypass  # the fake browser is ours to stop if a leg failed
 def test_a_shared_profile_browser_outlives_its_launcher_while_another_process_holds_it(fake_chromium, tmp_path):
-    """Two Hermes processes on one persistent profile: the one that launched its Chromium lets go (its normal
+    """Two Envoy processes on one persistent profile: the one that launched its Chromium lets go (its normal
     exit) while the other still drives it. The browser stays up for the other one, and that last holder's
     own normal exit stops it, leaving no launcher state behind."""
     udd, key = tmp_path / "shared-profile", f"profile:{tmp_path / 'shared-profile'}"
@@ -372,7 +372,7 @@ def test_a_shared_profile_browser_outlives_its_launcher_while_another_process_ho
 @pytest.mark.platforms("linux")
 @pytest.mark.live_system_guard_bypass  # the fake browser is ours to stop if a leg failed
 def test_a_crashed_launchers_shared_browser_is_reaped_only_after_its_last_holder_is_gone(fake_chromium, tmp_path):
-    """The launcher crashed while another live Hermes process holds its browser: no reaper kills it. Once
+    """The launcher crashed while another live Envoy process holds its browser: no reaper kills it. Once
     that holder crashed too (proven by pid + start time), the next reap stops it."""
     udd = tmp_path / "shared-profile"
     owner, pid = _shared_profile_user(fake_chromium, udd)
@@ -432,7 +432,7 @@ _NEVER_READY_CHROMIUM = textwrap.dedent('''\
     time.sleep(600)
 ''')
 
-# A Hermes process waiting for that Chromium's readiness: prints its throwaway dir, then launches.
+# An Envoy process waiting for that Chromium's readiness: prints its throwaway dir, then launches.
 _WAITING_LAUNCHER = textwrap.dedent("""\
     import os, sys
     from hermes_constants import hermes_home_key
@@ -446,7 +446,7 @@ _WAITING_LAUNCHER = textwrap.dedent("""\
 @pytest.mark.platforms("linux")
 @pytest.mark.live_system_guard_bypass  # the never-ready fake browser is ours to stop if a leg failed
 def test_a_launcher_killed_during_the_readiness_wait_leaves_its_chromium_to_the_reaper(fake_chromium, tmp_path):
-    """Hermes dies (SIGKILL, a crash) while its new Chromium is still starting (a first launch may wait
+    """Envoy dies (SIGKILL, a crash) while its new Chromium is still starting (a first launch may wait
     120 s): that browser must already carry a launch record, so the next reap stops it."""
     from tests.waiting import wait_until
     slow = tmp_path / "never-ready-chromium"

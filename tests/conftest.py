@@ -5,10 +5,10 @@ Hermetic-test invariants enforced here (see AGENTS.md for rationale):
 1. **No credential env vars.** All provider/credential-shaped env vars
    (ending in _API_KEY, _TOKEN, _SECRET, _PASSWORD, _CREDENTIALS, etc.)
    are unset before every test. Local developer keys cannot leak in.
-2. **Isolated Hermes homes.** HERMES_HOME and the platform-default root
+2. **Isolated Envoy homes.** HERMES_HOME and the platform-default root
    resolve inside a per-test tempdir. Profile/root resolution can inspect
    both without probing production state. HOME and Path.home() stay intact
-   for subprocesses and non-Hermes paths. Explicit test overrides still win.
+   for subprocesses and non-Envoy paths. Explicit test overrides still win.
 3. **Deterministic runtime.** TZ=UTC, LANG=C.UTF-8, PYTHONHASHSEED=0.
 4. **No HERMES_SESSION_* inheritance** — the agent's current gateway
    session must not leak into tests.
@@ -62,7 +62,7 @@ _version_info._cached_version_info = _version_info.VersionInfo(
 # window. The per-test fixture still applies for everything after import.
 #
 # ORDER MATTERS: the kanban write guard's deny-list (further down) must know
-# the REAL Hermes root — capture it BEFORE the sandbox rewires HERMES_HOME,
+# the REAL Envoy root — capture it BEFORE the sandbox rewires HERMES_HOME,
 # otherwise the deny-list would point at the throwaway tempdir and the guard
 # would silently stop protecting the operator's actual ~/.hermes (#69385).
 _PRE_SANDBOX_KANBAN_OVERRIDE = os.environ.get("HERMES_KANBAN_HOME", "").strip()
@@ -109,12 +109,12 @@ def _hermes_home_points_at_production(value: str) -> bool:
 # ``import hermes_bootstrap`` (transitively: any entry-point module) runs
 # ``export_scratch_tmp_env()``, which points TMPDIR/TMP/TEMP at
 # ``<HERMES_HOME>/cache/scratch`` unless a temp var is already set — and a
-# Hermes-launched shell (agent terminal, ``hermes`` child) arrives with that
+# Envoy-launched shell (agent terminal, ``envoy`` child) arrives with that
 # redirect already applied, tagged by HERMES_SCRATCH_DIR. Either way the tmp
 # root ends up INSIDE a guarded real home (the operator's, or a custom one
 # honored below), so the session sandbox, pytest's basetemp and every
 # ``tempfile`` default in the code under test trip the real-home guard. Strip
-# Hermes' own export (the marker tells it apart from a user-set var), and
+# Envoy's own export (the marker tells it apart from a user-set var), and
 # relocate even user-set temp directories inside a guarded home. Pin the
 # system default so the import-time hook stays a no-op. The parallel runner
 # exports its own disk-backed TMPDIR anyway.
@@ -162,7 +162,7 @@ if _hermes_home_points_at_production(os.environ.get("HERMES_HOME", "")):
 # bundled desktop app exports it as %LOCALAPPDATA%\hermes\pycache),
 # importlib/pytest write .pyc files to <prefix>/<absolute source path>
 # instead of next to the sources. Un-scrubbed, that mirror lands under
-# the REAL hermes home and trips the real-home tripwire on any module
+# the REAL envoy home and trips the real-home tripwire on any module
 # imported after sandboxing (test_find_shell was the first to bite).
 # Clear it so bytecode goes back beside the (already sandboxed) sources.
 os.environ.pop("PYTHONPYCACHEPREFIX", None)
@@ -287,7 +287,7 @@ def _hermetic_environment(tmp_path, tmp_path_factory, monkeypatch):
     # 3. Isolate both inputs to profile/root resolution. HERMES_HOME alone
     #    is insufficient: get_default_hermes_root() resolves the native root
     #    too, to distinguish standard profiles from custom deployments.
-    #    Patch only the Hermes default, not HOME/Path.home(). Subprocesses need
+    #    Patch only the Envoy default, not HOME/Path.home(). Subprocesses need
     #    a stable HOME. Hardcoded real-home I/O must still trip the guard.
     import hermes_constants
 
@@ -340,7 +340,7 @@ def _hermetic_environment(tmp_path, tmp_path_factory, monkeypatch):
     # Relay normally discovers the user's XDG plugins.toml and merges the machine
     # policy above it. Select a per-test user file with a deny-by-default dynamic
     # plugin policy so ordinary tests do not activate ambient worker/native plugins,
-    # without changing XDG_CONFIG_HOME for unrelated Hermes code under test.
+    # without changing XDG_CONFIG_HOME for unrelated Envoy code under test.
     # Outside tmp_path: tests that list or git-status their tmp dir must not see it.
     relay_plugins = tmp_path_factory.getbasetemp() / "relay-plugins.toml"
     if not relay_plugins.exists():
@@ -632,7 +632,7 @@ def _capture_real_kanban_root() -> Path:
     deny-list keeps pointing at the operator's actual root. Mirrors
     ``kanban_db.kanban_home()`` resolution order:
     1. ``HERMES_KANBAN_HOME`` env var when set and non-empty
-    2. the real (pre-sandbox) Hermes root otherwise
+    2. the real (pre-sandbox) Envoy root otherwise
     """
     if _PRE_SANDBOX_KANBAN_OVERRIDE:
         return Path(_PRE_SANDBOX_KANBAN_OVERRIDE).expanduser().resolve()
@@ -725,7 +725,7 @@ def scratch_prune_spawns(monkeypatch):
 # Companion to the kanban guard above, for the MAIN state database.
 # ``hermes_state._ensure_test_isolation`` (the single choke point every
 # ``SessionDB()`` construction goes through) refuses, under pytest, any DB
-# path that resolves inside the REAL Hermes root. This fixture wires the
+# path that resolves inside the REAL Envoy root. This fixture wires the
 # test-side knobs:
 #   • honors ``@pytest.mark.live_system_guard_bypass`` (the established
 #     escape-hatch marker) by disabling the state-db guard for that test;
@@ -861,7 +861,7 @@ def _reset_tui_gateway_server_state():
         mod._db = None
         mod._db_error = None
 
-    # A leaked context-local Hermes home override redirects every later
+    # A leaked context-local Envoy home override redirects every later
     # ``get_hermes_home()`` call (active-session registry, config paths)
     # to a stale per-test tmpdir. Force the main-thread ContextVar back
     # to its default.
@@ -882,7 +882,7 @@ def tmp_dir(tmp_path):
 
 @pytest.fixture()
 def mock_config():
-    """Return a minimal hermes config dict suitable for unit tests."""
+    """Return a minimal envoy config dict suitable for unit tests."""
     return {
         "model": "test/mock-model",
         "toolsets": ["terminal", "file"],
@@ -953,9 +953,9 @@ _REQUIRES_WAL_MARK = "requires_wal"
 
 
 def _wal_is_usable() -> bool:
-    """True when Hermes will actually put a database into WAL mode here.
+    """True when Envoy will actually put a database into WAL mode here.
 
-    Hermes refuses journal_mode=WAL on SQLite builds carrying the upstream
+    Envoy refuses journal_mode=WAL on SQLite builds carrying the upstream
     WAL-reset corruption bug (3.7.0–3.51.2, excluding backports 3.50.7 /
     3.44.6) and falls back to DELETE. On such a build NO ``-wal`` sidecar is
     ever created, so a test asserting on WAL frames, ``-wal`` file size, or
@@ -963,8 +963,8 @@ def _wal_is_usable() -> bool:
     declined to enable, not a regression.
 
     This matters because the interpreter running the tests and the interpreter
-    running Hermes can link DIFFERENT SQLite versions: a repo ``.venv`` on
-    3.50.4 (vulnerable → DELETE) alongside a Hermes managed runtime on 3.53.1
+    running Envoy can link DIFFERENT SQLite versions: a repo ``.venv`` on
+    3.50.4 (vulnerable → DELETE) alongside an Envoy managed runtime on 3.53.1
     (fixed → WAL). The same test then passes in one and fails in the other.
 
     IMPORTANT: this must NOT import ``hermes_state``. That module computes
@@ -1037,7 +1037,7 @@ _ALLOW_MACOS_KEYCHAIN_MARK = "allow_macos_keychain"
 
 
 def _relocate_basetemp_outside_operator_home(config) -> None:
-    """Move pytest's basetemp out of the operator's platform-native Hermes home.
+    """Move pytest's basetemp out of the operator's platform-native Envoy home.
 
     Every per-test sandbox is ``<basetemp>/.../hermes_test``. ``get_default_hermes_root()``
     prefers the platform-native home whenever ``HERMES_HOME`` sits *under* it, so a basetemp
@@ -1056,7 +1056,7 @@ def _relocate_basetemp_outside_operator_home(config) -> None:
     if not candidate.resolve().is_relative_to(native):
         return
     # The system temp dir may itself be inside the home (Windows TEMP under the
-    # Hermes home). The repo is no escape either: the default install checks it
+    # Envoy home). The repo is no escape either: the default install checks it
     # out *inside* the home (~/.hermes/hermes-agent). The relocated basetemp goes
     # into ONE prunable root outside the home, never loose into the operator's
     # $HOME (123 ``hermes-pytest-basetemp-*`` dirs piled up there in a day, one per
@@ -1064,7 +1064,7 @@ def _relocate_basetemp_outside_operator_home(config) -> None:
     # and, for runs that were killed before that, swept once it is 24h idle.
     safe = Path(tempfile.mkdtemp(prefix="b-", dir=_pytest_disk_temp_root(native)))
     assert not safe.resolve().is_relative_to(native), (
-        f"pytest basetemp {safe} still resolves inside the operator's Hermes home {native}; "
+        f"pytest basetemp {safe} still resolves inside the operator's Envoy home {native}; "
         "refusing to run the suite against the live install (pass --basetemp outside it)"
     )
     factory._given_basetemp = safe
@@ -1125,9 +1125,9 @@ def _processes_with_hermes_home_under(roots) -> list[int]:
 
 
 def _reap_session_hermes_processes(config) -> list[int]:
-    """SIGTERM every process still running against a Hermes home this session created.
+    """SIGTERM every process still running against an Envoy home this session created.
 
-    Tests that run a real ``hermes chat -q`` child get a grandchild ``gateway run`` (detached, own
+    Tests that run a real ``envoy chat -q`` child get a grandchild ``gateway run`` (detached, own
     session) that no per-test subprocess patch can see, and pytest's tmp cleanup removes only
     directories: each one used to outlive the run at ~250 MB. The session basetemp and the session
     sandbox home bound exactly what this run created, so nothing else is ever signalled.
@@ -1216,7 +1216,7 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         f"{_REQUIRES_WAL_MARK}: test needs the runtime to actually enable "
-        "SQLite WAL mode; skipped on builds where Hermes falls back to "
+        "SQLite WAL mode; skipped on builds where Envoy falls back to "
         "journal_mode=DELETE for the WAL-reset bug.",
     )
     config.addinivalue_line(
@@ -1343,7 +1343,7 @@ def pytest_collection_modifyitems(config, items):
         return
 
     reason = (
-        f"SQLite {sqlite3.sqlite_version} has the WAL-reset bug — Hermes uses "
+        f"SQLite {sqlite3.sqlite_version} has the WAL-reset bug — Envoy uses "
         "journal_mode=DELETE here, so no -wal sidecar exists to assert on"
     )
     skip_marker = pytest.mark.skip(reason=reason)
@@ -1480,7 +1480,7 @@ def _moa_caches_isolated():
 # deployment review caught in pm/plugins_state.py), and (b) imports freezing
 # real-home paths before fixtures run. The kanban guard (#69283) covers one
 # subsystem; this covers EVERY file operation: any open()/mkdir/stat-family
-# call resolving under the REAL hermes root fails the test immediately
+# call resolving under the REAL envoy root fails the test immediately
 # with a message naming the path — reads AND writes (a read of production
 # state is as much a leak as a write: it drags fixture rows and real config
 # into test assertions).
@@ -1534,7 +1534,7 @@ def _capture_real_hermes_root() -> list[Path]:
 
 _REAL_HERMES_ROOT_CANDIDATES = _capture_real_hermes_root()
 # Captured before any test can patch sys.platform, HOME or XDG_*: a test that runs the real
-# GUI uninstall or update swap would otherwise delete the developer's own Hermes app. Only the
+# GUI uninstall or update swap would otherwise delete the developer's own Envoy app. Only the
 # ones present (none on CI runners, so the guard costs nothing there), each literal and resolved.
 from hermes_cli.gui_uninstall import packaged_gui_app_paths
 

@@ -24,7 +24,7 @@ from gateway.run_shutdown import _log_suppressed
 logger = logging.getLogger("gateway.run")
 
 # A failed /update leaves the previous version running; the full pip/git log stays on the host
-# (`hermes update` re-runs it in the terminal) and only a short tail is quoted in chat.
+# (`envoy update` re-runs it in the terminal) and only a short tail is quoted in chat.
 def _update_failed_notice() -> str:
     return t("gateway.update.failed_notice")
 
@@ -41,11 +41,11 @@ def _update_output_tail(output: str, limit: int) -> str:
 
 
 class GatewayUpdateNotificationsMixin:
-    """Update watcher: streams ``hermes update --gateway`` output, forwards prompts, sends the final notice."""
+    """Update watcher: streams ``envoy update --gateway`` output, forwards prompts, sends the final notice."""
 
     @dataclasses.dataclass
     class _UpdatePaths:
-        """Marker files ``hermes update --gateway`` and its watcher exchange under HERMES_HOME."""
+        """Marker files ``envoy update --gateway`` and its watcher exchange under HERMES_HOME."""
 
         pending: Path
         claimed: Path
@@ -229,7 +229,7 @@ class GatewayUpdateNotificationsMixin:
     async def _watch_update_progress(
         self, poll_interval: float = 2.0, stream_interval: float = 4.0, timeout: float = 1800.0
     ) -> None:
-        """Watch ``hermes update --gateway``, streaming output + forwarding prompts.
+        """Watch ``envoy update --gateway``, streaming output + forwarding prompts.
 
         Polls ``.update_output.txt`` for new content and sends chunks to the user periodically;
         detects ``.update_prompt.json`` (written when the update process needs input) and forwards it.

@@ -66,7 +66,7 @@ export function readInstallationCommit(root: string, origin: 'source' | 'bundled
 const bundleEnvSchema = z.record(z.string(), z.string().nullable())
 
 /** The baked runtime defaults/clears of a bundled artifact, recorded in the
- * install stamp so the smoke driver can predict the app's resolved Hermes home
+ * install stamp so the smoke driver can predict the app's resolved Envoy home
  * without reimplementing the banner. Absent for artifacts built before the
  * stamp carried it, and for source checkpoints. */
 export function readBundledBundleEnv(root: string): Record<string, string | null> | undefined {
@@ -211,8 +211,8 @@ function gatewayIncarnationMatches(pid: number, recorded: number | null | undefi
   return started !== null && Math.abs(started - recorded / 100) < 2
 }
 
-/** The running canonical gateway (`hermes gateway run`) recorded for `homes`. Desktop reaches a
- * local backend through `hermes gateway ensure`, which attaches to that daemon or starts it
+/** The running canonical gateway (`envoy gateway run`) recorded for `homes`. Desktop reaches a
+ * local backend through `envoy gateway ensure`, which attaches to that daemon or starts it
  * detached, so it is neither an Electron descendant nor a `serve` spawn-ledger record. */
 function canonicalGateways(homes: string[], processes: NativeProcess[]): Map<number, string | undefined> {
   return new Map([...new Set(homes)].flatMap((home: string): Array<[number, string | undefined]> => {

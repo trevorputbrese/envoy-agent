@@ -2,7 +2,7 @@
 
 A session routes on the backend its ``delegate_task`` schema was built from, so routing and schema switch
 together. Real AIAgent turns against a recording fake provider, a real delegation backend plugin discovered from
-a temp HERMES_HOME and the real session DB: each test reads the schema Hermes actually sent and the backend a
+a temp HERMES_HOME and the real session DB: each test reads the schema Envoy actually sent and the backend a
 task with no choice routes on.
 """
 

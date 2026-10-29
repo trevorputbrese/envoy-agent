@@ -1,4 +1,4 @@
-"""Plugin-host profile extraction runs the Hermes tree's code, never a same-named package in the cwd."""
+"""Plugin-host profile extraction runs the Envoy tree's code, never a same-named package in the cwd."""
 
 import json
 

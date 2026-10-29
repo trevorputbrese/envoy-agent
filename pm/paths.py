@@ -47,7 +47,7 @@ def store_root() -> Path:
 def partials_root() -> Path:
     """The downloader's managed partials area: machine-scoped and shared
     (keyed by sha256(url), so two callers or two profiles reuse one
-    partial), but anchored to the DEFAULT hermes root — NOT the byte
+    partial), but anchored to the DEFAULT envoy root — NOT the byte
     store. The store can live inside a read-only sealed payload
     (WindowsApps/agent-payload), and partials are mutable state the
     downloader writes continuously, so they must land somewhere writable

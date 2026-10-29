@@ -445,7 +445,7 @@ _UPDATER_START_TIMEOUT = 30.0  # start_polling() can hang on a degraded pool aft
 # start_polling() can also hang when the connection pool is in a degraded state after
 # _drain_polling_connections(), particularly when both primary and fallback Telegram endpoints are
 # unreachable. Bounding start_polling() prevents the reconnect ladder from stalling indefinitely and allows
-# the heartbeat loop to trigger its own recovery path. Refs: NousResearch/hermes-agent#59614
+# the heartbeat loop to trigger its own recovery path. Refs: trevorputbrese/envoy-agent#59614
 _INITIAL_POLLING_PROGRESS_TIMEOUT = 60.0
 # Bounded drain (shutdown()/initialize() of the getUpdates request) so a wedged socket can't freeze
 # _polling_error_task and gate every escalation path behind its in-flight guard.
@@ -454,7 +454,7 @@ _INITIAL_POLLING_PROGRESS_TIMEOUT = 60.0
 # _drain_polling_connections() and freezing the whole reconnect ladder (the tracked _polling_error_task
 # never completes, so every escalation path stays gated behind its in-flight guard). Bound the drain so the
 # ladder always advances toward the fatal-restart escalation. Matches _UPDATER_STOP_TIMEOUT. Refs:
-# NousResearch/hermes-agent#66377
+# trevorputbrese/envoy-agent#66377
 _DRAIN_TIMEOUT = 15.0
 # Wedged-recovery watchdog: healthy worst case is stop + 2x drain + start + 60s backoff ≈ 135s, so
 # 300s in flight is unambiguously stuck and the heartbeat force-escalates.
@@ -1018,7 +1018,7 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
 
     @staticmethod
     def _dm_topic_fallback(metadata: Optional[dict[str, Any]]) -> bool:
-        """True for Hermes private-chat topic lanes (``telegram_dm_topic_reply_fallback``)."""
+        """True for Envoy private-chat topic lanes (``telegram_dm_topic_reply_fallback``)."""
         return bool(metadata and metadata.get("telegram_dm_topic_reply_fallback"))
 
     @classmethod
@@ -1049,15 +1049,15 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
         """Telegram send kwargs for forum and direct-message topic routing.
 
         Forum topics use ``message_thread_id``; native Bot API DM topics opt in via explicit ``direct_messages_topic_id``
-        metadata; Hermes private-chat topic lanes are marked ``telegram_dm_topic_reply_fallback``. Anchor-less synthetic sends
-        prefer the Hermes topic's ``message_thread_id`` (the native DM-topic id renders in a different chat lane).
+        metadata; Envoy private-chat topic lanes are marked ``telegram_dm_topic_reply_fallback``. Anchor-less synthetic sends
+        prefer the Envoy topic's ``message_thread_id`` (the native DM-topic id renders in a different chat lane).
         ``reply_to_mode="off"`` suppresses the anchor but keeps ``message_thread_id``.
 
         Live replies send the private topic thread id together with a reply anchor. Synthetic/resumed sends
         without an anchor (loop wakeups, background-process notifications, queued follow-ups after a gateway
-        restart) prefer the Hermes topic's ``message_thread_id`` so they stay in the active topic lane
+        restart) prefer the Envoy topic's ``message_thread_id`` so they stay in the active topic lane
         (#87051); ``direct_messages_topic_id`` is only used when no topic thread resolves, since the native
-        DM-topic id does not match the Hermes topic lane and can render the message in a different chat
+        DM-topic id does not match the Envoy topic lane and can render the message in a different chat
         lane.
         """
         fallback = cls._dm_topic_fallback(metadata)
@@ -1065,9 +1065,9 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
             if reply_to_message_id is None:
                 reply_to_message_id = cls._metadata_reply_to_message_id(metadata)
             if reply_to_message_id is None:
-                # Anchor-less synthetic send: prefer the Hermes topic thread id (see docstring).
+                # Anchor-less synthetic send: prefer the Envoy topic thread id (see docstring).
                 # Anchor-less synthetic sends (loop wakeups, watch notifications, restart-resumed
-                # follow-ups) must stay in the active topic lane: prefer the Hermes topic thread id when it
+                # follow-ups) must stay in the active topic lane: prefer the Envoy topic thread id when it
                 # resolves (#87051). Routing via direct_messages_topic_id here sent these to a different
                 # lane than the topic the session runs in.
                 thread_message_id = cls._message_thread_id_for_send(thread_id)
@@ -2463,8 +2463,8 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
             f"Telegram polling could not recover after {MAX_CONFLICT_RETRIES} retries "
             f"({sum(10 + i * 10 for i in range(1, MAX_CONFLICT_RETRIES + 1))}s total wait). "
             "The previous gateway session is still held open on Telegram's servers, "
-            "or another process is using the same bot token. To recover: ensure no other Hermes or OpenClaw instance is running "
-            "with this token, then restart the gateway with 'hermes gateway restart'.")
+            "or another process is using the same bot token. To recover: ensure no other Envoy or OpenClaw instance is running "
+            "with this token, then restart the gateway with 'envoy gateway restart'.")
         logger.error("[%s] %s Original error: %s", self.name, message, _redact_telegram_error_text(error))
         # Snapshot whether WE transition to fatal: a concurrent retry task suspended past the entry
         # guard reaches this branch too. Only the first transition notifies.
@@ -3123,7 +3123,7 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
             raise RuntimeError(
                 "TELEGRAM_WEBHOOK_SECRET is required when TELEGRAM_WEBHOOK_URL is set. Without it, the "
                 "webhook endpoint accepts forged updates from anyone who can reach it — see "
-                "https://github.com/NousResearch/hermes-agent/security/advisories/GHSA-3vpc-7q5r-276h.\n\n"
+                "https://github.com/trevorputbrese/envoy-agent/security/advisories/GHSA-3vpc-7q5r-276h.\n\n"
                 "Generate a secret and set it in your .env:\n  export TELEGRAM_WEBHOOK_SECRET=\"$(openssl rand -hex 32)\"\n\n"
                 "Then register it with Telegram when setting the webhook via setWebhook's secret_token parameter.")
         from urllib.parse import urlparse
@@ -4202,7 +4202,7 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
         """Send an inline-keyboard Yes/No prompt for the gateway ``/update`` watcher."""
         def build():
             default_hint = t("platform.telegram.prompt.default_hint", default=default) if default else ""
-            text = self.format_message(f"☤ *{t('platform.telegram.prompt.update_header')}*\n\n{prompt}{default_hint}")
+            text = self.format_message(f"◈ *{t('platform.telegram.prompt.update_header')}*\n\n{prompt}{default_hint}")
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton(t("platform.telegram.prompt.affirm"), callback_data="update_prompt:y"),
                 InlineKeyboardButton(t("platform.telegram.prompt.negate"), callback_data="update_prompt:n")]])
@@ -4907,7 +4907,7 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
             return
         await query.answer(text=_toast("platform.telegram.prompt.update_sent", answer=answer))
         word = t("platform.telegram.prompt.affirm_word" if answer == "y" else "platform.telegram.prompt.negate_word")
-        await self._edit_md_quiet(query, f"☤ {t('platform.telegram.prompt.update_answered', answer=f'*{word}*')}")
+        await self._edit_md_quiet(query, f"◈ {t('platform.telegram.prompt.update_answered', answer=f'*{word}*')}")
         try:
             from hermes_constants import get_hermes_home
             response_path = get_hermes_home() / ".update_response"
@@ -6410,7 +6410,7 @@ class TelegramAdapter(TelegramHeldInboundMixin, TelegramTopicRoutingMixin, BaseP
         # Learn the live handle BEFORE any mention gate routes on it, then drop our own echoed messages.
         # Filter out the bot's own messages (returned by getUpdates in some environments like
         # groups/supergroups where the bot can see its own messages). Without this, outbound messages are
-        # counted as incoming unread in the Hermes inbox (#52363). Otherwise a BotFather rename leaves the
+        # counted as incoming unread in the Envoy inbox (#52363). Otherwise a BotFather rename leaves the
         # stale handle in place and the exclusive-mention gate reads a message addressed to us as one
         # addressed to some other bot.
         self._observe_bot_identity_from_message(message)
@@ -7360,7 +7360,7 @@ def _apply_yaml_config(yaml_cfg: dict, telegram_cfg: dict) -> dict | None:
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Envoy plugin system."""
     from .adapter_hint import PLATFORM_HINT
     from .dashboard_card import DASHBOARD_CARD
     from . import gateway_env  # env -> GatewayConfig bridge (gateway.config_env)

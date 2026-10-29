@@ -90,7 +90,7 @@ def finish_result(db, *, epoch, row, response, outcome, result=None, prepared=No
             result = load_result(saved[0])
             return dict(current), result['result'].get('final_response') or ''
     outcome, stored = prepared or prepare_result(row, response, outcome, result)
-    # A turn the owner's restart/stop interrupted: its reason commits as a Hermes transcript notice
+    # A turn the owner's restart/stop interrupted: its reason commits as an Envoy transcript notice
     # in this same write, so a viewer that reconnects after the restart reads why (#134889 GW-21);
     # the live ``message.complete.warning`` carries the same copy. A retry that finds the row
     # terminal returns above, so the notice is written once.
@@ -125,7 +125,7 @@ def close_discarded_turn(db, conn, row, notice=None, *, replace_after=None, disp
 
     The lost input stays in the transcript for the user to resend, but an open ``user`` tail would be
     merged into the follower's provider request by consecutive-user repair, re-sending the discarded
-    turn as context. A Hermes-authored boundary (``display_kind=failed_turn``, stripped of its type
+    turn as context. An Envoy-authored boundary (``display_kind=failed_turn``, stripped of its type
     before the wire) ends it. Its side effects are unknown, so the hedged copy. The boundary lands on
     the CURRENT physical transcript (local reset/compression lineage tip), resolved on this
     connection. Idempotent on the durable tail, like the gateway and core failed-turn closers.

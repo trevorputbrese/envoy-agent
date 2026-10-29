@@ -25,8 +25,8 @@ from pathlib import Path
 
 from tests.e2e.core.upgrade import _helpers as H
 
-OFFICIAL_HTTPS = "https://github.com/NousResearch/hermes-agent.git"
-OFFICIAL_SSH = "git@github.com:NousResearch/hermes-agent.git"
+OFFICIAL_HTTPS = "https://github.com/trevorputbrese/envoy-agent.git"
+OFFICIAL_SSH = "git@github.com:trevorputbrese/envoy-agent.git"
 TRACEBACK = "Traceback (most recent call last)"
 FAKE_KEY = "sk-fake-e2e-install-update"
 
@@ -176,7 +176,7 @@ def fresh_install_env(sb: Sandbox) -> dict[str, str]:
 
 
 def pin_main_channel(sb: Sandbox) -> None:
-    """Follow every commit on main, as `hermes update --set-channel main` records it.
+    """Follow every commit on main, as `envoy update --set-channel main` records it.
 
     An official-origin source checkout defaults to the stable channel (the latest published GitHub
     release). These sandboxes publish commits on main and no releases, and their subject is moving
@@ -190,7 +190,7 @@ def provider_config(base_url: str, version: int | None, extra: str = "") -> str:
     """A hand-edited user config: comments, a key HEAD does not know, and the fake provider."""
     ver = f"_config_version: {version}\n" if version is not None else ""
     return (
-        "# My Hermes config. Hand-edited; comments must survive.\n"
+        "# My Envoy config. Hand-edited; comments must survive.\n"
         "model:\n"
         "  provider: custom\n"
         f"  base_url: {base_url}  # local fake provider\n"
@@ -198,7 +198,7 @@ def provider_config(base_url: str, version: int | None, extra: str = "") -> str:
         "  context_length: 128000\n"
         "agent:\n"
         "  api_max_retries: 1   # keep it snappy\n"
-        "# A key this Hermes version does not know about (from a plugin or a newer release).\n"
+        "# A key this Envoy version does not know about (from a plugin or a newer release).\n"
         "my_future_section:\n"
         "  nested_flag: true\n"
         "  words: \"unicode é 漢字 and a # that is not a comment\"\n"

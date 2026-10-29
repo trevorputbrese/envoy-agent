@@ -198,8 +198,8 @@ def _load_config_basic_auth_section() -> dict:
 # these (nor a space), and everyone who copied the same line would share the same key.
 _UNEXPANDED_SHELL_MARKERS = ("$(", "`", "openssl rand")
 
-# The error above only reaches the log files, not the console of ``hermes serve`` /
-# ``hermes dashboard``; one stderr line per process makes it visible there too.
+# The error above only reaches the log files, not the console of ``envoy serve`` /
+# ``envoy dashboard``; one stderr line per process makes it visible there too.
 _shell_text_secret_reported = False
 
 
@@ -227,7 +227,7 @@ def _resolve_secret(cfg_section: dict) -> bytes:
         if not _shell_text_secret_reported:
             _shell_text_secret_reported = True
             print(
-                "hermes: dashboard login: HERMES_DASHBOARD_BASIC_AUTH_SECRET (or "
+                "envoy: dashboard login: HERMES_DASHBOARD_BASIC_AUTH_SECRET (or "
                 "dashboard.basic_auth.secret) holds shell text instead of a random value; "
                 "using a per-process key, so sessions end on restart. Replace it with the "
                 "output of: openssl rand -base64 32", file=sys.stderr, flush=True)

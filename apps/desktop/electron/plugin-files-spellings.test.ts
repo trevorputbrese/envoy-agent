@@ -81,8 +81,8 @@ describe('case on a case-sensitive macOS volume', () => {
     })
   })
 
-  it.runIf(posix)('a differently-cased spelling of the Hermes home still cannot be granted', async () => {
-    const lookalike = path.join(scratch, 'home', '.HERMES')
+  it.runIf(posix)('a differently-cased spelling of the Envoy home still cannot be granted', async () => {
+    const lookalike = path.join(scratch, 'home', '.ENVOY')
     fs.mkdirSync(lookalike)
 
     expect(await make('darwin').addGrant('plexus', lookalike)).toMatchObject({ ok: false, error: 'protected' })
@@ -166,7 +166,7 @@ describe('Windows second paths to this machine', () => {
     ['\\\\wsl.localhost\\Ubuntu\\home\\me', true],
     ['\\\\wsl.localhost\\Ubuntu\\root', true],
     ['\\\\wsl.localhost\\Ubuntu\\home\\me\\.hermes\\profiles', true],
-    ['\\\\WSL.LOCALHOST\\Debian\\HOME\\me\\.Hermes', true],
+    ['\\\\WSL.LOCALHOST\\Debian\\HOME\\me\\.Envoy', true],
     // The distro's own process environments and its view of the Windows drives.
     ['\\\\wsl.localhost\\Ubuntu\\proc', true],
     ['\\\\wsl$\\Ubuntu\\proc\\1\\environ', true],
@@ -232,7 +232,7 @@ describe('kernel pseudo-filesystems wherever they are mounted', () => {
   })
 })
 
-describe('Hermes data reached by another spelling', () => {
+describe('Envoy data reached by another spelling', () => {
   it('compares folders by filesystem identity', async () => {
     expect(await overlapsByIdentity(hermesHome, [hermesHome])).toBe(true)
     expect(await overlapsByIdentity(path.join(scratch, 'home'), [hermesHome])).toBe(true)

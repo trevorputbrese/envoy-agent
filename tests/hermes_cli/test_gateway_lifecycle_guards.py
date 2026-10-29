@@ -129,7 +129,7 @@ def test_stop_refuses_while_sessions_are_live_and_names_them(monkeypatch, record
     assert "2 live session(s)" in out
     assert "chat turn agent:main:telegram:dm:7" in out
     assert "background delegation deleg_ab12cd34" in out
-    assert "hermes gateway stop --yes" in out
+    assert "envoy gateway stop --yes" in out
 
     gw._cmd_stop(SimpleNamespace(all=False, system=False, interrupt=True))
     assert stopped == [False]
@@ -159,7 +159,7 @@ def test_restart_refuses_on_the_published_active_agents_of_an_older_gateway(monk
 
 def test_stop_all_leaves_another_homes_gateway_process_alone(monkeypatch, recorded, tmp_path):
     """``kill_gateway_processes(all_profiles=True)`` scans every gateway of this account; a scratch-home
-    ``stop --all`` must not SIGTERM a gateway running on another Hermes home."""
+    ``stop --all`` must not SIGTERM a gateway running on another Envoy home."""
     from hermes_cli import dashboard_procs
     own, other = str(gw.get_hermes_home()), str(tmp_path / "account" / ".hermes")
     monkeypatch.setattr(gw, "find_gateway_pids", lambda *a, **k: [111, 222])
@@ -195,7 +195,7 @@ def test_dashboard_stop_refuses_while_sessions_are_live(monkeypatch):
 
 @pytest.mark.platforms("linux")
 def test_sudo_system_stop_checks_the_units_home_not_roots(tmp_path, monkeypatch, recorded, capsys):
-    """``sudo hermes gateway stop --system``: HOME=/root and HERMES_HOME stripped, while the system unit
+    """``sudo envoy gateway stop --system``: HOME=/root and HERMES_HOME stripped, while the system unit
     runs the invoking user's home. The live-work check must ask the unit's home, without adopting it."""
     import hermes_constants
     root_home, user_home = tmp_path / "root", tmp_path / "user" / ".hermes"
@@ -227,7 +227,7 @@ def test_sudo_system_stop_checks_the_units_home_not_roots(tmp_path, monkeypatch,
 
 @pytest.mark.parametrize("verb", ["stop", "restart"])
 def test_host_served_profile_refuses_before_unserving_its_live_turns(tmp_path, monkeypatch, capsys, verb):
-    """``hermes -p coder gateway stop|restart`` on a profile the host serves unserves it in the host,
+    """``envoy -p coder gateway stop|restart`` on a profile the host serves unserves it in the host,
     which Stops its executing turns: the live-work policy applies first, scoped to that profile."""
     from gateway import control_socket
     from hermes_cli import gateway_profile_lifecycle as gpl
@@ -256,7 +256,7 @@ def test_host_served_profile_refuses_before_unserving_its_live_turns(tmp_path, m
     assert exc.value.code == 1 and requests == []
     assert asked == [(host_home, {"profile": "coder"})]
     assert "1 live session(s)" in out and "agent:coder:telegram:dm:7" in out
-    assert f"hermes -p coder gateway {verb} --yes" in out
+    assert f"envoy -p coder gateway {verb} --yes" in out
     assert not (profile_home / "gateway.parked").exists()
 
     command(SimpleNamespace(all=False, system=False, force=False, interrupt=True))

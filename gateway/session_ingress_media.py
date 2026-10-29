@@ -100,7 +100,7 @@ async def release_abandoned_capture(scope):
 
 def native_inputs_store():
     """The store's path as the profile names it, unresolved. The one value ``make_user_dir`` gets:
-    ``resolve()`` erases a link planted below the Hermes home (``cache/documents`` -> elsewhere),
+    ``resolve()`` erases a link planted below the Envoy home (``cache/documents`` -> elsewhere),
     and an elevated grant on the resolved path would land outside the home with no home fence."""
     from gateway.platforms.base import get_document_cache_dir
     return get_document_cache_dir() / 'native-inputs'

@@ -1,6 +1,6 @@
 """Host-wide singleton rendezvous: one lock + one record per ROLE per OS user.
 
-Multiplex-only (Teknium ruling): exactly ONE ``hermes serve`` and ONE ``hermes gateway run``
+Multiplex-only (Teknium ruling): exactly ONE ``envoy serve`` and ONE ``envoy gateway run``
 per host, each multiplexing every profile. The per-``HERMES_HOME`` gateway lock/PID files
 (``gateway.status``) cannot express that — N profiles are N homes, so N processes each take
 their own flock and none of them ever sees the others. This module adds the missing layer:
@@ -21,7 +21,7 @@ A dead PID or a mismatched process incarnation is STALE and ignored — an attac
 never dial a recycled PID's port.
 
 **Relationship to ``spawn-ledger.json``** (``hermes_cli/process_identity.py``): the ledger stays
-the append-only machine roster of every long-lived Hermes process (Desktop's attach ladder reads
+the append-only machine roster of every long-lived Envoy process (Desktop's attach ladder reads
 it) and is still written unchanged. It cannot be the host record: it has no lock, no
 single-writer semantics, no removal on exit, and no place to publish a protocol version or
 an authentication handle. The record here is authoritative for "who owns this host role"; the
@@ -66,7 +66,7 @@ ROLE_GATEWAY = "gateway"
 ROLE_SERVE = "serve"
 #: A Desktop-owned pool child (loopback, random port, per-profile lifecycle). It is NOT a host
 #: owner — the attach/refuse ladder reads ``ROLE_SERVE`` only, so a supervised public dashboard
-#: never stands down behind it (#119824) — but ``hermes plugins install`` from a terminal still
+#: never stands down behind it (#119824) — but ``envoy plugins install`` from a terminal still
 #: has to reach the backend hosting the open chats (#119644), and this record + 0600 token is
 #: how it dials one on a Desktop-only box.
 ROLE_DESKTOP_SERVE = "desktop-serve"
@@ -102,7 +102,7 @@ class HostRecord:
     home: str = ""
     #: Stable process-start fingerprint. On Linux/WSL this is boot-relative /proc start ticks,
     #: so a wall-clock resync cannot make a live owner look like a recycled PID. Optional for
-    #: records written by older Hermes versions, which still fall back to create_time.
+    #: records written by older Envoy versions, which still fall back to create_time.
     #: NOT unique across reboots — pair it with ``boot_epoch``.
     start_time: Optional[int] = None
     #: Instantiation epoch (boot id + PID 1 start). Distinguishes a pre-reboot owner from an

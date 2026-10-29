@@ -364,7 +364,7 @@ def test_local_delivery_admits_canonically_and_acks(tmp_path, monkeypatch):
 
     # attribution prefix applied server-side; body verbatim in the admitted message
     content = Path(dm_file).read_text(encoding="utf-8")
-    assert content.startswith("Message from 🤖 hermes (@hermes): ")
+    assert content.startswith("Message from 🤖 hermes (@hermes): ")  # rebrand:keep
     assert '$(and this is not shell)' in content
     assert params["message"] == content
 
@@ -394,7 +394,7 @@ def test_relay_ack_is_queued_with_the_envelope_id(tmp_path, monkeypatch):
     _capture_spawn(monkeypatch)
     home = _managed_home(tmp_path)
     bot_relay.write_remote_roster(home, [
-        {"profile": "default", "handle": "hermes", "connection_id": "cloud-1", "connection_label": "Hermes Cloud"},
+        {"profile": "default", "handle": "hermes", "connection_id": "cloud-1", "connection_label": "Envoy Cloud"},
     ])
     result = json.loads(bot_mode_dm.message_agent_tool(target="hermes", message="ping", agent=_FakeAgent(home)))
 
@@ -455,13 +455,13 @@ def test_friendly_names_and_desktop_slugs_resolve_to_folder_ids(tmp_path, monkey
 
 
 @pytest.mark.parametrize(("target", "local_name", "relayed"), [
-    ("hermes@mini", "Hermes Mini", True),
+    ("hermes@mini", "Envoy Mini", True),
     ("@hermes@mini", "HermesMini", True),
     ("Ops@Home", "Ops@Home", False),  # an '@' friendly name no connection answers to stays local (#100671)
 ])
 def test_connection_qualified_target_reaches_the_relay_not_a_look_alike_local_bot(
         tmp_path, monkeypatch, target, local_name, relayed):
-    """'hermes@mini' is the form the relay hands out, and stamps on replies, for a remote row whose bare forms
+    """'envoy@mini' is the form the relay hands out, and stamps on replies, for a remote row whose bare forms
     collide. Resolved locally first, a local bot whose friendly name slugs to 'hermes-mini' captured it: the DM
     and its reply thread landed in the wrong bot's transcript and memory."""
     calls = _capture_spawn(monkeypatch)
@@ -493,7 +493,7 @@ def test_ambiguous_friendly_name_fails_closed(tmp_path, monkeypatch):
     _canonical_target(monkeypatch, home, *(home / "profiles" / name for name in ("aaa", "bbb", "ops")))
     _rename(home, "aaa", display_name="Scribe")
     _rename(home, "bbb", display_name="Scribe")
-    _rename(home, "ops", display_name="Hermes")
+    _rename(home, "ops", display_name="Envoy")
 
     ambiguous = json.loads(bot_mode_dm.message_agent_tool(target="Scribe", message="ping", agent=_FakeAgent(home)))
     hijack = json.loads(bot_mode_dm.message_agent_tool(target="hermes", message="ping",
@@ -508,7 +508,7 @@ def test_peer_delivery_command_pins_registry_profile_for_secondary_bots(
     tmp_path, monkeypatch
 ):
     """A secondary-profile bot's peer DM must run in the registry-owning
-    profile (#93935). `hermes peer` resolves bot_peers through
+    profile (#93935). `envoy peer` resolves bot_peers through
     profile-scoped load_config(); unpinned, the subprocess inherits the
     calling bot's profile and dies with "No peer named" even though the
     tool-side roster (read from the machine-root config) validated the
@@ -621,8 +621,8 @@ def test_peer_delivery_author_carries_the_sender_hostname_and_local_stays_bare(t
 
 
 def test_renamed_primary_signs_with_its_friendly_name_and_is_reachable_by_it(tmp_path, monkeypatch):
-    """#89720: `hermes profile rename default Maia` writes profile.yaml ``display_name`` (no Bot Mode
-    title). The primary must then sign `Maia (@hermes)`, not `hermes (@hermes)`, and a teammate must
+    """#89720: `envoy profile rename default Maia` writes profile.yaml ``display_name`` (no Bot Mode
+    title). The primary must then sign `Maia (@hermes)`, not `envoy (@hermes)`, and a teammate must
     reach it as `maia` / `@maia` — the tag the Desktop roster inserts — while `@hermes` keeps resolving.
     A Bot Mode title outranks the display_name in the signature, as in the Desktop's botFriendlyNames."""
     calls = _capture_spawn(monkeypatch)
@@ -733,7 +733,7 @@ def test_live_dm_admitted_before_waiter_failure(tmp_path, monkeypatch):
     assert record is not None
     assert record["delivery_id"] == result["delivery_id"]
     assert record["profile_home"] == str(target.resolve())
-    assert authority.records[result["delivery_id"]]["message"] == "Message from 🤖 hermes (@hermes): hello"
+    assert authority.records[result["delivery_id"]]["message"] == "Message from 🤖 hermes (@hermes): hello"  # rebrand:keep
     assert authority.calls[0][1]["author"] == {"id": "bot:default", "name": "hermes", "is_bot": True}
     assert "notification_error" in result
 

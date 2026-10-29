@@ -85,7 +85,7 @@ def _ellipsize(text: str, limit: int) -> str:
 _ON_WORDS = {"on", "enable", "true", "1"}
 _OFF_WORDS = {"off", "disable", "false", "0"}
 
-# /busy modes; what Enter does while Hermes is working lives in the catalog as
+# /busy modes; what Enter does while Envoy is working lives in the catalog as
 # ``cli.commands.busy.short_<mode>`` (status line) / ``long_<mode>`` (post-set explanation).
 _BUSY_MODES = ("queue", "steer", "interrupt")
 
@@ -208,11 +208,11 @@ def _print_side_result_panel(cli, *, header_lines, body, title_suffix, empty_not
     try:
         from hermes_cli.skin_engine import get_active_skin
         _skin = get_active_skin()
-        label = _skin.get_branding("response_label", "☤ Hermes")
-        _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#CD7F32"))
-        _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFF8DC"))
+        label = _skin.get_branding("response_label", "◈ Envoy")
+        _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#0072A3"))
+        _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#E3F5FC"))
     except Exception:
-        label, _resp_color, _resp_text = "☤ Hermes", "#CD7F32", "#FFF8DC"
+        label, _resp_color, _resp_text = "◈ Envoy", "#0072A3", "#E3F5FC"
     rich_console.print(Panel(
         _render_final_assistant_content(body, mode=cli.final_response_markdown),
         title=f"[{_resp_color} bold]{label} {title_suffix}[/]", title_align="left",
@@ -319,7 +319,7 @@ def _browser_connect(cli, cdp_url: str) -> None:
             "Your browser tools (browser_exec, browser_cdp) now "
             "control that CDP browser. The command itself is a signal that using browser tools for "
             "their current browser-related request is expected; do not wait for separate permission "
-            "just because CDP is connected. This is typically a Hermes-managed isolated debug "
+            "just because CDP is connected. This is typically an Envoy-managed isolated debug "
             "profile, not the user's main everyday browser. It is still user-visible and may contain "
             "pages, logged-in sessions, or cookies in that debug profile, so avoid destructive actions, "
             "closing tabs, or navigating away unless the user's task calls for it.]")
@@ -491,7 +491,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
     # ---- /diff ----------------------------------------------------------------------------
     def _handle_diff_command(self, command: str):
         """Handle /diff [working|staged|all|session] [--stat] [<path>...] — git changes in the
-        cwd; ``session`` is everything Hermes changed since the checkpoint baseline."""
+        cwd; ``session`` is everything Envoy changed since the checkpoint baseline."""
         stat_only = False
         mode = "working"
         paths: list[str] = []
@@ -867,7 +867,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
         # Same contract as startup --resume: retarget the tool cwd, restore the persisted YOLO
         # bypass (approval session key changed) and the model/provider (else config default).
         # Retarget the process + tool cwd to where the session was started, so a mid-chat /resume (and
-        # /sessions <id>, which delegates here) lands in the same directory as a startup `hermes
+        # /sessions <id>, which delegates here) lands in the same directory as a startup `envoy
         # -c`/`--resume`. The startup resume paths already call this; without it, the terminal/code-exec
         # tools and relative-path resolution keep operating in the wrong repo. Idempotent and a no-op when
         # the session recorded no cwd. See #38562.
@@ -980,7 +980,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
     # ---- /worktree ------------------------------------------------------------------------
     def _handle_worktree_command(self, cmd_original: str) -> None:
         """Handle /worktree [new [name]|list|prune [--dry-run]] — isolated git worktrees.
-        ``new`` moves this session into the tree (as ``hermes -w``: kept on exit only with
+        ``new`` moves this session into the tree (as ``envoy -w``: kept on exit only with
         unpushed commits); ``prune`` never deletes tracked changes, unique commits, or in-use trees."""
         import cli as _cli
         parts = cmd_original.split(None, 2)
@@ -1052,7 +1052,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
         wt_info = _cli._setup_worktree(repo_root=repo_root, sync_base=sync_base, name=rest or None)
         if not wt_info:
             return  # _setup_worktree already printed the failure
-        # Same keep-if-unpushed cleanup as `hermes -w`. Only one tree is "active" per process;
+        # Same keep-if-unpushed cleanup as `envoy -w`. Only one tree is "active" per process;
         # an earlier one keeps its own atexit registration (explicit info arg).
         atexit.register(_cli._cleanup_worktree, wt_info)
         from hermes_cli.cli_commands_worktree import enter_new_worktree
@@ -1230,7 +1230,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
             self._pending_agent_seed = seed
 
     def _handle_curator_command(self, cmd: str):
-        """Handle /curator — delegates to hermes_cli.curator so the CLI and the `hermes curator`
+        """Handle /curator — delegates to hermes_cli.curator so the CLI and the `envoy curator`
         subcommand share the same handler set."""
         tokens = shlex.split(cmd)[1:] if cmd else []
         try:
@@ -1555,7 +1555,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
 
     # ---- /bundles, /browser ---------------------------------------------------------------
     def _handle_bundles_command(self, cmd: str) -> None:
-        """In-session ``/bundles`` — show installed skill bundles (``hermes bundles list`` rendered
+        """In-session ``/bundles`` — show installed skill bundles (``envoy bundles list`` rendered
         inside the running CLI). Bundles are loaded via ``/<bundle-name>``."""
         from cli import ChatConsole, _BOLD, _RST, _accent_hex
         from hermes_cli.slash_exec import CommandContext, execute_command
@@ -1608,7 +1608,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
     def _handle_heartbeat_command(self, cmd: str) -> None:
         """Dispatch /heartbeat: set / status / pause / resume / clear. ``/heartbeat every 10m <prompt>``
         sets the session's one recurring instruction, injected as a normal user turn when due.
-        Session-scoped and in-process — use `hermes cron` for durable schedules."""
+        Session-scoped and in-process — use `envoy cron` for durable schedules."""
         from hermes_cli.heartbeat import format_interval
         arg = _command_arg(cmd)
         lower = arg.lower()
@@ -2038,7 +2038,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
                             scope=_scope_outcome(explicit_global, saved))))
 
     def _handle_busy_command(self, cmd: str):
-        """Handle /busy [status|queue|steer|interrupt] — what Enter does while Hermes is working."""
+        """Handle /busy [status|queue|steer|interrupt] — what Enter does while Envoy is working."""
         arg = _command_arg(cmd, lower=True)
         usage = _dim_line(_t("busy.usage"))
         if not arg or arg == "status":
@@ -2108,7 +2108,7 @@ class CLICommandsMixin(CLICommandsSessionToolsMixin):
             lines=200, expire=7, local=local, nous="nous" in words and not local, yes=True))
 
     def _handle_update_command(self) -> bool:
-        """Handle /update — exit the session and relaunch as ``hermes update``. Returns True when
+        """Handle /update — exit the session and relaunch as ``envoy update``. Returns True when
         confirmed (the caller exits the app; the relaunch runs on the main thread after
         prompt_toolkit restores terminal modes), False when cancelled."""
         from hermes_cli.config import is_managed, format_managed_message

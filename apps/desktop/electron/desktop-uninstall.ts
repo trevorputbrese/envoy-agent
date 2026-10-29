@@ -2,7 +2,7 @@
  * desktop-uninstall.ts
  *
  * Pure, electron-free helpers for the desktop Chat GUI uninstaller. These map
- * the three user-facing uninstall modes to the `hermes uninstall` CLI flags,
+ * the three user-facing uninstall modes to the `envoy uninstall` CLI flags,
  * resolve the running app bundle/exe so a detached cleanup script can remove
  * it after the app quits, and build that cleanup script for each OS.
  *
@@ -11,14 +11,14 @@
  *
  * The three modes mirror the CLI's options exactly:
  *   - 'gui'  → remove ONLY the Chat GUI, keep the agent + all user data.
- *              `hermes uninstall --gui --yes`
+ *              `envoy uninstall --gui --yes`
  *   - 'lite' → remove the GUI + agent code, KEEP user data (config / sessions
- *              / .env) for a future reinstall. `hermes uninstall --yes`
+ *              / .env) for a future reinstall. `envoy uninstall --yes`
  *   - 'full' → remove everything: GUI + agent + all user data.
- *              `hermes uninstall --full --yes`
+ *              `envoy uninstall --full --yes`
  *
  * Why a detached cleanup script: 'lite'/'full' delete the very venv the
- * `hermes` command runs from, and every mode may need to delete the running
+ * `envoy` command runs from, and every mode may need to delete the running
  * app bundle (locked on macOS/Windows while the process is alive). So we hand
  * the work to a detached child that waits for this app's PID to exit, runs the
  * Python uninstall, then removes the app bundle — then the app quits. Same
@@ -136,7 +136,7 @@ const UNINSTALL_MODES: string[] = ['gui', 'lite', 'full', 'data']
 //   'bundled'  — a bundled or light artifact. The OS owns app removal.
 //   'external' — another package manager owns updates and removal.
 //   'standard' — everything else: the git-clone install the desktop
-//                installer bootstraps, or a `hermes desktop` source build.
+//                installer bootstraps, or a `envoy desktop` source build.
 //                The classic script flow (venv python + rm the bundle) works.
 //
 // Only 'standard' installs may use the desktop cleanup script.
@@ -197,7 +197,7 @@ function allowedUninstallModes(kind: InstallKind): string[] {
 function nativeRemovalInstructions(kind, platform, appPath = null) {
   if (kind === 'nix') {
     return (
-      'This Hermes desktop app was installed by Nix. Uninstall it the same way you installed it: ' +
+      'This Envoy desktop app was installed by Nix. Uninstall it the same way you installed it: ' +
       'remove hermes-agent from your flake or profile, then rebuild.'
     )
   }
@@ -205,7 +205,7 @@ function nativeRemovalInstructions(kind, platform, appPath = null) {
   if (kind === 'external') {
     // Deleting a package manager's files by hand leaves the package registered with missing files.
     return (
-      'Another package manager installed this Hermes desktop app. ' +
+      'Another package manager installed this Envoy desktop app. ' +
       'Uninstall it with that package manager, the same way you installed it.'
     )
   }
@@ -216,7 +216,7 @@ function nativeRemovalInstructions(kind, platform, appPath = null) {
 
   if (platform === 'darwin') {
     // Name the running bundle: channel builds ship under different .app names.
-    const bundle = appPath ? path.posix.basename(String(appPath)) : 'the Hermes app'
+    const bundle = appPath ? path.posix.basename(String(appPath)) : 'the Envoy app'
     const folder = appPath ? path.posix.dirname(String(appPath)) : 'Applications'
 
     return `Quit the app and drag ${bundle} from ${folder} to the Trash.`
@@ -230,7 +230,7 @@ function nativeRemovalInstructions(kind, platform, appPath = null) {
     return `Delete the app directory at ${appPath}.`
   }
 
-  return 'Delete the Hermes AppImage (or app directory) from wherever you saved it.'
+  return 'Delete the Envoy AppImage (or app directory) from wherever you saved it.'
 }
 
 /**
@@ -262,8 +262,8 @@ function modeRemovesUserData(mode: string) {
  * Resolve the on-disk app bundle/dir to remove for the running desktop app,
  * given the path to the running executable (`process.execPath`) and platform.
  *
- *   macOS:   …/Hermes.app/Contents/MacOS/Hermes  → …/Hermes.app
- *   Windows: …\Hermes\Hermes.exe                 → …\Hermes  (install dir)
+ *   macOS:   …/Envoy.app/Contents/MacOS/Envoy  → …/Envoy.app
+ *   Windows: …\Envoy\Envoy.exe                 → …\Envoy  (install dir)
  *   Linux:   AppImage → APPIMAGE when we run from it; unpacked → the *-unpacked dir
  *
  * Returns null when we can't confidently identify a removable bundle (e.g.
@@ -282,10 +282,10 @@ function resolveRemovableAppPath(execPath, platform, env: any = {}) {
   const p = platform === 'win32' ? path.win32 : path.posix
 
   if (platform === 'darwin') {
-    // …/Hermes.app/Contents/MacOS/Hermes → strip 3 segments to the .app
+    // …/Envoy.app/Contents/MacOS/Envoy → strip 3 segments to the .app
     const macOsDir = p.dirname(exe) // …/Contents/MacOS
     const contents = p.dirname(macOsDir) // …/Contents
-    const appBundle = p.dirname(contents) // …/Hermes.app
+    const appBundle = p.dirname(contents) // …/Envoy.app
 
     if (appBundle.endsWith('.app')) {
       return appBundle
@@ -295,10 +295,10 @@ function resolveRemovableAppPath(execPath, platform, env: any = {}) {
   }
 
   if (platform === 'win32') {
-    // NSIS per-user installs Hermes.exe directly in the install dir.
+    // NSIS per-user installs Envoy.exe directly in the install dir.
     const dir = p.dirname(exe)
 
-    if (/[\\/]Hermes$/i.test(dir) || /[\\/]hermes-desktop$/i.test(dir)) {
+    if (/[\\/]Envoy$/i.test(dir) || /[\\/]hermes-desktop$/i.test(dir)) {
       return dir
     }
 
@@ -409,7 +409,7 @@ function buildWindowsCleanupScript({
   const pid = Number(desktopPid) || 0
   // cmd.exe has no string escaping inside quotes; strip embedded quotes (paths
   // under %LOCALAPPDATA% never contain them). `&`/`^` in a path would still be
-  // a problem, but Hermes install paths don't use them.
+  // a problem, but Envoy install paths don't use them.
   const q = s => `"${String(s).replace(/"/g, '')}"`
 
   const lines = [

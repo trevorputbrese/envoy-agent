@@ -59,7 +59,7 @@ def test_launch_profile_worker_keeps_env_only_tool_credentials_under_multiplex(t
     finally:
         set_multiplex_active(False)
     assert own["FIRECRAWL_API_KEY"] == "ENVONLY-fc" and own["OPENROUTER_API_KEY"] == "LAUNCH-or"
-    assert "AUXILIARY_VISION_API_KEY" not in own  # Hermes-internal secrets never reach a child
+    assert "AUXILIARY_VISION_API_KEY" not in own  # Envoy-internal secrets never reach a child
     assert "FIRECRAWL_API_KEY" not in other and other["OPENROUTER_API_KEY"] == "SEC-or"
     assert sorted(k for k, v in other.items() if "ENVONLY" in str(v) or "LAUNCH" in str(v)) == []
 

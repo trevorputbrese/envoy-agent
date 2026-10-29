@@ -57,7 +57,7 @@ export function ArtLines({ lines }: { lines: [string, string][] }) {
 // comfortably without forcing wrap or truncation drift on box-drawing edges.
 // Taglines live in the catalog (chatBits.branding.tagFull/tagMid); the tiny
 // tier is the bare brand name and stays untranslated.
-const TAG_TINY = 'Nous Research'
+const TAG_TINY = 'Envoy'
 const HIDE_BELOW = 34
 const COMPACT_FROM = 58
 
@@ -371,7 +371,6 @@ export function SessionPanel({ info, maxWidth, sid, t }: SessionPanelProps) {
 
       <Text color={t.color.accent}>
         {(info.model ?? '').split('/').pop()}
-        <Text color={t.color.muted}> · Nous Research</Text>
       </Text>
 
       <Text color={t.color.muted} wrap="truncate-end">
@@ -403,8 +402,7 @@ export function SessionPanel({ info, maxWidth, sid, t }: SessionPanelProps) {
         <Box flexDirection="column" marginBottom={1}>
           <Text color={t.color.accent} wrap="truncate-end">
             {(info.model ?? '').split('/').pop()}
-            <Text color={t.color.muted}> · Nous Research</Text>
-          </Text>
+              </Text>
           <Text color={t.color.muted} wrap="truncate-end">
             {info.cwd || process.cwd()}
           </Text>
@@ -494,7 +492,7 @@ export function SessionPanel({ info, maxWidth, sid, t }: SessionPanelProps) {
             {T.runPrefix}
           </Text>
           <Text bold color={t.color.warn}>
-            {info.update_command || 'hermes update'}
+            {info.update_command || 'envoy update'}
           </Text>
           <Text bold={false} color={t.color.warn} dimColor>
             {T.toUpdate}

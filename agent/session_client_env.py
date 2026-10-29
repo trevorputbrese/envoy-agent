@@ -1,5 +1,5 @@
 """A local session's client environment: the allowlisted values a shell-launched client (classic CLI,
-Ink TUI) sends as ``session.create``'s ``client_env``. Main's ``hermes`` process read them from its own
+Ink TUI) sends as ``session.create``'s ``client_env``. Main's ``envoy`` process read them from its own
 shell; the one gateway now runs every session, so they are frozen with the session's policy and bound
 for its turns only, never written to the gateway's ``os.environ``. Desktop sends none: its sessions
 keep the gateway's environment, and so does a session created before ``client_env`` existed.
@@ -48,7 +48,7 @@ def configured_names(config) -> frozenset:
 def _travels(name: str, secret=None) -> bool:
     """A toolchain name may travel unless it is a credential by execute_code's secret policy (even when
     listed: ``NODE_AUTH_TOKEN`` matches ``NODE_``; secrets reach tools through ``terminal.env_passthrough``)
-    or a Hermes control name (a delegated child's markers, Kanban pins). ``secret``: a session's frozen
+    or an Envoy control name (a delegated child's markers, Kanban pins). ``secret``: a session's frozen
     copy of that policy's substrings."""
     hidden = is_secret_env_name(name) if secret is None else any(s in name.upper() for s in secret)
     return not hidden and not name.startswith('HERMES_')

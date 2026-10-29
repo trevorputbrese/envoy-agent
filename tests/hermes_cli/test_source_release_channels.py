@@ -59,13 +59,13 @@ def releases(tmp_path, monkeypatch, request):
         responses[f"/releases/{channel}/index.html"] = (
             f'<meta name="hermes-build" content="{tag}">'
         )
-        responses[f"/repos/NousResearch/hermes-agent/releases/tags/{tag}"] = {
+        responses[f"/repos/trevorputbrese/envoy-agent/releases/tags/{tag}"] = {
             "tag_name": tag, "draft": False, "prerelease": channel == "canary",
         }
-        responses[f"/repos/NousResearch/hermes-agent/commits/{tag}"] = {
+        responses[f"/repos/trevorputbrese/envoy-agent/commits/{tag}"] = {
             "sha": commits[1 if channel == "stable" else 2],
         }
-    responses["/repos/NousResearch/hermes-agent/releases/latest"] = {
+    responses["/repos/trevorputbrese/envoy-agent/releases/latest"] = {
         "tag_name": tags["stable"], "draft": False, "prerelease": False,
     }
     responses["/releases/stable/release-candidates.json"] = {
@@ -214,7 +214,7 @@ def test_zip_fallback_keeps_selected_repository_and_commit(releases, monkeypatch
 
 @pytest.mark.parametrize("git_cmd", [["git"], None], ids=["git", "no-git"])
 def test_selected_draft_never_falls_back_to_other_tags(releases, git_cmd):
-    releases.responses[f"/repos/NousResearch/hermes-agent/releases/tags/{releases.tags['stable']}"]["draft"] = True
+    releases.responses[f"/repos/trevorputbrese/envoy-agent/releases/tags/{releases.tags['stable']}"]["draft"] = True
     assert resolve_source_release("stable", git_cmd, releases.root) == (None, None)
     assert not any("/tags?" in path for path in releases.requests)
 
@@ -240,9 +240,9 @@ def test_origin_tag_cannot_substitute_a_fork_commit(releases, channel):
 def test_missing_pointers_fall_back_only_to_published_releases(releases, channel):
     releases.responses.pop("/releases/stable/release-candidates.json")
     releases.responses.pop(f"/releases/{channel}/index.html")
-    published = releases.responses[f"/repos/NousResearch/hermes-agent/releases/tags/{releases.tags[channel]}"]
-    releases.responses["/repos/NousResearch/hermes-agent/releases/latest"] = published
-    releases.responses["/repos/NousResearch/hermes-agent/releases?per_page=100&page=1"] = [
+    published = releases.responses[f"/repos/trevorputbrese/envoy-agent/releases/tags/{releases.tags[channel]}"]
+    releases.responses["/repos/trevorputbrese/envoy-agent/releases/latest"] = published
+    releases.responses["/repos/trevorputbrese/envoy-agent/releases?per_page=100&page=1"] = [
         {"tag_name": "v99.0.1+canary.20260912T125822Z", "draft": True, "prerelease": True},
         published,
     ]
@@ -250,11 +250,11 @@ def test_missing_pointers_fall_back_only_to_published_releases(releases, channel
         releases.tags[channel], releases.commits[1 if channel == "stable" else 2],
     )
     assert not any("/tags?" in path for path in releases.requests)
-    assert f"/repos/NousResearch/hermes-agent/releases/tags/{releases.tags[channel]}" not in releases.requests
+    assert f"/repos/trevorputbrese/envoy-agent/releases/tags/{releases.tags[channel]}" not in releases.requests
 
 
 def _track_official_origin(releases):
-    official = "https://github.com/NousResearch/hermes-agent.git"
+    official = "https://github.com/trevorputbrese/envoy-agent.git"
     git(releases.root, "remote", "set-url", "origin", official)
     git(releases.root, "config", f"url.{releases.origin.as_uri()}.insteadOf", official)
 

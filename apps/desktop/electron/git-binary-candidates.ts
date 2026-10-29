@@ -19,7 +19,7 @@ const UGIT_DIR = 'UGit'
 const UGIT_APP_PREFIX = 'app-'
 /** Where the UGit-bundled Git-for-Windows puts git.exe inside an app dir. */
 const UGIT_GIT_REL = path.join('resources', 'app', 'git', 'cmd', 'git.exe')
-/** PM-managed Git tool directories under the Hermes local application root. */
+/** PM-managed Git tool directories under the Envoy local application root. */
 const HERMES_TOOLS_DIR = path.join('hermes', 'tools')
 const MANAGED_GIT_PREFIX = 'git-'
 
@@ -57,7 +57,7 @@ export function ugitGitBinaries(localAppData: string, fs: GitCandidateFs): strin
 
 
 /**
- * Find Git installed by Hermes PM under `%LOCALAPPDATA%\hermes\tools`.
+ * Find Git installed by Envoy PM under `%LOCALAPPDATA%\hermes\tools`.
  * PM versions the tool directory, so resolve the newest available executable
  * rather than assuming a particular Git release.
  */
@@ -81,7 +81,7 @@ export function managedGitBinaries(localAppData: string, fs: GitCandidateFs): st
 
 /**
  * resolveGitBinary's fixed Windows candidate list, in preference order:
- * the Hermes-bundled PortableGit first, then UGit's bundled copies, then the
+ * the Envoy-bundled PortableGit first, then UGit's bundled copies, then the
  * standard Git-for-Windows locations.
  */
 export function windowsGitCandidates(env: WindowsGitEnv, fs: GitCandidateFs): string[] {

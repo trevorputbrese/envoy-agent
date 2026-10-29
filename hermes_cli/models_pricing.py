@@ -191,7 +191,7 @@ def _get_json(url: str, headers: dict[str, str], timeout: float, opener=None) ->
 
 def _pricing_entry(pricing: dict, prompt_key: str = "prompt", completion_key: str = "completion") -> dict[str, Any]:
     """Picker-shape ``{prompt, completion[, input_cache_read, input_cache_write]}`` from a catalog
-    ``pricing`` block whose cache fields already use the hermes names."""
+    ``pricing`` block whose cache fields already use the envoy names."""
     entry: dict[str, Any] = {
         "prompt": str(pricing.get(prompt_key, "")),
         "completion": str(pricing.get(completion_key, "")),

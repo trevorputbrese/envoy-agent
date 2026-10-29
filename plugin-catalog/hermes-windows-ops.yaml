@@ -3,7 +3,7 @@ repo: https://github.com/Yicheng-Mark/hermes-windows-plugins
 sha: b26b92760b2bfc36a91c280af96b0171c4d00267
 subdir: windows-ops
 description: >-
-  Windows and WSL triage skills for Hermes: processes that survive a quit
+  Windows and WSL triage skills for Envoy: processes that survive a quit
   (orphaned stdio MCP trees, lingering python/uv/node children), WSL-to-Windows
   interop where an argument reaches cmd.exe as shell syntax, config and encoding
   traps (UTF-8 BOM, legacy console code pages), and long-path or reserved-name

@@ -1,4 +1,4 @@
-"""Multi-provider authentication system for Hermes Agent.
+"""Multi-provider authentication system for Envoy Agent.
 
 - ``ProviderConfig`` / ``PROVIDER_REGISTRY`` describe every known inference provider.
 - The auth store (``~/.hermes/auth.json``) holds per-provider state, the credential pool and
@@ -426,7 +426,7 @@ def _resolve_api_key_provider_secret(provider_id: str, pconfig: ProviderConfig) 
 
 def is_rate_limited_auth_error(error: Exception) -> bool:
     """True when an :class:`AuthError` is upstream rate-limiting / quota: transient, and
-    re-authenticating cannot fix it, so callers should say "retry later", not ``hermes auth``."""
+    re-authenticating cannot fix it, so callers should say "retry later", not ``envoy auth``."""
     return (isinstance(error, AuthError) and not error.relogin_required
             and error.code == CODEX_RATE_LIMITED_CODE)
 
@@ -455,10 +455,10 @@ def format_auth_error(error: Exception) -> str:
         # Rate-limit / quota errors are not credential problems: never append "re-authenticate".
         return str(error)
     if error.relogin_required:
-        # Profile-aware: a bare `hermes model` from a named profile re-signs the ROOT store (#114012).
+        # Profile-aware: a bare `envoy model` from a named profile re-signs the ROOT store (#114012).
         from hermes_constants import profile_cli_selector
 
-        return f"{error} Run `hermes {profile_cli_selector()}model` to re-authenticate."
+        return f"{error} Run `envoy {profile_cli_selector()}model` to re-authenticate."
     if error.code in _ENTITLEMENT_ERROR_CODES:
         if error.provider == "nous":
             return _format_nous_entitlement_auth_error(error)
@@ -619,7 +619,7 @@ def _lock_holder_hint(lock_path: Path) -> str:
         except OSError:
             pass  # exists but is not signalable (e.g. EPERM): still a live holder
     # No example holder: many stores use this lock; the caller's timeout_message names which one.
-    return f"another hermes process (pid {pid}) probably still holds it"
+    return f"another envoy process (pid {pid}) probably still holds it"
 
 
 def _stamp_lock_holder_pid(lock_file: Any) -> None:
@@ -894,7 +894,7 @@ def _save_provider_state_to_source(
 
 
 def mark_provider_active_if_unset(provider_id: str) -> None:
-    """Set ``active_provider`` only when none is set yet: the first ``hermes auth add`` credential must
+    """Set ``active_provider`` only when none is set yet: the first ``envoy auth add`` credential must
     make its provider active (else setup reports "No inference provider configured"); later adds
     leave the user's choice untouched."""
     with _auth_store_lock():
@@ -935,7 +935,7 @@ def read_credential_pool(provider_id: Optional[str] = None) -> dict[str, Any]:
     """Return the persisted credential pool, or one provider slice.
 
     In profile mode the global-root ``auth.json`` is a read-only fallback applied per provider ONLY
-    when the profile has zero entries for it (``hermes auth add`` in the profile shadows global)."""
+    when the profile has zero entries for it (``envoy auth add`` in the profile shadows global)."""
     pool = _load_auth_store().get("credential_pool")
     pool = pool if isinstance(pool, dict) else {}
     global_pool = _load_global_auth_store().get("credential_pool")
@@ -1032,7 +1032,7 @@ def _merge_disk_cooldown_state(
     ``write_credential_pool`` persists an in-memory snapshot that may predate another process
     marking the same credential exhausted/dead; without this merge the later rewrite resurrects a
     rate-limited key as healthy and both processes resume hammering it. The mirror image is a
-    ``hermes auth reset`` that postdates the snapshot's cooldown (``status_cleared_at`` newer than
+    ``envoy auth reset`` that postdates the snapshot's cooldown (``status_cleared_at`` newer than
     its ``last_status_at``): the disk row wins there too, or a live session's next ordinary flush
     would write the reset cooldown straight back (#89415)."""
     if not isinstance(disk_entry, dict):
@@ -1089,7 +1089,7 @@ def write_credential_pool(
     Final disk-boundary sanitizer for borrowed credentials (callers may pass raw dicts). Entries on
     disk but missing from *entries* (added concurrently) are merged back unless in *removed_ids*,
     so a rotation/exhaustion rewrite never drops a concurrent credential. Entries in
-    *status_cleared_ids* were cleared deliberately (``hermes auth reset``) and skip the
+    *status_cleared_ids* were cleared deliberately (``envoy auth reset``) and skip the
     recency merge, which would otherwise read their cleared ``last_status_at`` (None ->
     epoch 0) as a stale snapshot and copy a still-binding cooldown back."""
     removed = {rid for rid in (removed_ids or ()) if rid}
@@ -1252,12 +1252,12 @@ def _config_selects_provider(normalized: str) -> bool:
 
 
 def _explicit_pool_entry_present(normalized: str) -> bool:
-    """Pool rows from EXPLICIT Hermes flows (manual add / device-code / PKCE) or live env keys;
+    """Pool rows from EXPLICIT Envoy flows (manual add / device-code / PKCE) or live env keys;
     ambient borrowed sources (gh_cli / claude_code / qwen-cli) are deliberately excluded."""
     return any(_pool_entry_is_explicit(entry) for entry in read_credential_pool(normalized))
 
 
-# Set by Claude Code itself, not by the user explicitly configuring anthropic in Hermes.
+# Set by Claude Code itself, not by the user explicitly configuring anthropic in Envoy.
 _IMPLICIT_ENV_VARS = frozenset({"CLAUDE_CODE_OAUTH_TOKEN"})
 _EXPLICIT_POOL_SOURCES = frozenset({"device_code", "loopback_pkce", "hermes_pkce", "manual"})
 _VERTEX_PROVIDER_IDS = ("vertex", "google-vertex", "vertex-ai", "gcp-vertex", "vertexai")
@@ -1266,7 +1266,7 @@ _VERTEX_PROVIDER_IDS = ("vertex", "google-vertex", "vertex-ai", "gcp-vertex", "v
 def _env_secret(name: str) -> bool:
     """True when *name* resolves to a usable secret in the active profile scope.
 
-    Must not read raw ``os.getenv``: under ``hermes serve`` / Desktop multiplex the
+    Must not read raw ``os.getenv``: under ``envoy serve`` / Desktop multiplex the
     process environ is the *launch* profile, so a DeepSeek key pasted into another
     profile's ``.env`` would be invisible to ``explicit_only`` Settings → Model
     until a Bot-chat Refresh ran against that profile's own backend.
@@ -1300,7 +1300,7 @@ def _explicit_env_credentials_present(normalized: str) -> bool:
 
 
 def _pool_entry_is_explicit(entry: Any) -> bool:
-    """True for pool rows the user created via an explicit Hermes flow (or a still-live env key)."""
+    """True for pool rows the user created via an explicit Envoy flow (or a still-live env key)."""
     if not isinstance(entry, dict):
         return False
     source = str(entry.get("source") or "").strip().lower()
@@ -1314,11 +1314,11 @@ def _pool_entry_is_explicit(entry: Any) -> bool:
 
 
 def _keyless_provider_has_explicit_config(normalized: str) -> bool:
-    """Vertex / Bedrock count as explicit when Hermes-scoped routing config is present.
+    """Vertex / Bedrock count as explicit when Envoy-scoped routing config is present.
 
     Uses has_explicit_vertex_config(), NOT has_vertex_credentials(): the latter also counts an
     ambient GOOGLE_APPLICATION_CREDENTIALS path (commonly set for unrelated GCP work). Only
-    Hermes-scoped signals (VERTEX_PROJECT_ID / vertex.project_id / VERTEX_CREDENTIALS_PATH) count
+    Envoy-scoped signals (VERTEX_PROJECT_ID / vertex.project_id / VERTEX_CREDENTIALS_PATH) count
     here."""
     if normalized in _VERTEX_PROVIDER_IDS:
         from agent.vertex_adapter import has_explicit_vertex_config
@@ -1342,7 +1342,7 @@ _EXPLICIT_CONFIG_CHECKS: tuple[tuple[Callable[[str], bool], bool], ...] = (
 def is_provider_explicitly_configured(provider_id: str) -> bool:
     """True only if the user explicitly configured this provider: auth.json ``active_provider``,
     config.yaml ``model.provider`` / MoA slots, a pasted provider env var, a pool entry from a
-    Hermes-initiated flow, or Hermes-scoped routing config for keyless cloud-SDK providers. Ambient
+    Envoy-initiated flow, or Envoy-scoped routing config for keyless cloud-SDK providers. Ambient
     borrowed credentials (gh CLI, qwen-cli, ~/.claude/.credentials.json) never count."""
     normalized = (provider_id or "").strip().lower()
     for check, best_effort in _EXPLICIT_CONFIG_CHECKS:
@@ -1358,7 +1358,7 @@ def is_provider_explicitly_configured(provider_id: str) -> bool:
 
 def clear_provider_auth(provider_id: Optional[str] = None) -> bool:
     """Clear auth state for a provider (the active one when *provider_id* is None). Used by
-    ``hermes logout``. Returns True if something was cleared."""
+    ``envoy logout``. Returns True if something was cleared."""
     with _auth_store_lock():
         auth_store = _load_auth_store()
         target = provider_id or auth_store.get("active_provider")
@@ -1408,7 +1408,7 @@ def _refuse_env_adoption_if_config_corrupt() -> None:
     raise AuthError(
         f"config.yaml at {path} is corrupt ({err}) — refusing to auto-select "
         f"an inference provider from environment keys. Fix the YAML (a backup "
-        f"was saved next to it) or run hermes setup.",
+        f"was saved next to it) or run envoy setup.",
         code="corrupt_config")
 
 
@@ -1488,7 +1488,7 @@ def _scoped_key_env_reader() -> Callable[[str], str]:
 
 def _openrouter_auto_detected(scoped_key_env: Callable[[str], str]) -> bool:
     """True when an OpenRouter credential exists via env key or the credential pool (a key added via
-    `hermes auth add openrouter` has no env var; without the pool check it is invisible to
+    `envoy auth add openrouter` has no env var; without the pool check it is invisible to
     auto-detection and requests go out with no Authorization header)."""
     if has_usable_secret(scoped_key_env("OPENROUTER_API_KEY")):
         return True
@@ -1498,9 +1498,9 @@ def _openrouter_auto_detected(scoped_key_env: Callable[[str], str]) -> bool:
     if has_usable_secret(legacy_key) and looks_like_openrouter_key(legacy_key):
         return True
     try:
-        # Auto-detect an OpenRouter credential added via `hermes auth add openrouter` (manual pool entry, no
+        # Auto-detect an OpenRouter credential added via `envoy auth add openrouter` (manual pool entry, no
         # env var). Without this, a key that only lives in the credential pool is invisible to
-        # auto-detection — the user sees `hermes auth list` showing the credential while requests go out
+        # auto-detection — the user sees `envoy auth list` showing the credential while requests go out
         # with no Authorization header ("HTTP 401: Missing Authentication header"). The env-var check above
         # only covers OPENROUTER_API_KEY and an sk-or- key in OPENAI_API_KEY. See issue #42130.
         from agent.credential_pool import load_pool as _load_pool
@@ -1534,7 +1534,7 @@ def _config_model_provider() -> tuple[Any, Optional[str]]:
     this is the safety net for the direct ``resolve_provider("auto")`` callers. A configured custom
     endpoint is explicit intent like any registry pin: without this rung the boot inventory
     (``free_tier_bootstrap``) read a llama.cpp/vLLM install as "nothing configured" and the
-    dashboard's Ink chat parked every session on Setup Required while ``hermes chat`` worked
+    dashboard's Ink chat parked every session on Setup Required while ``envoy chat`` worked
     (#108383)."""
     try:
         from hermes_cli.config import load_config
@@ -1635,8 +1635,8 @@ def resolve_provider(
     if normalized != "auto":
         from hermes_cli.auth_error_copy import unknown_provider_hint
         hint = unknown_provider_hint(normalized)
-        tail = (f"\n\n{hint}" if hint else " Check 'hermes model' for available providers, "
-                "or run 'hermes doctor' to diagnose config issues.")
+        tail = (f"\n\n{hint}" if hint else " Check 'envoy model' for available providers, "
+                "or run 'envoy doctor' to diagnose config issues.")
         raise AuthError(f"Unknown provider '{normalized}'." + tail, code="invalid_provider")
 
     if explicit_api_key or explicit_base_url:  # one-off CLI creds always mean openrouter/custom
@@ -1695,8 +1695,8 @@ def resolve_provider(
         pass  # boto3 not installed
     from hermes_constants import display_hermes_home
     raise AuthError(
-        "Hermes is not connected to any AI provider yet. Run `hermes model` to pick one, type `/login` in chat, "
-        f"or add a key with `hermes auth add <provider>`. (Advanced: put an API key such as OPENROUTER_API_KEY in "
+        "Envoy is not connected to any AI provider yet. Run `envoy model` to pick one, type `/login` in chat, "
+        f"or add a key with `envoy auth add <provider>`. (Advanced: put an API key such as OPENROUTER_API_KEY in "
         f"{display_hermes_home()}/.env.)",
         code="no_provider_configured")
 
@@ -1821,7 +1821,7 @@ def _resolve_nous_access_token(
 
     with _provider_state_transaction("nous") as (auth_store, state, state_source_path):
         if not state:
-            raise _nous_err("Hermes is not logged into Nous Portal.", "nous_auth_missing", relogin=True)
+            raise _nous_err("Envoy is not logged into Nous Portal.", "nous_auth_missing", relogin=True)
         portal_base_url = _nous_portal_base_url(state)
         client_id = str(state.get("client_id") or DEFAULT_NOUS_CLIENT_ID)
         verify = _resolve_verify(insecure=insecure, ca_bundle=ca_bundle, auth_state=state)
@@ -1933,7 +1933,7 @@ class OAuthProviderFlow:
     resolve_fn: str
     status_fn: str
     terminal_refresh_codes: frozenset[str] = frozenset()  # retrying the same refresh token cannot succeed
-    # ``hermes logout`` with no active provider falls back to config.yaml ``model.provider`` only
+    # ``envoy logout`` with no active provider falls back to config.yaml ``model.provider`` only
     # for providers whose credentials live in auth.json.
     logout_from_config: bool = False
 
@@ -2062,7 +2062,7 @@ def _external_process_auth_evidence(provider_id: str, resolved_command: Optional
 
     False means "not verifiable from here", NOT "signed out". Subprocess-free (spawning the CLI from
     status endpoints/pickers re-creates a cold-start stall). Generic evidence
-    for any external-process profile is its binary resolving: the subprocess owns real auth and Hermes
+    for any external-process profile is its binary resolving: the subprocess owns real auth and Envoy
     has nothing else to inspect, so out-of-tree ACP rows pass credential-gated surfaces (Desktop
     ``explicit_only`` picker); a profile whose CLI exposes readable token stores answers
     ``external_auth_evidence()`` instead."""
@@ -2156,7 +2156,7 @@ def _get_azure_foundry_auth_status() -> dict[str, Any]:
     """Structural auth status for Azure Foundry.
 
     ``entra_id``: ``azure-identity`` importable — never invokes the Entra credential chain (keeps
-    CLI startup flat; ``hermes doctor`` runs the live probe). ``api_key`` (default): usable
+    CLI startup flat; ``envoy doctor`` runs the live probe). ``api_key`` (default): usable
     ``AZURE_FOUNDRY_API_KEY``."""
     info: dict[str, Any] = {"provider": "azure-foundry"}
     try:
@@ -2183,11 +2183,11 @@ def _get_azure_foundry_auth_status() -> dict[str, Any]:
                 credential_verified=False, logged_in=bool(installed),
                 hint=(
                     "azure-identity is installed; live credential validation "
-                    "is skipped here. Run `hermes doctor` to verify token acquisition."
+                    "is skipped here. Run `envoy doctor` to verify token acquisition."
                 ) if installed else (
-                    "azure-identity not installed. From the Hermes environment, run: "
+                    "azure-identity not installed. From the Envoy environment, run: "
                     f"{install_hint('azure-identity')}. "
-                    "Then restart Hermes."))
+                    "Then restart Envoy."))
         except Exception as exc:
             info["logged_in"] = False
             info["error"] = f"azure-identity check failed: {exc}"
@@ -2368,9 +2368,9 @@ def _reset_config_provider() -> Path:
 
 
 def login_command(args) -> None:
-    """Deprecated: use 'hermes model' or 'hermes setup' instead."""
-    print("The 'hermes login' command has been removed.\nUse 'hermes auth' to manage credentials,\n"
-          "'hermes model' to select a provider, or 'hermes setup' for full setup.")
+    """Deprecated: use 'envoy model' or 'envoy setup' instead."""
+    print("The 'envoy login' command has been removed.\nUse 'envoy auth' to manage credentials,\n"
+          "'envoy model' to select a provider, or 'envoy setup' for full setup.")
     raise SystemExit(0)
 
 
@@ -2419,6 +2419,6 @@ def logout_command(args) -> None:
     if not should_reset_config:
         print("Model provider configuration was unchanged.")
     elif os.getenv("OPENROUTER_API_KEY"):
-        print("Hermes will use OpenRouter for inference.")
+        print("Envoy will use OpenRouter for inference.")
     else:
-        print("Run `hermes model` or configure an API key to use Hermes.")
+        print("Run `envoy model` or configure an API key to use Envoy.")

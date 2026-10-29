@@ -1,4 +1,4 @@
-"""Authenticated browser-to-host attachment staging for Hermes Webapp."""
+"""Authenticated browser-to-host attachment staging for Envoy Webapp."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ async def upload_chat_file(
     file: UploadFile = File(...),
     profile: str | None = None,
 ):
-    """Stage one user-selected browser file under the active Hermes profile.
+    """Stage one user-selected browser file under the active Envoy profile.
 
     The client never chooses a server path. A unique 0600 file under
     ``$HERMES_HOME/uploads`` is returned for the existing ``file.attach`` flow.

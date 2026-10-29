@@ -232,12 +232,12 @@ def _unsupported_reason(stamp: dict, root: Path, *, explicit_root: bool, embedde
 
 
 def _installed_git(git: str) -> str:
-    """``git`` as given, unless it is a bare ``git`` PATH lacks: then the git ``hermes update`` runs.
+    """``git`` as given, unless it is a bare ``git`` PATH lacks: then the git ``envoy update`` runs.
 
     A Windows source install's only git is often the copy install.ps1 staged in PM's store, which
-    is on PATH only inside ``hermes update`` (``expose_pm_git``). Desktop and the dashboard pass a
+    is on PATH only inside ``envoy update`` (``expose_pm_git``). Desktop and the dashboard pass a
     bare ``git`` there, it dies with WinError 2, and the check reports ``head-unavailable``, which
-    Desktop shows as "couldn't reach the update server" while ``hermes update`` works.
+    Desktop shows as "couldn't reach the update server" while ``envoy update`` works.
     """
     if git != "git" or shutil.which(git):
         return git
@@ -327,7 +327,7 @@ def _read_runtime_verdict(repository: str, sha: str) -> Optional[bool]:
         paths = [e["path"] for e in entries if isinstance(e, dict) and e.get("type") == "blob"
                  and isinstance(e.get("path"), str) and fnmatchcase(e["path"], STATE_MODULES)]
         if not paths:
-            return None  # not a recognised Hermes tree: no claim either way
+            return None  # not a recognised Envoy tree: no claim either way
         urls = iter(f"https://raw.githubusercontent.com/{repository}/{sha}/{quote(path)}" for path in paths)
         pending = 0
         for url in islice(urls, 4):
@@ -390,7 +390,7 @@ def _update_refuses(co: _Checkout, target: str, home: Path) -> bool:
 
 
 def _hold_refused_release(result: dict, co: _Checkout, home: Path) -> None:
-    """Hold an offered release `hermes update` refuses (it predates the gateway runtime these session
+    """Hold an offered release `envoy update` refuses (it predates the gateway runtime these session
     stores use). Covers releases off this checkout's history too, which the ancestry-only rollback
     test cannot see. Apply only after caching the release facts: stores can gain runtime history,
     or the only ledgered profile can be removed, between checks."""

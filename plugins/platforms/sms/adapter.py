@@ -84,7 +84,7 @@ def check_sms_requirements() -> bool:
 
 
 class SmsAdapter(BasePlatformAdapter):
-    """Twilio SMS <-> Hermes: one session per inbound number; replies always from TWILIO_PHONE_NUMBER."""
+    """Twilio SMS <-> Envoy: one session per inbound number; replies always from TWILIO_PHONE_NUMBER."""
     # Answers /p/<profile>/... on the default listener for a served secondary (shared_ingress).
     serves_profile_prefix: bool = True
 
@@ -338,7 +338,7 @@ _PLATFORM_HINT = (
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Envoy plugin system."""
     from . import gateway_env  # env -> GatewayConfig bridge (gateway.config_env)
     ctx.register_platform(
         standalone_send=StandaloneSendPolicy(text_direct=True),

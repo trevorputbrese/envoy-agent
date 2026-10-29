@@ -100,11 +100,14 @@ def installation_command(repo_root: Path, args=(), *, module: str = "hermes_cli.
 
 #: Launcher command names — keep in lockstep with scripts/install.ps1
 #: Publish-UserCommand and hermes_cli/_install_repair.py.
-WINDOWS_BIN_LAUNCHERS = ("hermes", "hermes-acp")
+#: ``envoy`` is the product command; the upstream name stays for upstream scripts and old installs.
+WINDOWS_BIN_LAUNCHERS = ("envoy", "envoy-acp", "hermes", "hermes-acp")
 
 #: command name -> (entry module, callable) — mirrors pyproject.toml
 #: [project.scripts].
 ENTRY_POINTS = {
+    "envoy": ("hermes_cli.main", "main"),
+    "envoy-acp": ("acp_adapter.entry", "main"),
     "hermes": ("hermes_cli.main", "main"),
     "hermes-acp": ("acp_adapter.entry", "main"),
 }
@@ -617,7 +620,7 @@ def _retire_exe(exe: Path) -> bool:
 
     Windows refuses to delete a mapped image but allows renaming it, and the
     launcher a Python repin has to retire is usually the one running
-    ``hermes update`` (or the launch retrying its owed launcher step), so a
+    ``envoy update`` (or the launch retrying its owed launcher step), so a
     plain unlink left every repinned update owing launchers -- and the install
     stamp -- forever. The aside copy goes on the next publication once its
     process has exited."""
@@ -786,7 +789,7 @@ def _kept_shared_launcher(name: str, local: Path, store: Path, own: Path | None)
 
     Checkout launchers are shared by every HERMES_HOME; a launch under one
     data root must never repoint them at another root's interpreter (#123238):
-    once that root is deleted, every hermes breaks. Keep the file when it
+    once that root is deleted, every envoy breaks. Keep the file when it
     execs a live interpreter outside *store*. Missing launchers, dead
     interpreters and same-store repins still publish. A launcher whose
     interpreter is gone is never left in front of a kept one: PATHEXT resolves
@@ -984,7 +987,7 @@ def _read_environment_block(address: int) -> dict[str, str]:
 
 
 def new_console_hermes_root() -> Path | None:
-    """The Hermes root that a newly opened console resolves, or None when Windows cannot say."""
+    """The Envoy root that a newly opened console resolves, or None when Windows cannot say."""
     from hermes_constants import hermes_root_for_environment
 
     environ = _new_console_environment()
@@ -1010,7 +1013,7 @@ def owns_user_path(root: Path) -> bool:
 
     logging.getLogger(__name__).info(
         "User PATH left unchanged: new consoles use %s, not %s",
-        console_root or "an unknown Hermes home", root)
+        console_root or "an unknown Envoy home", root)
     return False
 
 
@@ -1073,7 +1076,7 @@ def _expose_windows_user_bin(root: Path, *, create: bool) -> dict:
 
     Commands there that start another checkout which still exists stay in
     place unless *root* is the home's own checkout: a review tree or worktree
-    started against the home leaves the installed ``hermes`` alone.
+    started against the home leaves the installed ``envoy`` alone.
     """
     from hermes_constants import get_default_hermes_root
 
@@ -1114,7 +1117,7 @@ def _is_bundled_payload(root: Path) -> bool:
 
 
 def _symlink_sealed_launchers(payload_bin) -> dict:
-    """Link ~/.local/bin/{hermes,hermes-agent,hermes-acp} at a sealed
+    """Link ~/.local/bin/{envoy,hermes-agent,hermes-acp} at a sealed
     bundle's own prebuilt shims (macOS only).
 
     Symlinks, not copies: the shims are signed as part of the app bundle,
@@ -1124,7 +1127,7 @@ def _symlink_sealed_launchers(payload_bin) -> dict:
 
     Ownership guard mirrors expose_cli's wrapper logic: an existing
     entry is replaced only when it is ours — a symlink into THIS app
-    bundle's payload — or missing/broken. A user's own `hermes` (pipx,
+    bundle's payload — or missing/broken. A user's own `envoy` (pipx,
     another checkout's wrapper) is never touched.
     """
     link_dir = Path.home() / ".local" / "bin"
@@ -1132,7 +1135,7 @@ def _symlink_sealed_launchers(payload_bin) -> dict:
     written: list[str] = []
     try:
         link_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("hermes", "hermes-agent", "hermes-acp"):
+        for name in ("envoy", "envoy-agent", "envoy-acp", "hermes", "hermes-agent", "hermes-acp"):
             source = payload_bin / name
             if not source.is_file():
                 continue
@@ -1169,9 +1172,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     repo_root = Path(__file__).resolve().parents[1]
     if resolve_store_python(repo_root, publication=True) is None:
-        parser.exit(1, "hermes: store interpreter is missing; finish pm install before publishing launchers\n")
+        parser.exit(1, "envoy: store interpreter is missing; finish pm install before publishing launchers\n")
     args.out_dir.mkdir(parents=True, exist_ok=True)
     written = ensure_install_launchers(repo_root, args.out_dir)
     if len(written) != len(ENTRY_POINTS):
-        parser.exit(1, "hermes: launcher publication failed\n")
+        parser.exit(1, "envoy: launcher publication failed\n")
     print("\n".join(written))

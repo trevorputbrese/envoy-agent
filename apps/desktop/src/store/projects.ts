@@ -308,7 +308,7 @@ async function gatewayRequest<T>(method: string, params: Record<string, unknown>
   }
 
   if (!gateway) {
-    throw new Error('Hermes gateway is not connected')
+    throw new Error('Envoy gateway is not connected')
   }
 
   return gateway.request<T>(method, params)
@@ -406,7 +406,7 @@ async function activeProjectsContext(profile = projectProfile()): Promise<Active
   }
 
   if (!gateway || !stillOnWritableProjectOwner({ connectionId, gateway, profile })) {
-    throw new Error('Active Hermes profile changed while connecting')
+    throw new Error('Active Envoy profile changed while connecting')
   }
 
   return { connectionId, gateway, profile, stampLocal }
@@ -879,7 +879,7 @@ export async function scanAndRecordRepos(force = false): Promise<void> {
   if (isDesktopFsRemoteMode()) {
     // On a remote backend the desktop can't crawl the host filesystem.
     // Ask the host to scan its own discovery roots (`projects.discover_repos`
-    // with `scan: true` — added in #81723) so repos with zero Hermes
+    // with `scan: true` — added in #81723) so repos with zero Envoy
     // sessions still surface, then refresh the tree so the sidebar picks up
     // the merged session-derived + scanned list.
     try {
@@ -1454,7 +1454,7 @@ export function refreshWorktrees(): void {
 }
 
 // Spin up a fresh worktree the lightest way (`git worktree add -b`) under the
-// repo, returning where Hermes should start working. Git is the source of
+// repo, returning where Envoy should start working. Git is the source of
 // truth; the caller starts a session in the returned path.
 export async function startWorkInRepo(
   repoPath: string,

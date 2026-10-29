@@ -4,7 +4,7 @@ export const frNotifications = {
   intro: "Notifications système (pas les toasts de l'application). Par appareil.",
   enableAll: 'Activer les notifications',
   enableAllDesc: 'Désactivé coupe toutes les notifications ci-dessous.',
-  focusedHint: 'Les alertes de fin ne se déclenchent que quand Hermes est en arrière-plan.',
+  focusedHint: 'Les alertes de fin ne se déclenchent que quand Envoy est en arrière-plan.',
   kinds: {
     approval: {
       label: 'Approbation requise',
@@ -12,11 +12,11 @@ export const frNotifications = {
     },
     input: {
       label: 'Saisie requise',
-      description: "Hermes a posé une question ou a besoin d'un mot de passe ou d'un secret."
+      description: "Envoy a posé une question ou a besoin d'un mot de passe ou d'un secret."
     },
     turnDone: {
       label: 'Réponse prête',
-      description: "Un tour s'est terminé pendant que Hermes était en arrière-plan."
+      description: "Un tour s'est terminé pendant que Envoy était en arrière-plan."
     },
     turnError: {
       label: 'Échec du tour',
@@ -32,11 +32,11 @@ export const frNotifications = {
     },
     plugin: {
       label: 'Notifications des plugins',
-      description: 'Un plugin desktop a envoyé une notification pendant que Hermes était en arrière-plan.'
+      description: 'Un plugin desktop a envoyé une notification pendant que Envoy était en arrière-plan.'
     }
   },
   test: 'Envoyer une notification de test',
-  testTitle: 'Hermes',
+  testTitle: 'Envoy',
   testBody: 'Les notifications fonctionnent.',
   testSent:
     "Test envoyé. Si rien n'apparaît, vérifiez les autorisations de notification de votre système et le mode Ne pas déranger.",

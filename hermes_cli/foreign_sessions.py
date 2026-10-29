@@ -231,7 +231,7 @@ def _list_sessions(source: str, root: Optional[Path]) -> list[ForeignSession]:
 
 def import_foreign_session(source: str, path) -> str:
     """Import one foreign session through the gateway's ``session.mutate import`` (the gateway is the
-    only state.db writer, #106742); returns the new Hermes session id. The row lands as an ordinary
+    only state.db writer, #106742); returns the new Envoy session id. The row lands as an ordinary
     ``cli`` session bound to this importer, so ``hermes --resume`` continues it writable.
 
     Raises ``ValueError`` on unknown source or a session with no usable conversation turns, and
@@ -334,5 +334,5 @@ def run_sessions_import(args) -> Optional[str]:
         print(f"Error: {e}")
         return None
     print(f"✓ Imported {_SOURCE_LABELS.get(source, source)} session as {session_id}")
-    print(f"  Continue it with:  hermes --resume {session_id}")
+    print(f"  Continue it with:  envoy --resume {session_id}")
     return session_id

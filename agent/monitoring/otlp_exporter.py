@@ -182,7 +182,7 @@ _KEEP_BY_KIND: dict[str, tuple[str, ...]] = {
 
 
 def _allowlisted_attrs(ev: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
-    """``hermes.<key>`` attributes for present keys; string values are redacted and bounded."""
+    """``envoy.<key>`` attributes for present keys; string values are redacted and bounded."""
     attrs: dict[str, Any] = {}
     for col in keys:
         v = ev.get(col)

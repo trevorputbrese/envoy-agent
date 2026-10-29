@@ -1,9 +1,9 @@
-// Unit tests for the pure Windows `hermes` resolution helpers extracted from
+// Unit tests for the pure Windows `envoy` resolution helpers extracted from
 // main.ts's findOnPath(), handOffWindowsBootstrapRecovery(), and
 // unwrapWindowsVenvHermesCommand(). These pin the two Windows resolution bugs
 // that caused desktop reinstall loops:
 //   1. buildPathExtCandidates() — PATHEXT extensions must be tried BEFORE the
-//      empty extension, or an extensionless Git-Bash `hermes` shim shadows
+//      empty extension, or an extensionless Git-Bash `envoy` shim shadows
 //      the real hermes.cmd/hermes.exe.
 //   2. chooseUpdaterArgs() — must distinguish a runnable updater from stale
 //      install provenance. The bootstrap marker can outlive the venv, and a
@@ -125,6 +125,6 @@ test('resolveVenvHermesCommand: returns the resolved python backend descriptor w
 test('resolveVenvHermesCommand: is case-insensitive on hermes.exe and the Scripts dir name', async () => {
   const deps = makeDeps()
 
-  assert.ok(await resolveVenvHermesCommand('/root/venv/Scripts/HERMES.EXE', [], deps))
+  assert.ok(await resolveVenvHermesCommand('/root/venv/Scripts/ENVOY.EXE', [], deps))
   assert.ok(await resolveVenvHermesCommand('/root/venv/SCRIPTS/hermes.exe', [], deps))
 })

@@ -6,7 +6,7 @@ import pytest
 
 @pytest.mark.parametrize("mode", ["strip", "render"])
 def test_refused_notice_prints_the_users_text_and_discard_line_as_written(monkeypatch, mode):
-    """The notice is Hermes's copy, not a model answer: the markdown display modes must neither
+    """The notice is Envoy's copy, not a model answer: the markdown display modes must neither
     rewrite the quoted prompt nor merge the ``/discard`` line into the paragraph around it."""
     import cli as cli_mod
     from rich.console import Console

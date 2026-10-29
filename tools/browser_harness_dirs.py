@@ -91,7 +91,7 @@ def socket_fit_runtime_dir(runtime: str, base: str, tag: str) -> str:
     getuid = getattr(os, "getuid", lambda: 0)
     digest = hashlib.sha256(f"{getuid()}\0{base}\0{tag}".encode()).hexdigest()[:12]
     # socket_safe_tmpdir() caps the root at 50 bytes for Chrome's longer socket names; ours needs a
-    # root of at most 17, which a Hermes scratch TMPDIR exceeds, so the sticky system root follows.
+    # root of at most 17, which an Envoy scratch TMPDIR exceeds, so the sticky system root follows.
     roots = dict.fromkeys(os.path.realpath(r) for r in (socket_safe_tmpdir(), "/tmp"))  # no-tmp: ok — AF_UNIX sun_path budget; dir claimed 0700 and ownership-checked
     for root in roots:
         short = os.path.join(root, f"hbh-{digest}")

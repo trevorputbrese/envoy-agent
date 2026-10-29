@@ -1,20 +1,20 @@
 # ============================================================================
 # Windows Desktop GUI install + update E2E driver (the REAL user flow)
 # ============================================================================
-# Proves, on a real Windows machine, that a user who installs Hermes the way
+# Proves, on a real Windows machine, that a user who installs Envoy the way
 # the website tells them to can then update to the commit under test through
 # a real update surface -- with every leg driven through the GUI a user
 # actually touches:
 #
-#   INSTALL   - downloads the production Hermes-Setup.exe from the website,
+#   INSTALL   - downloads the production Envoy-Setup.exe from the website,
 #               launches it HEADED, and AutoHotkey clicks Install, waits,
-#               then clicks Launch. The real Electron Hermes.exe must appear.
+#               then clicks Launch. The real Electron Envoy.exe must appear.
 #               The exe runs EXACTLY as shipped against serve.git, whose
 #               `main` is parked at OLD (-InstallRef, default: the newest
 #               release tag) -- so the install lands on OLD the same way a
 #               user's install landed on whatever main served that day.
 #   UPDATE    - OLD -> HEAD through the route selected by -Route:
-#                 desktop    (implemented) launch the installed Hermes.exe
+#                 desktop    (implemented) launch the installed Envoy.exe
 #                            under Playwright's Electron driver and CLICK
 #                            Settings -> About -> "Update now". The
 #                            production hand-off chain runs untouched:
@@ -23,10 +23,10 @@
 #                            target sha, marker cleanup, result JSON (when
 #                            the script path wrote one), working hermes,
 #                            and the relaunched app window.
-#                 update     run `hermes update` from the installed command
+#                 update     run `envoy update` from the installed command
 #                            (the CLI route a GUI user might take).
 #                 installer  re-run the bootstrap installer over the
-#                            existing install (download Hermes-Setup.exe
+#                            existing install (download Envoy-Setup.exe
 #                            again, AHK clicks Install; lands on HEAD).
 #
 # HOW THE STAGING WORKS (no MITM proxy, no network fakery):
@@ -35,7 +35,7 @@
 #   canonical repo URLs, via a driver-owned gitconfig selected with
 #   GIT_CONFIG_GLOBAL. (NOT GIT_CONFIG_COUNT/KEY_n/VALUE_n env config --
 #   install.ps1 sets those itself and silently clobbers them.) The
-#   installer's `git clone` and `hermes update`'s `git fetch origin`
+#   installer's `git clone` and `envoy update`'s `git fetch origin`
 #   transparently hit OUR bare repo. Its `main` serves OLD for the install
 #   phase; the update phase advances it to HEAD -- an update becomes
 #   available exactly the way it does for a real user. Installer and
@@ -89,7 +89,7 @@ param(
     [string]$Route = "open-app-update",
 
     # The OLD version: the ref served as `main` while the installer runs,
-    # i.e. what the user starts on. The published Hermes-Setup.exe carries
+    # i.e. what the user starts on. The published Envoy-Setup.exe carries
     # no commit pin (Pin { commit: None, branch: "main" }) -- it installs
     # whatever `main` points at, so staging OLD means serving it there.
     # Empty or "auto" = newest release tag in the checkout (the "user on
@@ -109,7 +109,7 @@ param(
 
     [string]$WorkRoot = $(if ($env:HERMES_E2E_WORKROOT) { $env:HERMES_E2E_WORKROOT } else { Join-Path $env:TEMP "hermes-desktop-gui-e2e" }),
 
-    [string]$SetupExeUrl = "https://hermes-assets.nousresearch.com/Hermes-Setup.exe",
+    [string]$SetupExeUrl = "https://hermes-assets.nousresearch.com/Envoy-Setup.exe",
 
     # Driver dependencies come from the current checkout lockfile.
     [string]$DriverNode = $env:HERMES_E2E_NODE
@@ -127,7 +127,7 @@ $OutputEncoding = [Console]::OutputEncoding
 # store) and HERMES_PYTHON for this job's tooling. A user's machine has one
 # store, <HERMES_HOME>\tools, and the desktop smoke already launches the app
 # that way (smoke-env.mjs drops every HERMES_* override). When install.ps1
-# and `hermes update` saw the job's store while the smoke did not, a leg
+# and `envoy update` saw the job's store while the smoke did not, a leg
 # settled onto two stores and the update rewrote its own running launcher
 # ("source launcher publication failed"). No product step (installer, app,
 # update, chat) sees the job's variables; the driver keeps setup-pm only
@@ -191,8 +191,8 @@ function Confirm-OldChat([string]$Out) {
     $script:ChatFailure = $false
 }
 
-$RepoUrlHttps = "https://github.com/NousResearch/hermes-agent.git"
-$RepoUrlSsh   = "git@github.com:NousResearch/hermes-agent.git"
+$RepoUrlHttps = "https://github.com/trevorputbrese/envoy-agent.git"
+$RepoUrlSsh   = "git@github.com:trevorputbrese/envoy-agent.git"
 
 function Write-Step([string]$Message) {
     Write-Host ""
@@ -361,8 +361,8 @@ function Get-InstalledHead {
 
 function Get-DesktopExe {
     foreach ($c in @(
-        (Join-Path $InstallDir "apps\desktop\release\win-unpacked\Hermes.exe"),
-        (Join-Path $InstallDir "apps\desktop\release\win-arm64-unpacked\Hermes.exe")
+        (Join-Path $InstallDir "apps\desktop\release\win-unpacked\Envoy.exe"),
+        (Join-Path $InstallDir "apps\desktop\release\win-arm64-unpacked\Envoy.exe")
     )) {
         if (Test-Path -LiteralPath $c) { return $c }
     }
@@ -404,7 +404,7 @@ function Test-HermesRuns([string]$Label) {
     try {
         $hermesExe = Get-SourceHermes $InstallDir
     } catch {
-        # A pre-handoff release cannot complete inside `hermes update`: its
+        # A pre-handoff release cannot complete inside `envoy update`: its
         # update path reaches no retired-hook seam, so the update ends with the
         # tree at HEAD and no published launcher. The NEXT ordinary startup
         # completes it (hermes_bootstrap -> prepare_launch -> sync PM, publish
@@ -440,14 +440,14 @@ function Test-HermesRuns([string]$Label) {
         $env:HERMES_DISABLE_LAZY_INSTALLS = '1'
         $env:PYTHONDONTWRITEBYTECODE = '1'
         $ErrorActionPreference = 'Continue'
-        & $hermesExe --version 2>&1 | ForEach-Object { Write-Host "    hermes --version| $_" }
+        & $hermesExe --version 2>&1 | ForEach-Object { Write-Host "    envoy --version| $_" }
         $versionExit = $LASTEXITCODE
     } finally {
         $env:HERMES_DISABLE_LAZY_INSTALLS = $prevLazy
         $env:PYTHONDONTWRITEBYTECODE = $prevBytecode
         $ErrorActionPreference = $prevEap
     }
-    Assert-True ($versionExit -eq 0) "$Label -- hermes --version exits 0"
+    Assert-True ($versionExit -eq 0) "$Label -- envoy --version exits 0"
 }
 
 # ----------------------------------------------------------------------------
@@ -542,15 +542,15 @@ function Invoke-HermesUpdate {
         $ErrorActionPreference = $prevEap
         Stop-HangWatchdog $watchdog
     }
-    Write-LogGroup "hermes update transcript" $log
+    Write-LogGroup "envoy update transcript" $log
     if (Test-Path -LiteralPath $hangLog) {
-        Write-LogGroup "hermes update hang evidence (process table, Python stacks)" $hangLog
-        throw "E2E ASSERTION FAILED: hermes update was still running after $UpdateDeadlineMinutes minutes (its output pipe never closed); the process table above shows which process held it"
+        Write-LogGroup "envoy update hang evidence (process table, Python stacks)" $hangLog
+        throw "E2E ASSERTION FAILED: envoy update was still running after $UpdateDeadlineMinutes minutes (its output pipe never closed); the process table above shows which process held it"
     }
-    Assert-True ($updateExit -eq 0) "hermes update exited $updateExit (expected 0)"
+    Assert-True ($updateExit -eq 0) "envoy update exited $updateExit (expected 0)"
 }
 
-# install.ps1 (with -IncludeDesktop) and `hermes update` normally finish in
+# install.ps1 (with -IncludeDesktop) and `envoy update` normally finish in
 # under 25 minutes. Past these deadlines the watchdog records every process
 # (pid, parent, start time, command line) plus a py-spy stack of each Python
 # process, then stops this leg's processes, so a hang fails with evidence --
@@ -613,11 +613,11 @@ function Stop-HangWatchdog($Job) {
 function Invoke-ManualCardUpdate([string]$ReceiptPath, [string]$TargetSha) {
     Assert-True (Test-Path -LiteralPath $ReceiptPath) "manual update card produced a receipt"
     $manual = Get-Content -LiteralPath $ReceiptPath -Raw | ConvertFrom-Json
-    Assert-True ($manual.command -match '^hermes update(?:\s|$)') "manual update card instructed hermes update"
+    Assert-True ($manual.command -match '^envoy update(?:\s|$)') "manual update card instructed envoy update"
     Invoke-HermesUpdate
     Assert-True ((Get-InstalledHead) -eq $TargetSha) "manual update landed on target commit"
     Test-HermesRuns "post-manual-update"
-    Assert-True ($null -ne (Get-DesktopExe)) "Hermes.exe still present after manual update"
+    Assert-True ($null -ne (Get-DesktopExe)) "Envoy.exe still present after manual update"
 }
 
 function Clear-HistoricalInstallerChurn {
@@ -672,7 +672,7 @@ function Clear-HistoricalInstallerChurn {
 }
 
 function Invoke-HermesDesktopAppUpdate([string]$TargetSha) {
-    # The hermes-desktop launch surface: `hermes desktop` runs its whole
+    # The hermes-desktop launch surface: `envoy desktop` runs its whole
     # real pipeline; the driver intercepts the product's final spawn
     # (argv/cwd/env captured by e2e-assets/launch-capture/sitecustomize.py)
     # and re-executes it under Playwright, which clicks Update now.
@@ -705,8 +705,8 @@ function Invoke-HermesDesktopAppUpdate([string]$TargetSha) {
         $env:PYTHONPATH = $prevPy
         $env:HERMES_E2E_CAPTURE_LAUNCH = $prevCap
     }
-    Write-LogGroup "hermes desktop (launch capture) transcript" $log
-    Assert-True ($capExit -eq 0) "hermes desktop exited 0 during launch capture"
+    Write-LogGroup "envoy desktop (launch capture) transcript" $log
+    Assert-True ($capExit -eq 0) "envoy desktop exited 0 during launch capture"
     Assert-True (Test-Path -LiteralPath "$spec.captured") "a launch was actually captured (exit 0 without a launch must not pass)"
     Clear-HistoricalInstallerChurn
 
@@ -736,9 +736,9 @@ function Invoke-HermesDesktopAppUpdate([string]$TargetSha) {
         Invoke-ManualCardUpdate $manualReceipt $TargetSha
         return
     }
-    Assert-True ($driveExit -eq 0) "app driven via captured hermes desktop spec; update completed"
+    Assert-True ($driveExit -eq 0) "app driven via captured envoy desktop spec; update completed"
 
-    # The production updater relaunches Hermes. Close that verified window
+    # The production updater relaunches Envoy. Close that verified window
     # normally so the test-owned checkpoint starts and owns its own backend.
     $desktopExe = Get-DesktopExe
     $deadline = (Get-Date).AddMinutes(5)
@@ -753,8 +753,8 @@ function Invoke-HermesDesktopAppUpdate([string]$TargetSha) {
     Close-VerifiedDesktop $desktopExe $windows[0].Id
 }
 
-# Evidence for a GUI-driver failure, taken while the installer is still alive: which Hermes
-# processes exist (was Hermes.exe ever started, and by whom), the installer's thread states,
+# Evidence for a GUI-driver failure, taken while the installer is still alive: which Envoy
+# processes exist (was Envoy.exe ever started, and by whom), the installer's thread states,
 # and a full memory dump of the installer. The installer's tracing log is buffered and never
 # reaches disk when the job kills it; the dump still holds it. A Launch that left the
 # installer on LAUNCHING had no other trace (tests/install/e2e-assets/install-and-launch.ahk).
@@ -767,7 +767,7 @@ function Save-GuiDriverFailureEvidence([System.Diagnostics.Process]$Installer, [
         Format-Table -AutoSize -Wrap | Out-String -Width 400 |
         Tee-Object -FilePath (Join-Path $OutDir "processes.txt") | Write-Host
     if ($Installer.HasExited) {
-        Write-Host "  Hermes-Setup.exe already exited (code $($Installer.ExitCode) at $($Installer.ExitTime))"
+        Write-Host "  Envoy-Setup.exe already exited (code $($Installer.ExitCode) at $($Installer.ExitTime))"
         return
     }
     $Installer.Refresh()
@@ -781,7 +781,7 @@ function Save-GuiDriverFailureEvidence([System.Diagnostics.Process]$Installer, [
 public static extern bool MiniDumpWriteDump(IntPtr hProcess, uint processId, Microsoft.Win32.SafeHandles.SafeFileHandle hFile, uint dumpType, IntPtr exceptionParam, IntPtr userStreamParam, IntPtr callbackParam);
 '@
     }
-    $dumpPath = Join-Path $OutDir "Hermes-Setup.dmp"
+    $dumpPath = Join-Path $OutDir "Envoy-Setup.dmp"
     $file = [System.IO.File]::Create($dumpPath)
     try {
         # MiniDumpWithFullMemory | MiniDumpWithHandleData | MiniDumpWithThreadInfo
@@ -791,8 +791,8 @@ public static extern bool MiniDumpWriteDump(IntPtr hProcess, uint processId, Mic
     finally {
         $file.Close()
     }
-    if ($ok) { Write-Host "  Hermes-Setup.exe dump: $dumpPath ($([math]::Round((Get-Item $dumpPath).Length / 1MB, 1)) MB)" }
-    else { Write-Host "  Hermes-Setup.exe dump failed (Win32 error $err)" }
+    if ($ok) { Write-Host "  Envoy-Setup.exe dump: $dumpPath ($([math]::Round((Get-Item $dumpPath).Length / 1MB, 1)) MB)" }
+    else { Write-Host "  Envoy-Setup.exe dump failed (Win32 error $err)" }
 }
 
 function Save-DesktopScreenshot([string]$OutFile) {
@@ -849,13 +849,13 @@ function Stop-DesktopRecorder($proc, [string]$OutDir) {
 
 function Stop-HermesAppProcesses([string]$Label) {
     # Close the desktop app the blunt way between phases (a user quitting).
-    # Only Hermes.exe (Electron) -- never hermes.exe (the venv CLI shim).
-    $procs = @(Get-Process -Name "Hermes" -ErrorAction SilentlyContinue)
+    # Only Envoy.exe (Electron) -- never hermes.exe (the venv CLI shim).
+    $procs = @(Get-Process -Name "Envoy" -ErrorAction SilentlyContinue)
     foreach ($p in $procs) {
         try { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } catch {}
     }
     if ($procs.Count -gt 0) {
-        Write-Host "  [$Label] stopped $($procs.Count) Hermes.exe process(es)"
+        Write-Host "  [$Label] stopped $($procs.Count) Envoy.exe process(es)"
         Start-Sleep -Seconds 3
     }
 }
@@ -876,8 +876,8 @@ function New-NextCommit([string]$Repo, [string]$Parent) {
     $saved = @{}
     $vars = @{
         GIT_INDEX_FILE = (Join-Path $WorkRoot "next.index")
-        GIT_AUTHOR_NAME = "Hermes E2E"; GIT_AUTHOR_EMAIL = "e2e@hermes.invalid"
-        GIT_COMMITTER_NAME = "Hermes E2E"; GIT_COMMITTER_EMAIL = "e2e@hermes.invalid"
+        GIT_AUTHOR_NAME = "Envoy E2E"; GIT_AUTHOR_EMAIL = "e2e@hermes.invalid"
+        GIT_COMMITTER_NAME = "Envoy E2E"; GIT_COMMITTER_EMAIL = "e2e@hermes.invalid"
     }
     foreach ($k in $vars.Keys) { $saved[$k] = [Environment]::GetEnvironmentVariable($k); [Environment]::SetEnvironmentVariable($k, $vars[$k]) }
     try {
@@ -948,7 +948,7 @@ function Invoke-PhaseStage {
 }
 
 # ----------------------------------------------------------------------------
-# Phase: install-gui -- website Hermes-Setup.exe, headed, AHK-driven
+# Phase: install-gui -- website Envoy-Setup.exe, headed, AHK-driven
 # ----------------------------------------------------------------------------
 function Invoke-PhaseInstallGui {
     param(
@@ -963,7 +963,7 @@ function Invoke-PhaseInstallGui {
         $ExpectedSha = $state.old
         $ExpectedLabel = "OLD ($($state.old_ref))"
     }
-    Write-Step "$($Mode.ToUpper()) (GUI): Hermes-Setup.exe from the website, headed, AHK clicks"
+    Write-Step "$($Mode.ToUpper()) (GUI): Envoy-Setup.exe from the website, headed, AHK clicks"
     $proof = Join-Path $ProofRoot $(if ($Mode -eq "install") { "install-gui" } else { "update-gui-installer" })
     New-Item -ItemType Directory -Path $proof -Force | Out-Null
 
@@ -988,12 +988,12 @@ function Invoke-PhaseInstallGui {
     ) | Set-Content -LiteralPath (Join-Path $proof "bootstrap-install-script.txt") -Encoding ASCII
     Write-Host "  bootstrap script is scripts/install.ps1 from $ExpectedLabel ($ExpectedSha)"
 
-    $setupExe = Join-Path $WorkRoot "Hermes-Setup.exe"
+    $setupExe = Join-Path $WorkRoot "Envoy-Setup.exe"
     if (-not (Test-Path -LiteralPath $setupExe)) {
         Write-Host "  downloading $SetupExeUrl"
         Invoke-WebRequest -Uri $SetupExeUrl -OutFile $setupExe
     }
-    Assert-True ((Get-Item $setupExe).Length -gt 1MB) "Hermes-Setup.exe downloaded ($([math]::Round((Get-Item $setupExe).Length / 1MB, 1)) MB)"
+    Assert-True ((Get-Item $setupExe).Length -gt 1MB) "Envoy-Setup.exe downloaded ($([math]::Round((Get-Item $setupExe).Length / 1MB, 1)) MB)"
 
     # AutoHotkey v2, portable zip (no installer, no winget flakes).
     $ahkExe = Join-Path $AhkDir "AutoHotkey64.exe"
@@ -1038,13 +1038,13 @@ function Invoke-PhaseInstallGui {
                 $env:HERMES_SETUP_DEV_REPO_ROOT = $previousSetupSource
             }
         }
-        Write-Host "  Hermes-Setup.exe launched (pid $($installer.Id))"
+        Write-Host "  Envoy-Setup.exe launched (pid $($installer.Id))"
 
-        # Drive it: Install click -> wait -> Launch click -> Hermes.exe window.
+        # Drive it: Install click -> wait -> Launch click -> Envoy.exe window.
         # Arg 3 lets the AHK script use the installer's own log as the
         # install-finished fallback signal.
         $ahk = Start-Process -FilePath $ahkExe `
-            -ArgumentList (Join-Path $AhkDir "install-and-launch.ahk"), $ahkLog, "Hermes-Setup.exe", (Join-Path $HermesHome "logs\bootstrap-installer.log") `
+            -ArgumentList (Join-Path $AhkDir "install-and-launch.ahk"), $ahkLog, "Envoy-Setup.exe", (Join-Path $HermesHome "logs\bootstrap-installer.log") `
             -PassThru
         # Install on a cold runner takes a while; the AHK script's own inner
         # timeout (45 min on the Launch wait) is the effective budget.
@@ -1066,13 +1066,13 @@ function Invoke-PhaseInstallGui {
 
         # The Launch hand-off under test: the app the installer spawned must
         # actually be running.
-        Assert-True ($null -ne (Get-Process -Name "Hermes" -ErrorAction SilentlyContinue)) "Hermes.exe process is running (installer Launch hand-off worked)"
+        Assert-True ($null -ne (Get-Process -Name "Envoy" -ErrorAction SilentlyContinue)) "Envoy.exe process is running (installer Launch hand-off worked)"
 
         # Installer should have exited after Launch.
         if (-not $installer.HasExited) {
             Start-Sleep -Seconds 10
         }
-        Assert-True $installer.HasExited "Hermes-Setup.exe exited after Launch"
+        Assert-True $installer.HasExited "Envoy-Setup.exe exited after Launch"
     }
     finally {
         Stop-DesktopRecorder $recorder (Join-Path $proof "desktop-frames")
@@ -1095,7 +1095,7 @@ function Invoke-PhaseInstallGui {
         Assert-True ($installedSha -ne $state.current) "installed checkout differs from HEAD (an update is genuinely available)"
     }
     Test-HermesRuns "post-$Mode-gui"
-    Assert-True ($null -ne (Get-DesktopExe)) "packaged Desktop Hermes.exe exists"
+    Assert-True ($null -ne (Get-DesktopExe)) "packaged Desktop Envoy.exe exists"
 
     # The installer Launch proof above must pass before a test-owned launch.
     $script:ChatFailure = $true
@@ -1131,7 +1131,7 @@ function Invoke-GuiUpdateDesktopRoute([string]$TargetSha) {
     Write-Host "  serve.git main advanced to $TargetSha"
 
     $desktopExe = Get-DesktopExe
-    Assert-True ($null -ne $desktopExe) "packaged Hermes.exe present before update"
+    Assert-True ($null -ne $desktopExe) "packaged Envoy.exe present before update"
 
     $resultPath = Join-Path $HermesHome ".hermes-update-result.json"
     $markerPath = Join-Path $HermesHome ".hermes-update-in-progress"
@@ -1167,7 +1167,7 @@ function Invoke-GuiUpdateDesktopRoute([string]$TargetSha) {
         Assert-True ($driveExit -eq 0) "GUI driver clicked Update now and the app quit for hand-off"
 
         # The detached updater (spawned by the app, NOT by us) now runs
-        # `hermes update` + desktop rebuild + relaunch. Which updater depends
+        # `envoy update` + desktop rebuild + relaunch. Which updater depends
         # on the installed checkout, and BOTH are production paths:
         #   * checkouts shipping scripts/desktop-update.ps1 -> that script,
         #     which writes .hermes-update-result.json on every exit;
@@ -1222,26 +1222,26 @@ function Invoke-GuiUpdateDesktopRoute([string]$TargetSha) {
 
         Assert-True ((Get-InstalledHead) -eq $TargetSha) "checkout landed on target commit"
         Test-HermesRuns "post-update"
-        Assert-True ($null -ne (Get-DesktopExe)) "Hermes.exe still present after update"
+        Assert-True ($null -ne (Get-DesktopExe)) "Envoy.exe still present after update"
 
         # The production hand-off relaunches the desktop (RelaunchExe).
         # A relaunched window is the user-visible proof the update loop closed.
-        Write-Host "  waiting for the relaunched Hermes.exe ..."
+        Write-Host "  waiting for the relaunched Envoy.exe ..."
         $rDeadline = (Get-Date).AddMinutes(5)
         $relaunched = $null
         while ((Get-Date) -lt $rDeadline) {
-            $relaunched = Get-Process -Name "Hermes" -ErrorAction SilentlyContinue
+            $relaunched = Get-Process -Name "Envoy" -ErrorAction SilentlyContinue
             if ($relaunched) { break }
             Start-Sleep -Seconds 5
         }
         Assert-True ($null -ne $relaunched) "updater relaunched the desktop app"
         Start-Sleep -Seconds 12   # let the window paint for the screenshot
-        # Foreground the relaunched Hermes window so the proof screenshot
+        # Foreground the relaunched Envoy window so the proof screenshot
         # captures IT, not whatever else is on top (the full-desktop grab is
         # otherwise at the mercy of z-order -- an earlier run caught VS Code).
         $mainProc = $null
         try {
-            $mainProc = Get-Process -Name "Hermes" -ErrorAction SilentlyContinue |
+            $mainProc = Get-Process -Name "Envoy" -ErrorAction SilentlyContinue |
                 Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
             if ($mainProc) {
                 Add-Type -Namespace HdE2E -Name Win -MemberDefinition @'
@@ -1391,7 +1391,7 @@ function Invoke-UserStateActions {
             # limitation, not a preservation failure.
             & $hermes auth add --help *> $null
             if ($LASTEXITCODE -ne 0) {
-                Write-Host '  SKIP hermes auth add does not exist on this ref; auth.json is not covered by this leg'
+                Write-Host '  SKIP envoy auth add does not exist on this ref; auth.json is not covered by this leg'
             }
             else {
             # The provider id and the flags are vintage surfaces, so probe them
@@ -1407,7 +1407,7 @@ function Invoke-UserStateActions {
             }
             $added = $false
             foreach ($provider in @('openrouter', 'anthropic')) {
-                Add-Content -LiteralPath $authLog -Value "=== hermes auth add $provider ==="
+                Add-Content -LiteralPath $authLog -Value "=== envoy auth add $provider ==="
                 & $hermes auth add $provider --type api-key `
                     --api-key 'e2e-preservation-not-a-real-key' @labelFlags 2>&1 |
                     Out-File -Encoding UTF8 -Append $authLog
@@ -1417,7 +1417,7 @@ function Invoke-UserStateActions {
                 }
             }
             if (-not $added) {
-                throw "hermes auth add failed for openrouter and anthropic; see $authLog"
+                throw "envoy auth add failed for openrouter and anthropic; see $authLog"
             }
             Write-Host '  a pooled credential exists (auth.json)'
             }
@@ -1429,14 +1429,14 @@ function Invoke-UserStateActions {
             # not a preservation failure.
             & $hermes profile create --help *> $null
             if ($LASTEXITCODE -ne 0) {
-                Write-Host '  SKIP hermes profile create does not exist on this ref; profiles/e2e-second is not covered by this leg'
+                Write-Host '  SKIP envoy profile create does not exist on this ref; profiles/e2e-second is not covered by this leg'
             }
             else {
             & $hermes profile create e2e-second 2>&1 |
                 Out-File -Encoding UTF8 (Join-Path $WorkRoot 'logs\user-state-profile.log')
-            if ($LASTEXITCODE -ne 0) { throw 'hermes profile create failed' }
+            if ($LASTEXITCODE -ne 0) { throw 'envoy profile create failed' }
             if (-not (Test-Path -LiteralPath (Join-Path $HermesHome 'profiles\e2e-second'))) {
-                throw 'hermes profile create produced no profile dir'
+                throw 'envoy profile create produced no profile dir'
             }
             # Factory templates migrate intentionally; preserve an authored profile instead.
             Add-Content -LiteralPath (Join-Path $HermesHome 'profiles\e2e-second\SOUL.md') `
@@ -1479,13 +1479,13 @@ function Invoke-UserStateVerify {
 }
 
 function Assert-RedirectIsTransportOnly {
-    # The redirect must stay at TRANSPORT level: `hermes update` resolves its
+    # The redirect must stay at TRANSPORT level: `envoy update` resolves its
     # channel from the release archive and validates the record against
     # `git config --get remote.origin.url`. If the configured URL ever looked
     # like the rehearsal source, channel resolution would fail and this leg
     # would be testing a fork install rather than the real user path.
-    $official = @('https://github.com/NousResearch/hermes-agent.git',
-                  'git@github.com:NousResearch/hermes-agent.git')
+    $official = @('https://github.com/trevorputbrese/envoy-agent.git',
+                  'git@github.com:trevorputbrese/envoy-agent.git')
     $configured = (Invoke-Git @('-C', $InstallDir, 'config', '--get', 'remote.origin.url') | Out-String).Trim()
     Assert-True ($official -contains $configured) "origin stays configured as an official URL (got '$configured')"
     $real = if ($env:HERMES_E2E_REAL_GIT) { $env:HERMES_E2E_REAL_GIT } else { 'git' }
@@ -1615,7 +1615,7 @@ function Invoke-PhaseUpdate {
             Assert-DesktopArtifact "HEAD"
         }
         "desktop-installer@latest" {
-            # A user re-downloading Hermes-Setup.exe and clicking Install over
+            # A user re-downloading Envoy-Setup.exe and clicking Install over
             # the existing install (the GUI twin of re-running the one-liner).
             # Windows has no already-installed fast path, so the full installer
             # UI shows and the same AHK drive applies; install.ps1's repository
@@ -1690,12 +1690,12 @@ function Invoke-PhaseVerifyStamp {
     } finally { $ErrorActionPreference = $prevEap }
     $verdict | ForEach-Object { Write-Host $_ }
     if ($verifyExit -eq 0) { return }
-    # Permanent legacy shape, not a pending fix: the released Hermes-Setup.exe
+    # Permanent legacy shape, not a pending fix: the released Envoy-Setup.exe
     # replaces install.ps1's receipt with its own (#124949): "completedAtUnix"
     # (epoch seconds) instead of "completedAt", and a null pinnedCommit when git
     # is not on PATH. #125053 fixed the writer, but the installer .exe is not
     # rebuilt, so every Desktop-installer machine carries this receipt until the
-    # next `hermes update` rewrites it (hermes_cli/source_stamp.py). No reader
+    # next `envoy update` rewrites it (hermes_cli/source_stamp.py). No reader
     # depends on those two fields: Desktop's launch gate is runtime usability,
     # and the receipt's other readers check only that it exists. So the contract
     # for that shape is: exactly those two FAIL lines, an integer
@@ -1707,10 +1707,10 @@ function Invoke-PhaseVerifyStamp {
     $setupExeReceipt = $receipt -and ($receipt.PSObject.Properties.Name -contains 'completedAtUnix')
     if ($setupExeReceipt -and $fails.Count -and -not @($fails | Where-Object { $_ -notmatch $legacyOnly }).Count) {
         $unix = $receipt.completedAtUnix
-        Assert-True ((($unix -is [int]) -or ($unix -is [long])) -and $unix -gt 0) "Hermes-Setup.exe receipt completedAtUnix is epoch seconds: '$unix'"
+        Assert-True ((($unix -is [int]) -or ($unix -is [long])) -and $unix -gt 0) "Envoy-Setup.exe receipt completedAtUnix is epoch seconds: '$unix'"
         # The receipt cannot vouch for the commit, so the checkout must.
         Assert-True ($head -eq $state.current) "installed checkout is at the expected commit ($($state.current.Substring(0, 12)))"
-        $note = "Hermes-Setup.exe legacy receipt accepted (#124949; the released exe is not rebuilt): $($fails -join '; ')"
+        $note = "Envoy-Setup.exe legacy receipt accepted (#124949; the released exe is not rebuilt): $($fails -join '; ')"
         Write-Host "  $note"
         if ($env:GITHUB_STEP_SUMMARY) { Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value $note -Encoding UTF8 }
         return

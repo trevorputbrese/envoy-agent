@@ -1,4 +1,4 @@
-"""Name what a draining gateway is waiting on while ``hermes update`` blocks on it.
+"""Name what a draining gateway is waiting on while ``envoy update`` blocks on it.
 
 The gateway's in-band restart (SIGUSR1 → ``request_restart``) defers ``stop()`` until in-flight
 work finishes, capped by ``agent.restart_after_turn_timeout`` (30 min by default). From the
@@ -84,11 +84,11 @@ def read_active_work(home: Optional[Path] = None) -> Optional[list]:
 
 
 def _tui_command(home: Optional[Path]) -> str:
-    """The TUI command that opens *home*'s profile: a bare ``hermes`` opens the default one."""
+    """The TUI command that opens *home*'s profile: a bare ``envoy`` opens the default one."""
     from hermes_constants import profile_name_for_home
 
     name = profile_name_for_home(home)
-    return f"hermes -p {name} --tui" if name and name != "default" else "hermes --tui"
+    return f"envoy -p {name} --tui" if name and name != "default" else "envoy --tui"
 
 
 def format_drain_report(work: Optional[list], *, remaining_s: float, home: Optional[Path] = None) -> str:

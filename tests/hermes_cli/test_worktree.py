@@ -261,7 +261,7 @@ class TestWorktreeLockPredicate:
         assert worktree_ops._worktree_lock_is_live(str(git_repo), str(p)) == "dead"
 
     def test_unparseable_hermes_lock_reason_fails_safe_to_live(self, git_repo):
-        # N5: a hermes lock this version cannot read is never evidence that its owner is gone.
+        # N5: a envoy lock this version cannot read is never evidence that its owner is gone.
         p = self._mk_locked(git_repo, "hermes-future", "hermes owner=v2 pid=12x")
         assert worktree_ops._worktree_lock_is_live(str(git_repo), str(p)) == "live"
 
@@ -396,7 +396,7 @@ class TestWidenedPruner:
 
 class TestMergeVerdictCache:
     """The ``git cherry`` patch-equivalence probe is memoized on disk because it
-    dominates ``hermes -w`` startup (~0.2-1.0s per worktree, re-run on every
+    dominates ``envoy -w`` startup (~0.2-1.0s per worktree, re-run on every
     launch for every tree preserved as unpushed).
 
     The invariant that makes caching safe: the verdict is a pure function of the

@@ -1,5 +1,5 @@
-"""Configuration management for Hermes Agent: config.yaml / .env loading, saving,
-validation, migration, and the ``hermes config`` command."""
+"""Configuration management for Envoy Agent: config.yaml / .env loading, saving,
+validation, migration, and the ``envoy config`` command."""
 
 # Stale-module bridge — must run before ANY import below can bind a root-level symbol.
 # A pre-handoff updater purges only package prefixes after the pull, so a root module
@@ -82,10 +82,10 @@ _ENV_VAR_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 # Env var names that influence how the next subprocess executes — never writable through
 # ``save_env_value``: dynamic loader (LD_*/DYLD_*: attacker code loads before main()),
-# interpreter init (PYTHON*, NODE_*: Hermes restarts through them), PATH (fix tool lookup
+# interpreter init (PYTHON*, NODE_*: Envoy restarts through them), PATH (fix tool lookup
 # with absolute paths instead), git rewrites (fire on every plugin install/update),
 # implicitly-invoked commands (BROWSER/EDITOR/VISUAL/PAGER = RCE on next $EDITOR), SHELL,
-# and Hermes runtime-location / security-policy flags (config.yaml is the supported surface).
+# and Envoy runtime-location / security-policy flags (config.yaml is the supported surface).
 #
 # ``HERMES_*`` overall is NOT blocked — many integration credentials use that prefix
 # (HERMES_LANGFUSE_PUBLIC_KEY, HERMES_SPOTIFY_CLIENT_ID, ...). The denylist is name-by-name so
@@ -122,7 +122,7 @@ _ENV_VAR_NAME_DENYLIST: frozenset[str] = frozenset({
     "GIT_PROXY_COMMAND", "GIT_TEMPLATE_DIR", "GIT_DIR",
     # Shell init files / interactive hooks — sourced before or during execution
     "BASH_ENV", "ENV", "ZDOTDIR", "PROMPT_COMMAND", "VIMINIT", "EXINIT",
-    # Hermes runtime location
+    # Envoy runtime location
     "HERMES_HOME", "HERMES_PROFILE", "HERMES_CONFIG", "HERMES_ENV",
     "HERMES_CONFIG_PATH", "HERMES_ENV_PATH",
     # MCP catalog trust root; package-manager wrappers may still set it in the process env.
@@ -152,7 +152,7 @@ def validate_env_var_name_for_write(key: str) -> None:
         raise ValueError(
             f"Environment variable {key!r} is on the writer denylist. "
             "Names that influence subprocess execution (LD_PRELOAD, PYTHONPATH, PATH, EDITOR, ...) "
-            "or Hermes runtime location and security policy (HERMES_HOME, HERMES_YOLO_MODE, ...) "
+            "or Envoy runtime location and security policy (HERMES_HOME, HERMES_YOLO_MODE, ...) "
             "cannot be persisted via the env writer. If you really need this, edit ~/.hermes/.env "
             "directly.")
 
@@ -230,14 +230,14 @@ _NIX_STORE = Path("/nix/store")
 
 
 def is_managed() -> bool:
-    """Check if Hermes is running in package-manager-managed mode."""
+    """Check if Envoy is running in package-manager-managed mode."""
     return get_managed_system() is not None
 
 
 # Nix installs arrive by several routes (nix run, nix profile, system flake, home-manager) and
 # the running process cannot tell which, so the text names the routes instead of one command.
 _NIX_UPDATE_MSG = (
-    "Update Hermes through the Nix source that installed it "
+    "Update Envoy through the Nix source that installed it "
     "(e.g. nix profile upgrade, or update your flake input and rebuild with nixos-rebuild or home-manager switch)"
 )
 
@@ -262,12 +262,12 @@ def _install_method_stamp(path: Path) -> Optional[str]:
 
 
 def detect_install_method(project_root: Optional[Path] = None) -> str:
-    """Detect how Hermes was installed: apt/docker/nix/nixos/home-manager/git/unknown.
+    """Detect how Envoy was installed: apt/docker/nix/nixos/home-manager/git/unknown.
     Order: code-scoped ``<install tree>/.install_method`` stamp (authoritative) -> legacy
     ``$HERMES_HOME/.install_method`` -> managed marker -> /nix/store path -> .git dir -> unknown.
     The stamp lives next to the code because HERMES_HOME is shared data: a container and a host
     install can bind-mount the same home, so a home-scoped ``docker`` stamp would make the host
-    ``hermes update`` refuse to run. A legacy ``docker`` value is therefore ignored unless we are
+    ``envoy update`` refuse to run. A legacy ``docker`` value is therefore ignored unless we are
     really inside a container, and being in a container alone never implies 'docker'.
 
     Source installers clone a git checkout and publish ``install-stamp.json``;
@@ -326,7 +326,7 @@ def is_nix_install_method(method: str) -> bool:
 
 
 _UPDATE_COMMAND_BY_METHOD = {
-    "docker": "docker pull nousresearch/hermes-agent:latest",
+    "docker": "docker pull trevorputbrese/envoy-agent:latest",
     "apt": "pkg upgrade hermes-agent",  # "apt" == Termux APT by contract; uses Termux's `pkg`.
 }
 
@@ -335,7 +335,7 @@ def recommended_update_command_for_method(method: str) -> str:
     """Return the update command or guidance for a given install method."""
     if is_nix_install_method(method):
         return _NIX_UPDATE_MSG
-    return _UPDATE_COMMAND_BY_METHOD.get(method, "hermes update")
+    return _UPDATE_COMMAND_BY_METHOD.get(method, "envoy update")
 
 
 def recommended_update_command() -> str:
@@ -348,27 +348,27 @@ def recommended_update_command() -> str:
 
 # Shared by ``cmd_update`` and ``_cmd_update_check`` (hermes_cli/main.py) so the wording never
 # forks. The published image excludes ``.git``, so the git update path can never succeed there
-# and the generic "reinstall via install.sh" fallback would install a NEW host-side Hermes.
+# and the generic "reinstall via install.sh" fallback would install a NEW host-side Envoy.
 _DOCKER_UPDATE_MESSAGE = """\
-✗ ``hermes update`` doesn't apply inside the Docker container.
+✗ ``envoy update`` doesn't apply inside the Docker container.
 
-Hermes Agent runs as a published image (nousresearch/hermes-agent), not a
+Envoy Agent runs as a published image (trevorputbrese/envoy-agent), not a
 git checkout — the container has no working tree to pull into.  Update by
 pulling a fresh image and restarting your container instead:
 
-  docker pull nousresearch/hermes-agent:latest
+  docker pull trevorputbrese/envoy-agent:latest
   # then restart whatever started the container, e.g.:
   docker compose up -d --force-recreate hermes-agent
   # or, for ad-hoc runs, exit the current container and `docker run` again
 
 Verify the new version after restart:
-  docker run --rm nousresearch/hermes-agent:latest --version
+  docker run --rm trevorputbrese/envoy-agent:latest --version
 
 Notes:
   • If you pinned a specific tag (e.g. ``:v0.14.0``) the ``:latest`` tag
     won't move your container — pull the newer tag you actually want, or
     switch to ``:latest`` / ``:main`` for rolling updates.  See available
-    tags at https://hub.docker.com/r/nousresearch/hermes-agent/tags
+    tags at https://hub.docker.com/r/trevorputbrese/envoy-agent/tags
   • On a ``-desktop`` tag (the one carrying Bot Screen)?  Keep the suffix:
     the unsuffixed image has no Xvnc/Xfce and no sudo to add them, so
     pulling it stops the bots' screens from starting.
@@ -380,16 +380,16 @@ Notes:
 
 
 def format_docker_update_message() -> str:
-    """Return the user-facing message for ``hermes update`` inside Docker."""
+    """Return the user-facing message for ``envoy update`` inside Docker."""
     return _DOCKER_UPDATE_MESSAGE
 
 
-def format_managed_message(action: str = "modify this Hermes installation") -> str:
+def format_managed_message(action: str = "modify this Envoy installation") -> str:
     """Build a user-facing error for managed installs."""
     managed_system = get_managed_system() or "a package manager"
     return (
-        f"Cannot {action}: this Hermes installation is managed by {managed_system}.\n"
-        "Use your package manager to upgrade or reinstall Hermes.")
+        f"Cannot {action}: this Envoy installation is managed by {managed_system}.\n"
+        "Use your package manager to upgrade or reinstall Envoy.")
 
 
 def managed_error(action: str = "modify configuration"):
@@ -460,9 +460,9 @@ def require_parseable_user_config(*, ignore_user_config: bool = False) -> None:
     backup_path = backup_config(config_path, "corrupt")
     where = _yaml_error_location(parse_error)
     message = (
-        f"Hermes stopped because your settings file ({config_path}) has a formatting error"
-        f"{f' at {where}' if where else ''}. Fix it with `hermes config edit` and check with "
-        "`hermes config check`, or add --ignore-user-config to run once with default settings.")
+        f"Envoy stopped because your settings file ({config_path}) has a formatting error"
+        f"{f' at {where}' if where else ''}. Fix it with `envoy config edit` and check with "
+        "`envoy config check`, or add --ignore-user-config to run once with default settings.")
     if backup_path is not None:
         message += f" A copy of the broken file is at {backup_path}."
     message += f" Details: {_yaml_error_details(parse_error)}"
@@ -512,7 +512,7 @@ def seed_config_file(config_path: Path, template: Optional[Path] = None) -> bool
     """Create a missing config.yaml the way the installers do: copy cli-config.yaml.example (the display keys
     there are commented out), else write stripped DEFAULT_CONFIG. Never DEFAULT_CONFIG verbatim -- the gateway
     merges no defaults, so every written display key becomes a global that beats each platform's own default
-    (#121230). Shared by ``hermes config edit`` and ``hermes doctor --fix`` so the seeders cannot drift.
+    (#121230). Shared by ``envoy config edit`` and ``envoy doctor --fix`` so the seeders cannot drift.
     Returns True when the template was copied (the fallback, like save_config, writes get_config_path())."""
     template = template or get_project_root() / "cli-config.yaml.example"
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -645,7 +645,7 @@ def _split_key_path(key: str) -> list[str]:
     """Split a dotted config-key path, honoring backslash-escaped dots (``a\\.b`` -> ``a.b``).
     Backslashes before any other character are preserved verbatim.
 
-    ``hermes config set`` uses ``.`` as the nesting separator, so a key that itself contains a literal dot
+    ``envoy config set`` uses ``.`` as the nesting separator, so a key that itself contains a literal dot
     (e.g. provider names like ``qwen3.5-397b-wafer``) was silently split into bogus nested segments
     (#84064).
     """
@@ -870,7 +870,7 @@ _ENV_CONFIG_KEYS = frozenset({
 
 
 def _is_env_config_key(key: str) -> bool:
-    """Return whether `hermes config set` routes this credential-shaped key to .env through the
+    """Return whether `envoy config set` routes this credential-shaped key to .env through the
     provider credential lifecycle. Non-secret env settings (``*_HOME_CHANNEL``, ``*_ALLOWED_USERS``)
     are ``config_env_routing.is_env_setting_key`` and take the plain ``.env`` path."""
     if "." in key:
@@ -927,7 +927,7 @@ def get_missing_skill_config_vars() -> list[dict[str, Any]]:
     try:
         all_vars = discover_all_skill_config_vars()
     except Exception as e:
-        # A malformed SKILL.md must never break `hermes update`; this prompting is a nicety.
+        # A malformed SKILL.md must never break `envoy update`; this prompting is a nicety.
         logger.debug("discover_all_skill_config_vars failed: %s", e)
         return []
     if not all_vars:
@@ -1074,7 +1074,7 @@ def validate_config_structure(config: Optional[dict[str, Any]] = None) -> list[C
 
     if cp and not config.get("model"):
         _issue(issues, "warning",
-               "custom_providers defined but no 'model' section — Hermes won't know which provider to use",
+               "custom_providers defined but no 'model' section — Envoy won't know which provider to use",
                "Add a model section:\n  model:\n    provider: custom\n    default: your-model-name\n"
                "    base_url: https://...")
 
@@ -1105,7 +1105,7 @@ def print_config_warnings(config: Optional[dict[str, Any]] = None) -> None:
     for ci in issues:
         marker = "\033[31m✗\033[0m" if ci.severity == "error" else "\033[33m⚠\033[0m"
         lines.append(f"  {marker} {ci.message}")
-    lines.append("  \033[2mRun 'hermes doctor' for fix suggestions.\033[0m")
+    lines.append("  \033[2mRun 'envoy doctor' for fix suggestions.\033[0m")
     sys.stderr.write("\n".join(lines) + "\n\n")
 
 
@@ -1140,7 +1140,7 @@ def _persist_migration(config: dict[str, Any]) -> None:
     persist values that DIFFER from the schema default, plus explicit removals/renames of user
     data. Every migration step MUST write through here (``save_config`` with default-stripping
     ON, no ``merge_existing``) so the invariant cannot regress one migration at a time. A migration
-    is Hermes' own write, never a user turning a feature off. A backend without file tooling
+    is Envoy's own write, never a user turning a feature off. A backend without file tooling
     migrates in memory on read and never writes back (D12)."""
     from hermes_cli.observability.shared_metrics_disabled import hermes_applied_write
 
@@ -1202,7 +1202,7 @@ def migrate_config(interactive: bool = True, quiet: bool = False) -> dict[str, A
         msg = support_floor_message()
         results["warnings"].append(msg)
         # stderr so it is visible even on quiet startup paths.
-        sys.stderr.write(f"⚠ hermes config: {msg}\n")
+        sys.stderr.write(f"⚠ envoy config: {msg}\n")
         if not quiet:
             print(f"  ⚠ {msg}")
     else:
@@ -1299,7 +1299,7 @@ def _offer_list(heading: str, items: list[str], question: str) -> bool:
         print(f"    • {item}")
     print()
     if not _ask_yes_no(question):
-        print("  Set later with: hermes config set <key> <value>")
+        print("  Set later with: envoy config set <key> <value>")
         return False
     print()
     return True
@@ -1612,7 +1612,7 @@ def _normalize_root_model_keys(config: dict[str, Any]) -> dict[str, Any]:
     sees a nested dict, and the id is canonicalized to ``default``.
 
     Also aliases ``api_base`` → ``base_url`` (issue #8919). ``api_base`` is the intuitive name OpenAI-SDK /
-    LiteLLM users reach for, and ``hermes config set`` blindly accepts any dotted key — so
+    LiteLLM users reach for, and ``envoy config set`` blindly accepts any dotted key — so
     ``model.api_base`` got written, confirmed, and then silently ignored by the runtime resolver (which
     reads only ``model.base_url``), causing requests to fall back to OpenRouter. We migrate the alias to the
     canonical key (fallback-only — never override an explicit ``base_url``) and drop the alias so it can't
@@ -1621,7 +1621,7 @@ def _normalize_root_model_keys(config: dict[str, Any]) -> dict[str, Any]:
     ~14 other readers select the chat model via ``model.default``; ``model.model`` was already aliased
     inline at some sites but ``model.name`` was not, so a custom-provider config like ``model: {name: <id>,
     provider: <custom>}`` resolved to an empty model and the API request went out with ``model=`` (HTTP 400
-    from OpenAI-compatible backends) — while display paths (``hermes status``/``dump``) read ``name`` and
+    from OpenAI-compatible backends) — while display paths (``envoy status``/``dump``) read ``name`` and
     *showed* the model, making the failure silent. Normalizing here (the single load/save chokepoint) means
     every reader, present and future, sees a populated ``default`` and the stale alias is migrated out of
     config.yaml on the next save. Precedence: ``default`` > ``model`` > ``name`` (never overrides an
@@ -2050,7 +2050,7 @@ def terminal_config_env_var_for_key(key: str) -> Optional[str]:
 
 
 def _is_ssh_remote_tilde_cwd(backend: str, cwd: str) -> bool:
-    """Whether the remote SSH shell must expand *cwd* itself: ``~`` expanded on the Hermes host
+    """Whether the remote SSH shell must expand *cwd* itself: ``~`` expanded on the Envoy host
     would name the host/container home instead of the SSH user's."""
     return (backend or "").strip().lower() == "ssh" and (cwd == "~" or cwd.startswith("~/"))
 
@@ -2136,7 +2136,7 @@ def _last_known_good_fallback(config_path: Path, path_key: str, cache_sig, exc: 
     lkg = _LAST_EXPANDED_CONFIG_BY_PATH.get(path_key)
     fallback = "last-known-good"
     if lkg is None:
-        # Fresh process (CLI restart, `hermes config get`): nothing loaded yet in this process, so
+        # Fresh process (CLI restart, `envoy config get`): nothing loaded yet in this process, so
         # fall back to the newest byte-exact copy the last successful parse left in backups/config/.
         # It holds the raw file (``${VAR}`` templates intact), so it goes through the same
         # canonicalize -> expand -> managed-overlay pipeline as a normal load.
@@ -2317,8 +2317,8 @@ _FALLBACK_COMMENT = """
 #
 # Supported providers:
 #   openrouter   (OPENROUTER_API_KEY)  — routes to any model
-#   openai-codex (OAuth — hermes auth) — OpenAI Codex
-#   nous         (OAuth — hermes auth) — Nous Portal
+#   openai-codex (OAuth — envoy auth) — OpenAI Codex
+#   nous         (OAuth — envoy auth) — Nous Portal
 #   zai          (ZAI_API_KEY)         — Z.AI / GLM
 #   kimi-coding  (KIMI_API_KEY)        — Kimi / Moonshot
 #   kimi-coding-cn (KIMI_CN_API_KEY)   — Kimi / Moonshot (China)
@@ -2768,7 +2768,7 @@ def save_env_value_secure(key: str, value: str) -> dict[str, Any]:
 
 def reload_env() -> int:
     """Re-read ~/.hermes/.env into os.environ; returns count of vars changed.
-    Removes deleted vars only when known to Hermes (OPTIONAL_ENV_VARS and _EXTRA_ENV_KEYS) so
+    Removes deleted vars only when known to Envoy (OPTIONAL_ENV_VARS and _EXTRA_ENV_KEYS) so
     unrelated environment is never clobbered."""
     env_vars = load_env()
     count = 0
@@ -2811,7 +2811,7 @@ def get_env_value(key: str) -> Optional[str]:
 
 
 def get_env_value_prefer_dotenv(key: str) -> Optional[str]:
-    """Resolve a Hermes-managed credential preferring ``~/.hermes/.env`` over ``os.environ``, so a
+    """Resolve an Envoy-managed credential preferring ``~/.hermes/.env`` over ``os.environ``, so a
     deliberate .env edit beats a stale value inherited from the parent shell.
 
     An unresolved ``op://`` reference left in .env yields to the already-resolved value from the
@@ -2886,8 +2886,8 @@ def edit_config():
     if not supports_file_tooling():
         # Exits 1 (unlike the managed refusal above, which every managed_error caller shares):
         # a script must not read this refusal as a successful edit.
-        _exit_invalid("`hermes config edit` opens the local config file, and this config backend has none. "
-                      "Use `hermes config set <key> <value>` instead.")
+        _exit_invalid("`envoy config edit` opens the local config file, and this config backend has none. "
+                      "Use `envoy config set <key> <value>` instead.")
     config_path = get_config_path()
     if not config_path.exists():  # config-reader: ok — file tooling, gated on supports_file_tooling()
         seed_config_file(config_path)
@@ -3099,7 +3099,7 @@ _SCALAR_WORDS = {
 
 
 def _coerce_config_set_value(key: str, value: str) -> Any:
-    """Auto-coerce a ``hermes config set`` string to bool/None/int/float/list/dict.
+    """Auto-coerce a ``envoy config set`` string to bool/None/int/float/list/dict.
     String-typed settings (per ``DEFAULT_CONFIG``) are preserved verbatim so enum members such as
     ``approvals.mode="off"`` never become booleans. List/mapping literals are parsed so
     isinstance-gated readers see real structures; the trigger is conservative.
@@ -3188,7 +3188,7 @@ def _refuse_container_type_mismatch(key: str, value: Any, user_config: dict[str,
     literal = "[item, ...]" if expected == "list" else "{key: value}"
     _exit_invalid(
         f"✗ Cannot set '{key}': it must be a {expected}, got a {got} — nothing was written.\n"
-        f"  Pass a YAML/JSON literal, e.g.:\n    hermes config set {key} '{literal}'\n"
+        f"  Pass a YAML/JSON literal, e.g.:\n    envoy config set {key} '{literal}'\n"
         "  or edit config.yaml directly.")
 
 
@@ -3280,7 +3280,7 @@ def _write_user_config(config_path: Path, user_config: dict[str, Any]) -> None:
 def _print_unknown_key_notice(key: str, suggestion: Optional[str]) -> None:
     print(color(
         f"⚠ '{key}' is not a recognized config key — it was saved anyway, "
-        "but Hermes may not read it.", Colors.YELLOW))
+        "but Envoy may not read it.", Colors.YELLOW))
     if suggestion:
         print(color(f"  Did you mean: {suggestion}", Colors.YELLOW))
     # The env bridge covers custom TOP-LEVEL keys only; an unseeded nested path (``stt.provider``)
@@ -3395,10 +3395,10 @@ def set_config_value(key: str, value: str, force: bool = False):
             _route_notice = color(
                 f"⚠ model.base_url ({user_config['model'].get('base_url')}) was set under {_old_provider} and "
                 f"still applies to {value} — requests go there. If it is not {value}'s endpoint: "
-                "`hermes config unset model.base_url` (and model.api_mode).", Colors.YELLOW)
+                "`envoy config unset model.base_url` (and model.api_mode).", Colors.YELLOW)
     # api_base -> base_url alias at set-time too (mirrors _normalize_root_model_keys).
     if key.strip().lower() in ("model.api_base", "api_base"):
-        # Normalize the api_base → base_url alias at set-time too (issue #8919), so a fresh `hermes config
+        # Normalize the api_base → base_url alias at set-time too (issue #8919), so a fresh `envoy config
         # set model.api_base ...` lands on the canonical key the runtime resolver actually reads, instead of
         # being silently ignored.
         user_config = _normalize_root_model_keys(user_config)
@@ -3479,7 +3479,7 @@ def get_config_value(key: str, *, as_json: bool = False, raw: bool = False):
         is_known, suggestion = _validate_config_key(key)
         if not is_known:
             print(color(
-                f"⚠ '{key}' is not a recognized config key — Hermes may not read it; the value "
+                f"⚠ '{key}' is not a recognized config key — Envoy may not read it; the value "
                 "printed above comes from your config file.", Colors.YELLOW), file=sys.stderr)
             if suggestion:
                 print(color(f"  Did you mean: {suggestion}", Colors.YELLOW), file=sys.stderr)
@@ -3564,17 +3564,17 @@ def _run_write_command(fn, *args) -> None:
         _exit_invalid(f"✗ {exc}")
 
 
-_USAGE_GET = ("Usage: hermes config get <key> [--json] [--raw]", [
-    "hermes config get model", "hermes config get terminal.backend",
-    "hermes config get skills.config --json"], None)
-_USAGE_SET = ("Usage: hermes config set [--force] <key> <value>", [
-    "hermes config set model anthropic/claude-sonnet-4", "hermes config set terminal.backend docker",
-    "hermes config set OPENROUTER_API_KEY sk-or-..."], [
+_USAGE_GET = ("Usage: envoy config get <key> [--json] [--raw]", [
+    "envoy config get model", "envoy config get terminal.backend",
+    "envoy config get skills.config --json"], None)
+_USAGE_SET = ("Usage: envoy config set [--force] <key> <value>", [
+    "envoy config set model anthropic/claude-sonnet-4", "envoy config set terminal.backend docker",
+    "envoy config set OPENROUTER_API_KEY sk-or-..."], [
     "", "  --force: skip the unknown-key notice for unrecognized keys,",
     "           and allow a scalar to replace a whole mapping section"])
-_USAGE_UNSET = ("Usage: hermes config unset <key>", [
-    "hermes config unset model", "hermes config unset terminal.backend",
-    "hermes config unset OPENROUTER_API_KEY"], None)
+_USAGE_UNSET = ("Usage: envoy config unset <key>", [
+    "envoy config unset model", "envoy config unset terminal.backend",
+    "envoy config unset OPENROUTER_API_KEY"], None)
 
 
 def _cmd_config_get(args):
@@ -3674,7 +3674,7 @@ def _cmd_config_check(args):
     if missing_config:
         print()
         print(color(f"  {len(missing_config)} new config option(s) available", Colors.YELLOW))
-        print("    Run 'hermes config migrate' to add them")
+        print("    Run 'envoy config migrate' to add them")
 
     from hermes_cli.config_check_diagnostics import config_check_diagnostics
 
@@ -3706,15 +3706,15 @@ _CONFIG_SUBCOMMANDS = {
     "check": _cmd_config_check}
 
 _CONFIG_USAGE = """Available commands:
-  hermes config           Show current configuration
-  hermes config edit      Open config in editor
-  hermes config get <key>          Print a resolved config value
-  hermes config set <key> <value>   Set a config value
-  hermes config unset <key>        Remove a config value
-  hermes config check     Check for missing, outdated, or inactive config
-  hermes config migrate   Update config with new options
-  hermes config path      Show config file path
-  hermes config env-path  Show .env file path"""
+  envoy config           Show current configuration
+  envoy config edit      Open config in editor
+  envoy config get <key>          Print a resolved config value
+  envoy config set <key> <value>   Set a config value
+  envoy config unset <key>        Remove a config value
+  envoy config check     Check for missing, outdated, or inactive config
+  envoy config migrate   Update config with new options
+  envoy config path      Show config file path
+  envoy config env-path  Show .env file path"""
 
 
 def config_command(args):
@@ -3776,7 +3776,7 @@ def _platform_manifest_paths(home: Optional[Path] = None, source: PlatformManife
     """Yield ``(dir_name, manifest_path, require_kind, stat)`` for every platform plugin manifest.
     ``source`` is ``"bundled"`` (shipped ``plugins/platforms/*``), ``"user"`` (``<home>/plugins/
     platforms/*`` plus flat ``<home>/plugins/*`` installs, which must declare ``kind: platform``,
-    #46600) or ``"all"``. ``home`` defaults to the bound Hermes home. A directory that cannot be
+    #46600) or ``"all"``. ``home`` defaults to the bound Envoy home. A directory that cannot be
     listed or searched yields ``(name, None, require_kind, error)``: a plugin there can't load
     either, so callers skip it. One ``scandir`` per root and one ``stat`` per candidate, because
     the child-env scrub stamps these on every spawn."""

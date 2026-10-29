@@ -56,7 +56,7 @@ def _notify_session_boundary(event_type: str, session_id: str | None, platform: 
     return []
 
 
-_SESSION_OWNERSHIP_UNAVAILABLE = "Hermes could not safely reserve this session. Try again."
+_SESSION_OWNERSHIP_UNAVAILABLE = "Envoy could not safely reserve this session. Try again."
 _AUTOMATIC_SESSION_END_REASONS = frozenset({"ws_orphan_reap", "ws_disconnect", "idle_timeout", "lru_evict", "tui_shutdown"})
 
 
@@ -206,7 +206,7 @@ def _canonical_ledger_refusal(session: dict):
     logger.info("Refusing legacy turn for %s: canonical ledger holds %s work", key, row[0])
     refusal = ActiveSessionRefusal(
         f"Session {key} has {'outcome-unknown' if row[0] == 'unknown' else 'pending'} work in the gateway's "
-        "durable queue. Resume it through the gateway (hermes chat --resume, Desktop or the TUI) to "
+        "durable queue. Resume it through the gateway (envoy chat --resume, Desktop or the TUI) to "
         "resolve it; nothing was run here.", SESSION_NOT_OWNED)
     # prompt.submit forwards a typed prompt to the owner's FIFO for work that ends on its own
     # (tui_gateway/owner_forward.py); an ``unknown`` admission is never forwarded past.
@@ -1111,7 +1111,7 @@ def _close_sessions_for_transport(transport, *, end_reason: str = "ws_disconnect
                 claimed_for_teardown = _pop_session_by_id(sid)
             else:
                 # Point at the drop sentinel (NOT real stdio) so _ws_session_is_orphaned recognizes it; standalone
-                # `hermes --tui` keeps real _stdio. UNLESS another window (pop-out viewer) still shows the session:
+                # `envoy --tui` keeps real _stdio. UNLESS another window (pop-out viewer) still shows the session:
                 # re-bind to the most recent surviving viewer instead.
                 viewers = current.get("viewers") or {}
                 # See #83716.

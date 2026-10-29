@@ -1,4 +1,4 @@
-"""Focused tests for the Hermes shared-metrics durable store."""
+"""Focused tests for the Envoy shared-metrics durable store."""
 
 from __future__ import annotations
 
@@ -752,7 +752,7 @@ def test_model_call_fields_report_terminal_model_and_shipped_provider():
         "model": "nvidia/nemotron-3-ultra",
         "provider": "openrouter",
     }
-    # A provider Hermes does not ship is user-named (a custom endpoint key): neither it nor
+    # A provider Envoy does not ship is user-named (a custom endpoint key): neither it nor
     # the model id it serves leaves the machine.
     assert model_call_fields({
         "model": "ZAI/GLM-5.2",

@@ -21,7 +21,7 @@ PLUGIN = "agent-importers"
 
 
 class ImportSource(NamedTuple):
-    name: str                 # ``hermes import-agent <name>``
+    name: str                 # ``envoy import-agent <name>``
     label: str
     dirs: tuple[str, ...]     # dirs under ``~`` the plugin reads; the first one found wins
     extra_args: tuple[str, ...] = ()
@@ -61,14 +61,14 @@ def offer_agent_import(hermes_home: Path) -> str:
     print_header("Coming from another agent?", gap=True)
     context = ("Found on this computer: " + ", ".join(
         f"{s.label} ({str(p).replace(user_home, '~', 1)})" for s, p in found) + ".",
-        "Hermes can bring over its settings, memories, skills and MCP servers.",
+        "Envoy can bring over its settings, memories, skills and MCP servers.",
         "You'll see a preview and confirm before anything changes.")
     _info(*context)
     names = " or ".join(s.label for s, _ in found) if len(found) <= 2 else "any of them"
     # The menu clears the screen, so the question carries what it refers to ("any of them").
     if not prompt_yes_no(f"Import your setup from {names}?", default=True,
                          description="\n".join(f"  {w}" for line in context for w in textwrap.wrap(line, 76))):
-        print_info(f"Skipped. Import later with: hermes plugins install {PLUGIN}, then hermes import-agent")
+        print_info(f"Skipped. Import later with: envoy plugins install {PLUGIN}, then envoy import-agent")
         return ""
     picked = _pick_sources(found)
     if not picked or not _ensure_plugin(hermes_home):
@@ -81,7 +81,7 @@ def _pick_sources(found: list[tuple[ImportSource, Path]]) -> list[ImportSource]:
     from hermes_cli.setup import print_info, prompt_checklist
     if len(found) == 1:
         return [found[0][0]]
-    picked = prompt_checklist("Which agents should Hermes import from?", [s.label for s, _ in found],
+    picked = prompt_checklist("Which agents should Envoy import from?", [s.label for s, _ in found],
                               list(range(len(found))))
     if not picked:
         print_info("Nothing selected, so nothing was imported.")
@@ -98,7 +98,7 @@ def _ensure_plugin(hermes_home: Path) -> bool:
     from hermes_cli.setup import _info, print_warning
     present = plugin_present(PLUGIN, hermes_home)
     if not present:
-        _info(None, f"Importing is done by the '{PLUGIN}' plugin from the Hermes plugin catalog. "
+        _info(None, f"Importing is done by the '{PLUGIN}' plugin from the Envoy plugin catalog. "
                     "Installing it now...")
     try:
         if present:
@@ -114,7 +114,7 @@ def _ensure_plugin(hermes_home: Path) -> bool:
             return True
     verb = "enabled" if present else "installed"
     print_warning(f"The '{PLUGIN}' plugin could not be {verb}, so nothing was imported. "
-                  f"Try again later with: hermes plugins {'enable' if present else 'install'} {PLUGIN}")
+                  f"Try again later with: envoy plugins {'enable' if present else 'install'} {PLUGIN}")
     return False
 
 
@@ -124,7 +124,7 @@ def _snapshot(hermes_home: Path) -> tuple[Optional[bytes], ...]:
 
 
 def _run_import(source: ImportSource, hermes_home: Path) -> bool:
-    """``hermes import-agent <source>`` in a child process, so the freshly installed plugin's command
+    """``envoy import-agent <source>`` in a child process, so the freshly installed plugin's command
     is wired; it previews and asks before changing anything (and exits 0 on a no too). True when the
     run changed config.yaml or .env, which the setup sections after it read."""
     from hermes_cli.setup import print_header, print_warning
@@ -139,11 +139,11 @@ def _run_import(source: ImportSource, hermes_home: Path) -> bool:
     argv = [sys.executable, "-P", "-m", "hermes_cli.main", *selector, "import-agent", source.name, *source.extra_args,
             "--from-setup"]
     env = served_profile_child_env(target_home=hermes_home)
-    if os.environ.get("PYTHONPATH"):  # this same interpreter running Hermes: keep the source tree
+    if os.environ.get("PYTHONPATH"):  # this same interpreter running Envoy: keep the source tree
         env["PYTHONPATH"] = os.environ["PYTHONPATH"]  # a checkout launched by path, which it strips
     # health: allow HX006 -- interactive child: the user reads its preview and answers its prompts
     if subprocess.run(argv, env=env, check=False).returncode:
         # An install from before the plugin gained this importer, or --from-setup, refuses it (argparse, exit 2).
         print_warning(f"The {source.label} import did not run. If the error names an invalid choice or "
-                      f"unrecognized arguments, update the plugin first: hermes plugins update {PLUGIN}")
+                      f"unrecognized arguments, update the plugin first: envoy plugins update {PLUGIN}")
     return _snapshot(hermes_home) != before

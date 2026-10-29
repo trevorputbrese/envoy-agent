@@ -1,8 +1,8 @@
-// Multiplex-only, Desktop half: ONE `hermes serve` per HOST serves every
+// Multiplex-only, Desktop half: ONE `envoy serve` per HOST serves every
 // profile, so a local profile never gets a backend process of its own.
 //
 // The PRIMARY attaches to the host's running gateway through
-// `hermes gateway ensure` (local-gateway.ts). This module removes the other
+// `envoy gateway ensure` (local-gateway.ts). This module removes the other
 // producer of local backend children: the per-profile backend pool.
 // Every local profile now resolves onto the same host backend and carries its
 // own `profile` on the wire — the server binds a SESSION to a profile home
@@ -55,7 +55,7 @@ export class SecondLocalBackendError extends Error {
 
   constructor(poolKey: string) {
     super(
-      `Refusing to start a second local Hermes backend for "${poolKey}": one backend serves every profile on this host. ` +
+      `Refusing to start a second local Envoy backend for "${poolKey}": one backend serves every profile on this host. ` +
         'Set HERMES_DESKTOP_ISOLATED_BACKEND=1 for a private backend.'
     )
     this.name = 'SecondLocalBackendError'
@@ -67,7 +67,7 @@ export class SecondLocalBackendError extends Error {
  * The single enforcement point for "never spawn a second backend".
  *
  * Routing is what normally prevents a pooled local spawn; this guard sits at
- * the one place a local `hermes serve` child is actually started, so a future
+ * the one place a local `envoy serve` child is actually started, so a future
  * caller that reaches it through a path routing does not cover fails loudly
  * instead of quietly reintroducing a process per profile.
  */

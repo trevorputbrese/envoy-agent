@@ -223,7 +223,7 @@ def _write_exe_launcher(target: Path, python: Path, root: Path) -> None:
 
 
 def _command(home: Path) -> Path:
-    """The ``hermes`` a console runs: PATHEXT resolves .exe before .cmd."""
+    """The ``envoy`` a console runs: PATHEXT resolves .exe before .cmd."""
     exe = home / "bin" / "hermes.exe"
     return exe if exe.exists() else home / "bin" / "hermes.cmd"
 
@@ -242,7 +242,7 @@ def test_review_tree_leaves_the_installed_commands_alone(form, path_registration
     """A review tree started against the real home keeps the installed checkout's commands in its bin.
 
     Its boot bootstrap runs expose_cli too; republishing there would point every
-    console's ``hermes`` at the review tree."""
+    console's ``envoy`` at the review tree."""
     home = _windows_home(tmp_path, monkeypatch)
     installed = _checkout(home / "hermes-agent")
     review = _checkout(home / "reviews" / "pr-1" / "rebuild-wt")
@@ -306,7 +306,7 @@ class TestExposeCli:
         assert not extra.exists()
         assert {p.name for p in (root / ".hermes/bin").iterdir()} == set(_launchers.ENTRY_POINTS)
 
-        # An owned ACP entry must be repaired even without an owned hermes
+        # An owned ACP entry must be repaired even without an owned envoy
         # sibling admitting this directory. Its old target is already gone.
         extra.mkdir()
         dangling = root / "venv/bin/hermes-acp"
@@ -338,12 +338,12 @@ class TestExposeCli:
         assert _launchers.expose_cli(create=False) == {"ok": True, "written": []}
 
     @posix_only
-    def test_writes_all_three_wrappers_fresh(self, fake_install):
+    def test_writes_every_wrapper_fresh(self, fake_install):
         home, root = fake_install
         result = _launchers.expose_cli()
         assert result["ok"] is True
-        assert sorted(result["written"]) == ["hermes", "hermes-acp", "hermes-agent"]
-        for name in ("hermes", "hermes-agent", "hermes-acp"):
+        assert sorted(result["written"]) == ["envoy", "envoy-acp", "hermes", "hermes-acp", "hermes-agent"]
+        for name in ("envoy", "envoy-acp", "hermes", "hermes-agent", "hermes-acp"):
             wrapper = home / ".local" / "bin" / name
             body = wrapper.read_text(encoding="utf-8-sig")
             assert str(root) in body
@@ -363,8 +363,8 @@ class TestExposeCli:
         result = _launchers.expose_cli()
         assert (wrapper_dir / "hermes").read_text(encoding="utf-8-sig") == foreign
         assert "hermes" not in result["written"]
-        # The other two had no file at all — those ARE written.
-        assert sorted(result["written"]) == ["hermes-acp", "hermes-agent"]
+        # The others had no file at all — those ARE written.
+        assert sorted(result["written"]) == ["envoy", "envoy-acp", "hermes-acp", "hermes-agent"]
 
     @posix_only
     def test_config_gate_disables(self, fake_install, monkeypatch):
@@ -450,7 +450,7 @@ def test_direct_packaged_cli_exposes_shims_before_electron(tmp_path):
 
     home = tmp_path / "home"
     home.mkdir()
-    payload = tmp_path / "Hermes.app/Contents/Resources/agent-payload"
+    payload = tmp_path / "Envoy.app/Contents/Resources/agent-payload"
     repo = payload / "repo"
     _write_bundled_stamp(repo)
     (repo / "install-stamp.json").write_text(json.dumps({
@@ -487,7 +487,7 @@ class TestSymlinkSealedLaunchers:
         home = tmp_path / "home"
         home.mkdir()
         monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
-        payload_bin = tmp_path / "Hermes.app" / "Contents" / "Resources" / "agent-payload" / "bin"
+        payload_bin = tmp_path / "Envoy.app" / "Contents" / "Resources" / "agent-payload" / "bin"
         payload_bin.mkdir(parents=True)
         for name in ("hermes", "hermes-agent", "hermes-acp"):
             (payload_bin / name).write_text("fake mach-o shim\n", encoding="utf-8")

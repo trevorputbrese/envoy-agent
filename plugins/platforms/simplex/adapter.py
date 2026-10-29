@@ -54,7 +54,7 @@ def _parse_comma_list(value: str) -> list[str]:
     return [v.strip() for v in value.split(",") if v.strip()]
 
 
-# (hermes home key, names) already warned about. Module-level: every reconnect builds a FRESH adapter
+# (envoy home key, names) already warned about. Module-level: every reconnect builds a FRESH adapter
 # (gateway/run_adapters.py), so an instance flag would re-warn on every retry while the daemon is down.
 _NAME_ALLOWLIST_WARNED: set = set()
 
@@ -645,7 +645,7 @@ async def _standalone_send(
     thread_id: Optional[str] = None, media_files: Optional[list[str]] = None, force_document: bool = False,
 ) -> dict[str, Any]:
     """Ephemeral WebSocket send for ``tools/send_message_tool`` when the gateway runner is not in
-    this process (``hermes cron``). ``thread_id``/``force_document`` are signature parity only;
+    this process (``envoy cron``). ``thread_id``/``force_document`` are signature parity only;
     ``media_files`` is accepted but only the text body is delivered — SimpleX file transfers need
     the daemon's filesystem-backed flow, which an ephemeral connection cannot drive safely."""
     try:
@@ -677,7 +677,7 @@ _SETUP_PROMPTS = (
 
 
 def interactive_setup() -> None:
-    """``hermes setup gateway`` → SimpleX wizard (writes ``~/.hermes/.env``); CLI helpers are lazy-imported."""
+    """``envoy setup gateway`` → SimpleX wizard (writes ``~/.hermes/.env``); CLI helpers are lazy-imported."""
     from hermes_cli.config import get_env_value, save_env_value
     from hermes_cli.cli_output import print_header, print_info, prompt
     from hermes_cli.setup_platforms import declines_reconfigure
@@ -698,8 +698,8 @@ def interactive_setup() -> None:
 def register(ctx) -> None:
     ctx.register_platform(
         name="simplex", label="SimpleX Chat", adapter_factory=lambda cfg: SimplexAdapter(cfg),
-        dashboard_description="Talk to Hermes over SimpleX Chat via a local simplex-chat daemon.",
-        docs_url="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/simplex",
+        dashboard_description="Talk to Envoy over SimpleX Chat via a local simplex-chat daemon.",
+        docs_url="https://github.com/trevorputbrese/envoy-agent/blob/main/website/docs/user-guide/messaging/simplex.md",
         check_fn=check_requirements, validate_config=validate_config, is_connected=is_connected,
         required_env=["SIMPLEX_WS_URL"],
         install_hint=("pip install websockets   # SimpleX adapter requires the websockets package"),

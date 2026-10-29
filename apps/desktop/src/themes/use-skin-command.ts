@@ -2,8 +2,8 @@ import { useCallback } from 'react'
 
 import { useTheme } from './context'
 
-// Old names land on a shipped theme so muscle memory works. `gold`/`hermes`
-// only ever meant the classic gold look, so they reach Classic Hermes; `default`
+// Old names land on a shipped theme so muscle memory works. `gold`/`envoy`
+// only ever meant the classic gold look, so they reach Classic Envoy; `default`
 // stays Nous because it is also the stock config value, which Desktop reads as
 // "the Desktop default" everywhere else (boot, backend sync, setTheme).
 const ALIASES: Record<string, string> = {

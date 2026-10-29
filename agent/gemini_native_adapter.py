@@ -46,7 +46,7 @@ GEMINI_DEFAULT_MAX_OUTPUT_TOKENS = 65535
 
 _FREE_TIER_GUIDANCE = (
     "\n\nYour Google API key is on the free tier (a few hundred requests/day for Gemini Flash models). "
-    "Hermes typically makes 3-10 API calls per user turn, so the free tier is exhausted in a handful of "
+    "Envoy typically makes 3-10 API calls per user turn, so the free tier is exhausted in a handful of "
     "messages and cannot sustain an agent session. Enable billing on your Google Cloud project and "
     "regenerate the key in a billing-enabled project: https://aistudio.google.com/apikey"
 )
@@ -91,7 +91,7 @@ _FINISH_REASON_MAP = {
 _HTTP_ERROR_CODES = {401: "gemini_unauthorized", 429: "gemini_rate_limited", 404: "gemini_model_not_found"}
 _MISSING_KEY_ERROR = (
     "Gemini native client requires an API key, but none was provided. Set GOOGLE_API_KEY or GEMINI_API_KEY in your "
-    "environment / ~/.hermes/.env (get one at https://aistudio.google.com/app/apikey), or run `hermes setup` to "
+    "environment / ~/.hermes/.env (get one at https://aistudio.google.com/app/apikey), or run `envoy setup` to "
     "configure the Google provider."
 )
 
@@ -277,7 +277,7 @@ def is_standard_key_auth_error(
 
 
 class GeminiAPIError(Exception):
-    """Error shape compatible with Hermes retry/error classification."""
+    """Error shape compatible with Envoy retry/error classification."""
 
     def __init__(self, message: str, *, code: str = "gemini_api_error", status_code: Optional[int] = None,
                  response: Optional[httpx.Response] = None, retry_after: Optional[float] = None, details: Optional[dict[str, Any]] = None):
