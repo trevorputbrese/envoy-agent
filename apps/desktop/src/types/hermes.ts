@@ -1,4 +1,4 @@
-import type { ConnectionRequestPayload, FreeTierChallengePayload, ToolLabel } from '@hermes/shared'
+import type { ConnectionRequestPayload, FreeTierChallengePayload, ToolLabel } from '@envoy/shared'
 
 import type { ToolResultMetadata } from '@/lib/tool-result-metadata'
 

@@ -1,5 +1,5 @@
-import { stripAnsi } from '@hermes/shared/ansi'
-import { compactNumber } from '@hermes/shared/format'
+import { stripAnsi } from '@envoy/shared/ansi'
+import { compactNumber } from '@envoy/shared/format'
 
 import { usageBarsText } from '../../../components/overlayPrimitives.js'
 import { introMsg, toTranscriptMessages } from '../../../domain/messages.js'

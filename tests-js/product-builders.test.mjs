@@ -185,8 +185,8 @@ test('web rejects missing icons and compiler failures without publishing stale s
 function tuiSource(source) {
   put(source, 'package.json', '{"private":true}')
   put(source, 'ui-tui/package.json', '{"type":"module"}')
-  put(source, 'ui-tui/src/entry.tsx', '#!/usr/bin/env node\nimport { answer } from "@hermes/ink"; console.log(answer);')
-  put(source, 'ui-tui/packages/hermes-ink/src/entry-exports.ts', 'import devtools from "react-devtools-core"; devtools.initialize(); export const answer: string = "prepared source";')
+  put(source, 'ui-tui/src/entry.tsx', '#!/usr/bin/env node\nimport { answer } from "@envoy/ink"; console.log(answer);')
+  put(source, 'ui-tui/packages/envoy-ink/src/entry-exports.ts', 'import devtools from "react-devtools-core"; devtools.initialize(); export const answer: string = "prepared source";')
   for (const name of ['gateway_bootstrap.py', 'clipboard_image.py']) {
     put(source, `ui-tui/scripts/${name}`, `print(${JSON.stringify(name)})\n`)
   }
@@ -199,7 +199,7 @@ test('TUI uses prepared workspace-local tools from an unrelated cwd and publishe
   copyFileSync(path.join(repo, 'ui-tui/src/lib/pythonHelpers.ts'), path.join(source, 'ui-tui/src/pythonHelpers.ts'))
   put(source, 'ui-tui/src/entry.tsx', `#!/usr/bin/env node
 import { readFileSync } from 'node:fs'
-import { answer } from '@hermes/ink'
+import { answer } from '@envoy/ink'
 import { pythonHelperPath } from './pythonHelpers'
 console.log(JSON.stringify({ answer, helpers: ['gateway_bootstrap.py', 'clipboard_image.py'].map(name =>
   readFileSync(pythonHelperPath(name, process.env.HERMES_PYTHON_SRC_ROOT), 'utf8')) }))`)
@@ -298,7 +298,7 @@ test('built TUI stays current after documentation, test and unrelated recipe cha
   const before = readFileSync(entry)
   for (const name of [
     'ui-tui/README.md', 'ui-tui/src/__tests__/new.test.ts', 'ui-tui/src/value.spec.ts',
-    'ui-tui/packages/hermes-ink/src/value.test.ts', 'apps/shared/src/value.test.ts',
+    'ui-tui/packages/envoy-ink/src/value.test.ts', 'apps/shared/src/value.test.ts',
     'apps/shared/README.md', 'scripts/build/web.mjs', 'scripts/build/desktop.mjs',
     'scripts/build/README.md', 'scripts/build/node-deps.mjs',
   ]) {
@@ -347,9 +347,9 @@ test('TUI freshness invalidates source, configuration and compiler inputs and da
   for (const name of [
     'ui-tui/src/value.ts', 'apps/shared/src/value.ts',
     'ui-tui/scripts/gateway_bootstrap.py', 'ui-tui/scripts/clipboard_image.py',
-    'ui-tui/packages/hermes-ink/src/entry-exports.ts',
-    'ui-tui/tsconfig.json', 'ui-tui/packages/hermes-ink/tsconfig.json', 'apps/shared/tsconfig.json',
-    'ui-tui/package.json', 'ui-tui/packages/hermes-ink/package.json', 'apps/shared/package.json',
+    'ui-tui/packages/envoy-ink/src/entry-exports.ts',
+    'ui-tui/tsconfig.json', 'ui-tui/packages/envoy-ink/tsconfig.json', 'apps/shared/tsconfig.json',
+    'ui-tui/package.json', 'ui-tui/packages/envoy-ink/package.json', 'apps/shared/package.json',
     'tsconfig.json', 'package.json', 'package-lock.json', '.npmrc', 'pm/lock.json',
     'scripts/build/tui.mjs', 'scripts/build/frontend-common.mjs', 'scripts/build/freshness.mjs',
   ]) {

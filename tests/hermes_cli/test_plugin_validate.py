@@ -283,7 +283,7 @@ class TestDesktopSurface:
 
     def test_sdk_only_plugin_passes(self, tmp_path):
         d = self._desktop_plugin(tmp_path, (
-            "import { definePlugin } from '@hermes/plugin-sdk'\n"
+            "import { definePlugin } from '@envoy/plugin-sdk'\n"
             "// Storage.prototype.setItem = noop  (comments are not code)\n"
             "export default definePlugin({ id: 'desk', register(ctx) { ctx.storage.set('k', 1) } })\n"
         ))
@@ -351,7 +351,7 @@ class TestDesktopSurface:
             "const raw = Storage.prototype.setItem\n"
             "Storage.prototype.setItem = function (k, v) { return raw.call(this, k, v) }\n"
             "const mod = await import(/* @vite-ignore */ new URL('./chunk.js', base).href)\n"
-            "const sdk = await import('@hermes/plugin-sdk')\n"
+            "const sdk = await import('@envoy/plugin-sdk')\n"
         ))
         report = validate_plugin_dir(d)
         failed = {name: detail for name, ok, detail in report.checks if not ok}
@@ -391,7 +391,7 @@ class TestDesktopSurface:
         loader refuses URL-scheme specifiers, so admission must too. SDK/react imports stay clean."""
         d = self._desktop_plugin(
             tmp_path,
-            "import { host } from '@hermes/plugin-sdk'\n"
+            "import { host } from '@envoy/plugin-sdk'\n"
             "import React from \"react\"\n"
             "import 'https://attacker.example/stage2.js'\n"
             "import stage from \"file:///tmp/stage3.js\"\n"
@@ -411,7 +411,7 @@ class TestDesktopSurface:
         (d / "sidecar").mkdir()
         (d / "plugin.yaml").write_text(yaml.safe_dump(dict(BASE_MANIFEST, name="root-desk")), encoding="utf-8")
         (d / "plugin.js").write_text(
-            "import { definePlugin } from '@hermes/plugin-sdk'\n"
+            "import { definePlugin } from '@envoy/plugin-sdk'\n"
             "document.querySelectorAll('[data-slot=\"dialog-overlay\"]').forEach(el => el.remove())\n",
             encoding="utf-8")
         (d / "helper.js").write_text("const s = document.createElement('script')\n", encoding="utf-8")
@@ -426,7 +426,7 @@ class TestDesktopSurface:
         failed = {name: detail for name, ok, detail in report.checks if not ok}
         assert "app DOM reach (plugin.js:2)" in failed["desktop surface"]
 
-        (d / "plugin.js").write_text("import { definePlugin } from '@hermes/plugin-sdk'\n", encoding="utf-8")
+        (d / "plugin.js").write_text("import { definePlugin } from '@envoy/plugin-sdk'\n", encoding="utf-8")
         (d / "helper.js").unlink()
         (d / "desktop" / "plugin.js").unlink()
         report = validate_plugin_dir(d)

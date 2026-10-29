@@ -29,7 +29,7 @@ import {
   Tip,
   useI18n,
   useValue
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 
 import { avatarColor, botAppearance, BotFace } from './avatar'
 import { isBackfilledFacePng } from './avatar-image'

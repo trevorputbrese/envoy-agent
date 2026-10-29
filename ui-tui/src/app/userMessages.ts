@@ -4,7 +4,7 @@
 // (namespace `userMessages`); every exported message is a function so it is
 // resolved against the active locale at call time, never at import time.
 
-import type { ErrorSurface } from '@hermes/shared/gateway-events'
+import type { ErrorSurface } from '@envoy/shared/gateway-events'
 
 import { messages, t } from '../i18n/runtime.js'
 import type { Translations } from '../i18n/types.js'

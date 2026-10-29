@@ -254,10 +254,10 @@ def _make_tui_argv(tui_dir: Path, tui_dev: bool) -> tuple[list[str], Path]:
     env = source_build_env()
     prepare_launch_dependencies(project_root, env=env)
     if tui_dev:
-        # tsx imports @hermes/ink's built exports; the production bundle instead
+        # tsx imports @envoy/ink's built exports; the production bundle instead
         # compiles its source directly through scripts/build/tui.mjs.
         npm = shutil.which("npm", path=env["PATH"])
-        subprocess.run([npm, "run", "build"], cwd=tui_dir / "packages/hermes-ink", env=env, check=True)
+        subprocess.run([npm, "run", "build"], cwd=tui_dir / "packages/envoy-ink", env=env, check=True, timeout=600)
         tsx = tui_dir / "node_modules/.bin/tsx"
         return ([str(tsx), "src/entry.tsx"] if tsx.exists() else [npm, "start"]), tui_dir
 
@@ -494,7 +494,7 @@ def _launch_tui(
     except Exception:
         logger.debug("Failed to apply terminal config bridge for TUI launch", exc_info=True)
     active_session_fd, active_session_file = tempfile.mkstemp(
-        prefix="hermes-tui-active-session-", suffix=".json")
+        prefix="envoy-tui-active-session-", suffix=".json")
     os.close(active_session_fd)
     env["HERMES_TUI_ACTIVE_SESSION_FILE"] = active_session_file
     env.setdefault("NODE_ENV", "development" if tui_dev else "production")

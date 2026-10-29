@@ -5,11 +5,11 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { expectDownloaded, observeDownloads } from './canonical-download-test-utils'
 
 const request = vi.hoisted(() => vi.fn())
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { en } = await import('@/i18n/en')
   const { Textarea } = await import('@/components/ui/textarea')
 
-  return { Textarea, atom: (await import('nanostores')).atom, host: { requestProfile: request }, randomUuid: (await import('@hermes/shared')).randomUuid,
+  return { Textarea, atom: (await import('nanostores')).atom, host: { requestProfile: request }, randomUuid: (await import('@envoy/shared')).randomUuid,
     useI18n: () => ({ locale: 'en', t: en }),
     Button: (props: ComponentProps<'button'>) => <button {...props} />,
     MessageTextContent: ({ text }: { text: string }) => <div data-testid="markdown">{text}</div>,

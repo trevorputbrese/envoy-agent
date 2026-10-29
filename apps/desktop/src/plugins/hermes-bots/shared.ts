@@ -8,7 +8,7 @@
  * `setPluginCtx`, and every reader goes through `getPluginCtx()`.
  */
 
-import { atom, type PluginContext } from '@hermes/plugin-sdk'
+import { atom, type PluginContext } from '@envoy/plugin-sdk'
 
 export const ID = 'hermes-bots'
 

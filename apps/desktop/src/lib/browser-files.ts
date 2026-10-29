@@ -1,4 +1,4 @@
-import { fileUrlToNativePath } from '@hermes/shared'
+import { fileUrlToNativePath } from '@envoy/shared'
 
 import type { HermesApiRequest } from '@/global'
 import { translateNow } from '@/i18n'

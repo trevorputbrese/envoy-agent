@@ -1,6 +1,6 @@
-import type { GatewayWsUrlResult } from '@hermes/shared'
-import type { HermesSkin } from '@hermes/shared/skin'
-import type { TranslucencyState } from '@hermes/shared/translucency'
+import type { GatewayWsUrlResult } from '@envoy/shared'
+import type { HermesSkin } from '@envoy/shared/skin'
+import type { TranslucencyState } from '@envoy/shared/translucency'
 
 import type { ChallengeOutcome } from '../electron/challenge-window'
 import type { ScreenshotApi } from '../electron/command-screenshot-types'

@@ -19,8 +19,8 @@ hermesNpmLib.buildNpmPackage {
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/lib/hermes-tui
-    cp -r "$TMPDIR/tui-product/." $out/lib/hermes-tui/
+    mkdir -p $out/lib/envoy-tui
+    cp -r "$TMPDIR/tui-product/." $out/lib/envoy-tui/
     runHook postInstall
   '';
 }

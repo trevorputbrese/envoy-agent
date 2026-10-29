@@ -7,7 +7,7 @@
  * tab without any of those paths importing a view.
  */
 
-import { atom } from '@hermes/plugin-sdk'
+import { atom } from '@envoy/plugin-sdk'
 
 import type { CanonicalGroupOrigin } from './canonical-group-registry'
 import { $groupChatWorkspace, groupChatRoomKey } from './group-chat'

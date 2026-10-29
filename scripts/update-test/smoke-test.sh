@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Smoke test for hermes-update-rehearsal.sh (this directory).
+# Smoke test for envoy-update-rehearsal.sh (this directory).
 # Builds a synthetic install in a temp tree and drives pre/post/status for real.
 # Runs on macOS/Linux directly, and under git-bash on Windows (native paths).
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-SCRIPT="$HERE/hermes-update-rehearsal.sh"
+SCRIPT="$HERE/envoy-update-rehearsal.sh"
 [ -f "$SCRIPT" ] || { echo "missing $SCRIPT"; exit 1; }
 
 echo "--- bash -n ---"

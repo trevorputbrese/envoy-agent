@@ -1,4 +1,4 @@
-import { JsonRpcGatewayClient, JsonRpcGatewayError } from '@hermes/shared'
+import { JsonRpcGatewayClient, JsonRpcGatewayError } from '@envoy/shared'
 import { afterEach, expect, test, vi } from 'vitest'
 
 import { HermesGateway } from './client'

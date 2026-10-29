@@ -1,4 +1,4 @@
-import { JsonRpcGatewayClient, type ServerRequest } from '@hermes/shared'
+import { JsonRpcGatewayClient, type ServerRequest } from '@envoy/shared'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 import { handleServerRequest } from '@/app/session/hooks/use-message-stream/gateway-event/server-requests'

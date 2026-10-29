@@ -1,4 +1,4 @@
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 import type { WebglAddon } from '@xterm/addon-webgl'
 import type { Terminal } from '@xterm/xterm'
 import { atom, computed } from 'nanostores'

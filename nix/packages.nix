@@ -34,7 +34,7 @@
       branch = if rawRef != null then builtins.replaceStrings [ "refs/heads/" ] [ "" ] rawRef else null;
       dirty = dirtyRevision != null;
       lastModified = inputs.self.lastModified or null;
-      minimal = pkgs.callPackage ./hermes-agent.nix {
+      minimal = pkgs.callPackage ./envoy-agent.nix {
         inherit (inputs) uv2nix pyproject-nix pyproject-build-systems;
         # Passed explicitly so `override (prev: ...)` sees it: a function form that appends to
         # `prev.extraDependencyGroups` worked before the shipped groups moved to

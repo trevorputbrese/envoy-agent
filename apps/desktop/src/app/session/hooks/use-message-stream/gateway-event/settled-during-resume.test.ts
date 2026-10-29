@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/store/session-control', () => ({ refreshSupportedSessionControlAfterTurn: vi.fn(async () => undefined) }))
 
-import type { GatewayEventName } from '@hermes/shared'
+import type { GatewayEventName } from '@envoy/shared'
 
 import { liveTurnSettledDuringResume } from '@/app/session/hooks/use-session-actions/resume-reconcile'
 

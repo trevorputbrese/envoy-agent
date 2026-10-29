@@ -1,4 +1,4 @@
-import type { ModelCapabilities, ModelOptionProvider, ModelOptionsResult } from '@hermes/shared'
+import type { ModelCapabilities, ModelOptionProvider, ModelOptionsResult } from '@envoy/shared'
 
 import { getGlobalModelOptions, type HermesGateway } from '@/hermes'
 

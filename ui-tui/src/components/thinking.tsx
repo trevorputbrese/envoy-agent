@@ -1,5 +1,5 @@
-import { Box, NoSelect, Text } from '@hermes/ink'
-import { compactNumber } from '@hermes/shared/format'
+import { Box, NoSelect, Text } from '@envoy/ink'
+import { compactNumber } from '@envoy/shared/format'
 import { memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import spinners, { type BrailleSpinnerName } from 'unicode-animations'
 

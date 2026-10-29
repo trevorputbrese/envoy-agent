@@ -150,5 +150,5 @@ def test_powershell_cold_sync_changed_input_warm_and_failure(tmp_path):
         assert Path(call["executable"]).samefile(ps)
         assert [arg.lower() for arg in call["argv"][1:]] == [
             "-noprofile", "-noninteractive", "-executionpolicy", "bypass", "-file",
-            str(root / "setup-hermes.ps1").lower(), "-runtimeonly",
+            str(root / "setup-envoy.ps1").lower(), "-runtimeonly",
         ]

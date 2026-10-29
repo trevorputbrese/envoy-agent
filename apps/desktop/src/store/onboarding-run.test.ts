@@ -1,4 +1,4 @@
-import type { OnboardingStartParams } from '@hermes/shared'
+import type { OnboardingStartParams } from '@envoy/shared'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setPrimaryGatewayConnectionId } from './gateway'

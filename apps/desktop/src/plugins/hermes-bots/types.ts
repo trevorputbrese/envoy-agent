@@ -9,7 +9,7 @@
  * required is a claim that every one of those paths supplies it.
  */
 
-import type { ProfileSessionPreview } from '@hermes/plugin-sdk'
+import type { ProfileSessionPreview } from '@envoy/plugin-sdk'
 
 /**
  * The compact age suffixes the sidebar's session rows render ("now", "m", "h",

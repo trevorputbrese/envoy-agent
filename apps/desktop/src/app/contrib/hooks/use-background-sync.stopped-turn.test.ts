@@ -1,4 +1,4 @@
-import type { PersistedTurn } from '@hermes/shared'
+import type { PersistedTurn } from '@envoy/shared'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { bindStoppedTurnReceipt } from '@/app/session/hooks/use-message-stream/interrupted-reply'

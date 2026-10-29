@@ -1,4 +1,4 @@
-import type { InstallPhase } from '@hermes/shared'
+import type { InstallPhase } from '@envoy/shared'
 
 /** Copy for the desktop catalog-install card (`manage_catalog`) and its Advanced dialog. */
 export interface CatalogInstallTranslations {

@@ -568,6 +568,6 @@ Profile 分发默认不带签名。你信任的是：
 - [Profiles：运行多个 Agent](./profiles.md) — 基础概念
 - [Profile 命令参考](../reference/profile-commands.md) — 每个标志、每个选项
 - [`envoy profile export` / `import`](../reference/profile-commands.md#hermes-profile-export) — 本地备份 / 恢复（非分发）
-- [在 Envoy 中使用 SOUL](../guides/use-soul-with-hermes.md) — 编写个性
+- [在 Envoy 中使用 SOUL](../guides/use-soul-with-envoy.md) — 编写个性
 - [个性与 SOUL](./features/personality.md) — SOUL 在 agent 中的作用
 - [技能目录](../reference/skills-catalog.md) — 可打包的技能

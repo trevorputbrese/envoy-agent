@@ -1,4 +1,4 @@
-import { GlyphSpinner } from '@hermes/plugin-sdk'
+import { GlyphSpinner } from '@envoy/plugin-sdk'
 
 import type { CanonicalRoomMember } from './canonical-groups'
 

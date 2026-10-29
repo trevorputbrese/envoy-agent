@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Desktop Plugin SDK"
-title: "Desktop Plugin SDK (@hermes/plugin-sdk)"
+title: "Desktop Plugin SDK (@envoy/plugin-sdk)"
 description: "Extend the native Envoy Desktop app — panes, pages, sidebar nav, status bar, palette commands, keybinds, themes, and a scoped backend namespace, with one import and no build step."
 ---
 
@@ -13,7 +13,7 @@ its surfaces exactly the way a plugin does, so the plugin story is the real one,
 not a bolted-on afterthought.
 
 A **desktop plugin** is a single ESM file that default-exports a `HermesPlugin`.
-It imports one module — `@hermes/plugin-sdk` — and gets everything: the app's
+It imports one module — `@envoy/plugin-sdk` — and gets everything: the app's
 live state, the gateway JSON-RPC door, a scoped REST/socket backend namespace,
 React Query, and the app's own UI kit so plugin UI looks native by default. No
 repo clone, no `npm run build`, no patching app source. Drop the file in
@@ -22,7 +22,7 @@ and hot-reloads every save.
 
 :::warning This is not the web-dashboard plugin SDK
 "Plugin" means several unrelated things across Envoy. This page is the **native
-desktop app** (`envoy desktop`) SDK — the `@hermes/plugin-sdk` module and
+desktop app** (`envoy desktop`) SDK — the `@envoy/plugin-sdk` module and
 `$HERMES_HOME/desktop-plugins/`. The **web dashboard** (`envoy dashboard`) has
 its own, unrelated plugin system on `window.__HERMES_PLUGIN_SDK__` with a
 `manifest.json` — documented at
@@ -94,7 +94,7 @@ or remote machine the window connects to. The folder name must equal the plugin 
 
 ```javascript
 // ~/.hermes/desktop-plugins/hello/plugin.js
-import { host, haptic, useValue } from '@hermes/plugin-sdk'
+import { host, haptic, useValue } from '@envoy/plugin-sdk'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
 function HelloPane() {
@@ -150,7 +150,7 @@ save again.
 :::note No JSX, no build
 The disk file is loaded **uncompiled**, so JSX syntax will not parse. Write UI
 with `jsx()` / `jsxs()` calls from `react/jsx-runtime` (or `React.createElement`).
-The only importable specifiers are `@hermes/plugin-sdk`, `react`, and
+The only importable specifiers are `@envoy/plugin-sdk`, `react`, and
 `react/jsx-runtime` — everything else fails to resolve, on purpose.
 :::
 
@@ -300,7 +300,7 @@ A route mounts a full page in the workspace pane, like any built-in view. Pair i
 with a sidebar nav row (and/or a palette command) to make it reachable.
 
 ```javascript
-import { ROUTES_AREA, SIDEBAR_NAV_AREA } from '@hermes/plugin-sdk'
+import { ROUTES_AREA, SIDEBAR_NAV_AREA } from '@envoy/plugin-sdk'
 
 ctx.registerMany([
   {
@@ -327,7 +327,7 @@ Simplest is a `render` function; for a plain button use `data` as a
 `StatusbarItem` (`{ id, label?, icon?, detail?, variant?, menuItems?, … }`).
 
 ```javascript
-import { STATUSBAR_AREAS, TITLEBAR_AREAS } from '@hermes/plugin-sdk'
+import { STATUSBAR_AREAS, TITLEBAR_AREAS } from '@envoy/plugin-sdk'
 
 ctx.register({
   id: 'count',
@@ -359,7 +359,7 @@ shows up in the workspace pane.
 ### Palette commands and keybinds
 
 ```javascript
-import { PALETTE_AREA, KEYBINDS_AREA } from '@hermes/plugin-sdk'
+import { PALETTE_AREA, KEYBINDS_AREA } from '@envoy/plugin-sdk'
 
 ctx.registerMany([
   {
@@ -399,7 +399,7 @@ A theme contribution ships a full `DesktopTheme` as its `data` (name, label,
 colors, …). It appears in the theme picker like a built-in.
 
 ```javascript
-import { THEMES_AREA } from '@hermes/plugin-sdk'
+import { THEMES_AREA } from '@envoy/plugin-sdk'
 
 ctx.register({ id: 'noir', area: THEMES_AREA, data: myDesktopTheme })
 ```
@@ -409,7 +409,7 @@ painted appearance (`theme`, `themeName`, `availableThemes`, `resolvedMode`) and
 changes it (`setTheme`, `setMode`, `previewTheme`) from a component:
 
 ```javascript
-import { Button, useTheme } from '@hermes/plugin-sdk'
+import { Button, useTheme } from '@envoy/plugin-sdk'
 
 function ThemePicker() {
   const { availableThemes, setTheme, themeName } = useTheme()
@@ -429,7 +429,7 @@ coerced to the default skin, so the return value doubles as the availability
 check and a wrong name can never silently reset someone's appearance:
 
 ```javascript
-import { host, requestTheme } from '@hermes/plugin-sdk'
+import { host, requestTheme } from '@envoy/plugin-sdk'
 
 host.onEvent('gateway.ready', () => {
   if (!requestTheme('noir')) {
@@ -505,7 +505,7 @@ style and keyboard-navigate like the built-in ones; a plugin never touches the
 menu's DOM.
 
 ```javascript
-import { COMPOSER_AREAS, host } from '@hermes/plugin-sdk'
+import { COMPOSER_AREAS, host } from '@envoy/plugin-sdk'
 
 ctx.register({
   id: 'spelling',
@@ -590,7 +590,7 @@ composer, in the primary pane or a tile; `'new'` = the fresh draft that has no
 session id yet.
 
 ```javascript
-import { host } from '@hermes/plugin-sdk'
+import { host } from '@envoy/plugin-sdk'
 
 // Append to the active composer (modes: 'block' | 'inline' | 'prefix';
 // 'prefix' seats a slash command at the start). Acknowledged like setDraft:
@@ -669,7 +669,7 @@ returns a small element (a badge, a swatch, a tag) or `null` for rows you don't
 own — registering costs nothing on every other row:
 
 ```ts
-import { SESSION_ROW_AREAS, type SessionRowSlotContribution } from '@hermes/plugin-sdk'
+import { SESSION_ROW_AREAS, type SessionRowSlotContribution } from '@envoy/plugin-sdk'
 
 ctx.register({
   area: SESSION_ROW_AREAS.trailing,
@@ -741,7 +741,7 @@ MutationObserver text-rewriting plugins do today.
 #### Model pill label providers
 
 ```ts
-import { COMPOSER_AREAS, type ComposerModelPillContext, type ComposerModelPillProvider } from '@hermes/plugin-sdk'
+import { COMPOSER_AREAS, type ComposerModelPillContext, type ComposerModelPillProvider } from '@envoy/plugin-sdk'
 
 interface ComposerModelPillContext {
   model: string            // the model slug the pill would show
@@ -810,7 +810,7 @@ and a **trailing badge** after core's own chips. The row's markup, name,
 star, submenu and click stay core's.
 
 ```ts
-import { MODEL_MENU_ROW_AREA, type ModelMenuRowContribution } from '@hermes/plugin-sdk'
+import { MODEL_MENU_ROW_AREA, type ModelMenuRowContribution } from '@envoy/plugin-sdk'
 
 interface ModelMenuRowContext {
   provider: string  // provider slug: 'anthropic', 'openrouter', …
@@ -867,7 +867,7 @@ import {
   KANBAN_CARD_AREAS,
   KANBAN_CARD_BADGE_HUES,
   type KanbanCardBadgeContribution
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 
 interface KanbanCard {            // frozen; identity and routing fields only
   id: string                      // task id (t_…): key your own per-card data by it
@@ -1104,7 +1104,7 @@ Register a named directive and the agent can render your component inline in
 an assistant message by emitting a paragraph of the form `::name{key="value"}`:
 
 ```javascript
-import { TRANSCRIPT_DIRECTIVE_AREA } from '@hermes/plugin-sdk'
+import { TRANSCRIPT_DIRECTIVE_AREA } from '@envoy/plugin-sdk'
 
 ctx.register({
   id: 'task-card',
@@ -1187,7 +1187,7 @@ the path, earlier in the transcript. If the plugin that owns that tool registere
 the tool's name, your component replaces the built-in player:
 
 ```javascript
-import * as sdk from '@hermes/plugin-sdk'
+import * as sdk from '@envoy/plugin-sdk'
 import { useEffect, useState } from 'react'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
@@ -1280,7 +1280,7 @@ die with a component that's already on screen (a page's own header control
 leaves when the page unmounts), render `<Contribute>` inside it instead:
 
 ```javascript
-import { Contribute, WORKSPACE_PAGE_HEADER_AREA } from '@hermes/plugin-sdk'
+import { Contribute, WORKSPACE_PAGE_HEADER_AREA } from '@envoy/plugin-sdk'
 
 jsx(Contribute, {
   area: WORKSPACE_PAGE_HEADER_AREA,
@@ -1298,7 +1298,7 @@ tile) it renders its children in place. Put it where the control should sit
 when inline:
 
 ```javascript
-import { WorkspacePageHeaderControl } from '@hermes/plugin-sdk'
+import { WorkspacePageHeaderControl } from '@envoy/plugin-sdk'
 
 jsx(WorkspacePageHeaderControl, {
   id: 'my-page:switcher', // namespace with your slug
@@ -1309,7 +1309,7 @@ jsx(WorkspacePageHeaderControl, {
 `WorkspacePageHeaderControl` is new in this release. Older desktop builds don't
 export it, and a named import of a missing SDK export stops the plugin module
 from loading. A plugin that must also run on older builds either feature-detects
-through a namespace import (`import * as sdk from '@hermes/plugin-sdk'`, then
+through a namespace import (`import * as sdk from '@envoy/plugin-sdk'`, then
 `sdk.WorkspacePageHeaderControl ?? …`) or keeps the raw `Contribute` form above.
 
 ### Sidebar nav visibility and order (`SIDEBAR_NAV_PREFS_AREA`)
@@ -1320,7 +1320,7 @@ contribution at render and applies the result to the rows it would otherwise
 show; the default list itself never changes.
 
 ```ts
-import { SIDEBAR_NAV_PREFS_AREA, type SidebarNavPrefsContribution } from '@hermes/plugin-sdk'
+import { SIDEBAR_NAV_PREFS_AREA, type SidebarNavPrefsContribution } from '@envoy/plugin-sdk'
 
 // Payload (`data`) of a sidebarNav.prefs contribution
 interface SidebarNavPrefsContribution {
@@ -1398,7 +1398,7 @@ host.state.profile          // ReadableAtom<string>
 host.state.viewport         // ReadableAtom<{ width, height, narrow }>
 ```
 
-`gatewayActivationEpoch` is a named SDK export: `import { gatewayActivationEpoch } from '@hermes/plugin-sdk'`.
+`gatewayActivationEpoch` is a named SDK export: `import { gatewayActivationEpoch } from '@envoy/plugin-sdk'`.
 It reads the canonical activation counter, which changes on every active route
 selection, including same-profile source swaps. Capture `const epoch = gatewayActivationEpoch()`
 alongside the route before asynchronous work, then check both the captured route
@@ -1749,7 +1749,7 @@ runs, so the user rebinding (or unbinding) that shortcut in Settings ▸ Keyboar
 Shortcuts changes nothing for you:
 
 ```ts
-import { TITLEBAR_AREAS } from '@hermes/plugin-sdk'
+import { TITLEBAR_AREAS } from '@envoy/plugin-sdk'
 import { jsx } from 'react/jsx-runtime'
 
 register(ctx) {
@@ -2070,7 +2070,7 @@ Plugins share the app's single `QueryClient`, so plugin queries cache, dedupe,
 poll, and invalidate exactly like core screens — never hand-roll a fetch loop.
 
 ```javascript
-import { useQuery, useMutation, useQueryClient, atom, computed, useValue } from '@hermes/plugin-sdk'
+import { useQuery, useMutation, useQueryClient, atom, computed, useValue } from '@envoy/plugin-sdk'
 
 function MyPanel() {
   const { data, isLoading } = useQuery({
@@ -2087,7 +2087,7 @@ renders the value with `useValue`. To invalidate a query from **outside** React
 (e.g. a `ctx.socket` frame arriving), import the shared `queryClient`:
 
 ```javascript
-import { queryClient } from '@hermes/plugin-sdk'
+import { queryClient } from '@envoy/plugin-sdk'
 
 ctx.socket('/events', () => {
   queryClient.invalidateQueries({ queryKey: ['my-plugin', 'items'] })
@@ -2402,8 +2402,8 @@ no import, no registry edit — and shares the exact inventory + live
 enable/disable contract as a disk plugin. The two differences:
 
 1. It goes through the app's Vite build, so you can write **real JSX** and import
-   the SDK by its `@hermes/plugin-sdk` alias.
-2. It's still lint-fenced to `@hermes/plugin-sdk` + `react` only — no `@/…` app
+   the SDK by its `@envoy/plugin-sdk` alias.
+2. It's still lint-fenced to `@envoy/plugin-sdk` + `react` only — no `@/…` app
    internals.
 
 No desktop plugins ship in the core tree today; the shipped app stays uncluttered
@@ -2427,7 +2427,7 @@ your machine — which is why the disk door only loads local files you (or your
 agent) wrote. For [catalog](../user-guide/features/plugin-catalog.md#trust-model)
 installs the trust comes from admission — a human reviewed the exact pinned
 commit — backed by two tripwires: the `desktop surface` lint at admission and
-the loader's import allowlist (`@hermes/plugin-sdk` and `react*` only; a static
+the loader's import allowlist (`@envoy/plugin-sdk` and `react*` only; a static
 or dynamic `import` of anything else, including `https:` URLs, fails the load).
 Neither is a sandbox. Doors that touch user data outside the app are gated
 on top of that: `ctx.preview.executeJavaScript` needs a declared capability
@@ -2446,7 +2446,7 @@ pipeline as a trust boundary.
 - **JSX won't parse in a disk plugin.** The file loads uncompiled — use `jsx()` /
   `jsxs()` (or `React.createElement`), not JSX syntax. (Bundled plugins are built,
   so JSX is fine there.)
-- **Only three specifiers resolve:** `@hermes/plugin-sdk`, `react`,
+- **Only three specifiers resolve:** `@envoy/plugin-sdk`, `react`,
   `react/jsx-runtime`. Any other import surfaces an up-front load error.
 - **Never hardcode colors** (`#000`, `black`, `rgb(...)`). Leave the background
   alone; use theme variables (`var(--ui-*)`) for everything.
@@ -2505,7 +2505,7 @@ export `id`. Run ⌘K → **Reload desktop plugins**. Check the app for an error
 toast naming the failure, and tail `envoy logs gui -f`.
 
 **"unsupported import" on load.** A disk plugin may only import
-`@hermes/plugin-sdk`, `react`, and `react/jsx-runtime`. Remove any other import.
+`@envoy/plugin-sdk`, `react`, and `react/jsx-runtime`. Remove any other import.
 
 **A `jsx` element renders nothing / throws `ReferenceError`.** An identifier used
 in a `jsx()` call isn't imported. Add it to the import line.

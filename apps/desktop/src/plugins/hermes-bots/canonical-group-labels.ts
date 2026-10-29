@@ -1,4 +1,4 @@
-import { useI18n } from '@hermes/plugin-sdk'
+import { useI18n } from '@envoy/plugin-sdk'
 
 import { useBots } from './i18n'
 

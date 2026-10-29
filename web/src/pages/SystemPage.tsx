@@ -41,7 +41,7 @@ import { useConfirmDelete } from "@nous-research/ui/hooks/use-confirm-delete";
 import { ConfirmDialog } from "@nous-research/ui/ui/components/confirm-dialog";
 import { useModalBehavior } from "@/hooks/useModalBehavior";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
-import { HermesConsoleModal } from "@/components/HermesConsoleModal";
+import { EnvoyConsoleModal } from "@/components/EnvoyConsoleModal";
 import { cn, themedBody } from "@/lib/utils";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
@@ -781,7 +781,7 @@ export default function SystemPage() {
         description="Remove this hook from config and revoke its consent? It stops firing on the next restart."
         loading={hookDelete.isDeleting}
       />
-      <HermesConsoleModal
+      <EnvoyConsoleModal
         open={consoleOpen}
         onClose={() => setConsoleOpen(false)}
       />

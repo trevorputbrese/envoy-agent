@@ -1,4 +1,4 @@
-import type { TranslationOverride } from '@hermes/shared/i18n'
+import type { TranslationOverride } from '@envoy/shared/i18n'
 
 import type { Translations } from './types'
 

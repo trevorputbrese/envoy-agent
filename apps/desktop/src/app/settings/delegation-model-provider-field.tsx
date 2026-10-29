@@ -1,4 +1,4 @@
-import type { ModelOptionProvider } from '@hermes/shared'
+import type { ModelOptionProvider } from '@envoy/shared'
 import { useStore } from '@nanostores/react'
 import { useQuery } from '@tanstack/react-query'
 import { type ReactNode, useMemo } from 'react'

@@ -1,10 +1,10 @@
 import { execFile } from 'child_process'
 
-import { forceRedraw, onTerminalBackground, onTerminalForeground } from '@hermes/ink'
-import { stripAnsi } from '@hermes/shared/ansi'
-import { relativeLuminance } from '@hermes/shared/color'
-import type { MessageDeltaPayload, SubagentStatus, Usage } from '@hermes/shared/gateway-events'
-import type { UsageLimit } from '@hermes/shared/plan-usage'
+import { forceRedraw, onTerminalBackground, onTerminalForeground } from '@envoy/ink'
+import { stripAnsi } from '@envoy/shared/ansi'
+import { relativeLuminance } from '@envoy/shared/color'
+import type { MessageDeltaPayload, SubagentStatus, Usage } from '@envoy/shared/gateway-events'
+import type { UsageLimit } from '@envoy/shared/plan-usage'
 
 import { STARTUP_IMAGE, STARTUP_QUERY } from '../config/env.js'
 import { STREAM_BATCH_MS } from '../config/timing.js'

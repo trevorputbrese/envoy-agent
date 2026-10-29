@@ -8,7 +8,7 @@
  * surface.
  */
 
-import { forgetSessionUnread, host, queryClient } from '@hermes/plugin-sdk'
+import { forgetSessionUnread, host, queryClient } from '@envoy/plugin-sdk'
 
 import { isBackfilledFacePng } from './avatar-image'
 import {

@@ -21,7 +21,7 @@ const sent = vi.hoisted(() => {
   return calls
 })
 
-import { type TranslucencyState, windowOpacityFor } from '@hermes/shared/translucency'
+import { type TranslucencyState, windowOpacityFor } from '@envoy/shared/translucency'
 
 import { $translucency, setTranslucency, TRANSLUCENCY_SUPPORTED } from './translucency'
 

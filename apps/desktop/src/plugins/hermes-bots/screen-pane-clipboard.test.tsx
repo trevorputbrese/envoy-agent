@@ -17,7 +17,7 @@ const rfbs = vi.hoisted(
   () => [] as Array<{ target: HTMLElement; viewOnly: boolean; clipboardPasteFrom: (text: string) => void }>
 )
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { useStore } = await import('@nanostores/react')
   const { onGatewayEvent } = await import('../../contrib/events')
 

@@ -11,7 +11,7 @@ import {
   type KanbanCard,
   type KanbanCardBadgeContribution,
   type KanbanCardBoard
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { resolveKanbanCardBadges } from './kanban-card-badges'

@@ -1000,7 +1000,7 @@ envoy mcp <subcommand>
 | `configure <name>`（别名：`config`） | 切换服务器的工具选择。 |
 | `login <name>` | 强制重新认证基于 OAuth 的 MCP 服务器。 |
 
-参见 [MCP 配置参考](./mcp-config-reference.md)、[在 Envoy 中使用 MCP](../guides/use-mcp-with-hermes.md) 和 [MCP 服务器模式](../user-guide/features/mcp.md#将-hermes-作为-mcp-服务器运行)。
+参见 [MCP 配置参考](./mcp-config-reference.md)、[在 Envoy 中使用 MCP](../guides/use-mcp-with-envoy.md) 和 [MCP 服务器模式](../user-guide/features/mcp.md#将-hermes-作为-mcp-服务器运行)。
 
 ## `envoy plugins`
 

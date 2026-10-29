@@ -18,7 +18,7 @@
  * Plugin dialog, which still requires the user's explicit confirmation.
  */
 
-import type { ConnectionState } from '@hermes/shared'
+import type { ConnectionState } from '@envoy/shared'
 import type { ReadableAtom } from 'nanostores'
 
 import { isMissingRpcMethod } from '@/lib/gateway-rpc'

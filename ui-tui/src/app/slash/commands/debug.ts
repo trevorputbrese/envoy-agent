@@ -1,7 +1,7 @@
 // Importing the apps barrel registers the reference apps before launch.
 import '../../../sdk/apps/index.js'
 
-import { terminalBackgroundHex } from '@hermes/ink'
+import { terminalBackgroundHex } from '@envoy/ink'
 
 import { t } from '../../../i18n/runtime.js'
 import { formatBytes, performHeapDump } from '../../../lib/memory.js'

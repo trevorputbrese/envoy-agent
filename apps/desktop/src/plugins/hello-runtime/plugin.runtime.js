@@ -9,7 +9,7 @@
  * sub-pages (`ctx.registerSettingsPage`), persisted with `ctx.storage`.
  */
 
-import { atom, cn, host, ListRow, SegmentedControl, Tip, ToggleRow, useValue } from '@hermes/plugin-sdk'
+import { atom, cn, host, ListRow, SegmentedControl, Tip, ToggleRow, useValue } from '@envoy/plugin-sdk'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
 const DEFAULTS = { label: 'word', showChip: true }

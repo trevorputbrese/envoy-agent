@@ -1,4 +1,4 @@
-import { JsonRpcGatewayError, type PluginsManageParams } from '@hermes/shared'
+import { JsonRpcGatewayError, type PluginsManageParams } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { notifyError } from '@/store/notifications'

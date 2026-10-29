@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { updateDebt, type UpdateDebtReceipt } from "@hermes/shared";
+import { updateDebt, type UpdateDebtReceipt } from "@envoy/shared";
 import { api } from "@/lib/api";
 import type { ActionStatusResponse } from "@/lib/api";
 import { Toast } from "@nous-research/ui/ui/components/toast";

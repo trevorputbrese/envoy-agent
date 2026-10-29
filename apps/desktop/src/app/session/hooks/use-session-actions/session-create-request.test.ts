@@ -1,4 +1,4 @@
-import { JsonRpcGatewayError } from '@hermes/shared'
+import { JsonRpcGatewayError } from '@envoy/shared'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const requestGatewayForAgent = vi.fn()

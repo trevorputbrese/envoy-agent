@@ -2,7 +2,7 @@ import {
   buildHermesWebSocketUrl,
   type ModelOptionProvider,
   type ModelOptionsResult,
-} from "@hermes/shared";
+} from "@envoy/shared";
 import { createDashboardSessionMutations } from "./session-mutations";
 
 const mutateSessionHttp = createDashboardSessionMutations(fetchJSON);

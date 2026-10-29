@@ -20,7 +20,7 @@
  *    Mode until previously-painted rows were carried forward.
  */
 
-import { queryClient } from '@hermes/plugin-sdk'
+import { queryClient } from '@envoy/plugin-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
@@ -49,7 +49,7 @@ const { hostMock } = vi.hoisted(() => ({
   }
 }))
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { atom } = await import('nanostores')
   const { QueryClient: Client, useQuery } = await import('@tanstack/react-query')
 

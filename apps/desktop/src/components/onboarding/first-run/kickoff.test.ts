@@ -1,4 +1,4 @@
-import type { OnboardingStartResult } from '@hermes/shared'
+import type { OnboardingStartResult } from '@envoy/shared'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { BACKEND_BOOT_WAIT_TIMEOUT_MS } from '@/lib/with-timeout'

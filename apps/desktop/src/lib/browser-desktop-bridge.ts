@@ -1,4 +1,4 @@
-import { externalUrlTarget } from '@hermes/shared'
+import { externalUrlTarget } from '@envoy/shared'
 
 import type { HermesApiRequest } from '@/global'
 import { BROWSER_BRIDGE_STUBS } from '@/lib/browser-bridge-stubs'

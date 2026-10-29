@@ -1,4 +1,4 @@
-import { LOCAL_CONNECTION_ID } from '@hermes/shared'
+import { LOCAL_CONNECTION_ID } from '@envoy/shared'
 
 import type { HermesApiRequest, HermesConnection } from '@/global'
 import { webappSignInRequired } from '@/lib/browser-launch-session'

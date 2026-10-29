@@ -1,4 +1,4 @@
-import type { PersistedTurn } from '@hermes/shared'
+import type { PersistedTurn } from '@envoy/shared'
 import { describe, expect, it } from 'vitest'
 
 import { graftRefreshedTailOntoBackfill } from '@/app/chat/transcript-backfill'

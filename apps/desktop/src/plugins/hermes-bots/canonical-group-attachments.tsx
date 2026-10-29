@@ -1,4 +1,4 @@
-import { Button, randomUuid } from '@hermes/plugin-sdk'
+import { Button, randomUuid } from '@envoy/plugin-sdk'
 import { type Ref, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react'
 
 import { downloadCanonicalAttachment } from './canonical-attachment-download'

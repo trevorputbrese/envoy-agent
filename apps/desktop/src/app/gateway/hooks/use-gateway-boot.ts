@@ -6,7 +6,7 @@ import {
   JSON_RPC_METHOD_NOT_FOUND,
   JsonRpcGatewayError,
   reconnectBackoffDelayMs
-} from '@hermes/shared'
+} from '@envoy/shared'
 import { useEffect, useRef } from 'react'
 
 import { canonicalOwnerProfile } from '@/api/canonical-protocol'

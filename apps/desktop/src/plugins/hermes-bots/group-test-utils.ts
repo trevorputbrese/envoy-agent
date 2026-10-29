@@ -20,7 +20,7 @@
  * `host` surface instead.
  */
 
-import type { PluginContext } from '@hermes/plugin-sdk'
+import type { PluginContext } from '@envoy/plugin-sdk'
 import { vi } from 'vitest'
 
 /** One message in a scripted session transcript, in the gateway's own shape. */
@@ -124,7 +124,7 @@ export interface ScriptedGateway {
   calls: PromptCall[]
   /** Times the socket refcount fell to zero — each one reaps a runtime session. */
   disposals: () => number
-  /** The mock `host` the `@hermes/plugin-sdk` mock should expose. */
+  /** The mock `host` the `@envoy/plugin-sdk` mock should expose. */
   host: Record<string, unknown>
   /** Every RPC, for methods the typed recorders above don't cover. */
   rpc: RpcCall[]
@@ -449,7 +449,7 @@ export function createGroupGateway(options: GatewayOptions = {}): ScriptedGatewa
   }
 }
 
-/** The `@hermes/plugin-sdk` surface the group modules actually reach for.
+/** The `@envoy/plugin-sdk` surface the group modules actually reach for.
  *  `atom` must be the real nanostores one — the room store IS its atoms — and
  *  it has to come from the CURRENT module generation, so this is built inside
  *  the `vi.mock` factory rather than hoisted alongside it. */
@@ -457,7 +457,7 @@ export async function pluginSdkMock(host: Record<string, unknown>) {
   const nanostores = await import('nanostores')
   const { Textarea } = await import('@/components/ui/textarea')
   const { cn } = await import('@/lib/utils')
-  const { randomUuid } = await import('@hermes/shared')
+  const { randomUuid } = await import('@envoy/shared')
 
   // The gateway Group Chat row's right-click menu (#143571) renders the real one.
   const { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } =

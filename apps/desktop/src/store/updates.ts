@@ -3,7 +3,7 @@
  * surfaces it as an ambient pill, and orchestrates the apply flow.
  */
 
-import { updateDebt } from '@hermes/shared'
+import { updateDebt } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { CANONICAL_GATEWAY_PROTOCOL } from '@/api/canonical-protocol'

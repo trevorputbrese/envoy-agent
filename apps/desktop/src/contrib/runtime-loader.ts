@@ -2,7 +2,7 @@
  * Runtime plugin loader — plugins as CODE, not registry edits, loaded after
  * build time. The pipeline every non-bundled plugin takes:
  *
- *   source (plain ESM js) -> import allowlist (`@hermes/plugin-sdk` / `react*`
+ *   source (plain ESM js) -> import allowlist (`@envoy/plugin-sdk` / `react*`
  *   only) -> bare-specifier rewrite to live shim blobs (see sdk/runtime.ts)
  *   -> blob `import()` -> validate default HermesPlugin -> register(ctx)
  *
@@ -322,7 +322,7 @@ function inCode(ranges: Array<[number, number]>, at: number): boolean {
   return false
 }
 
-/** Rewrite ONLY mapped import specifiers (@hermes/plugin-sdk, react*) to their
+/** Rewrite ONLY mapped import specifiers (@envoy/plugin-sdk, react*) to their
  *  live shim blob URLs — never occurrences inside strings/comments. */
 function rewriteSpecifiers(source: string): string {
   const map = sdkImportMap()
@@ -334,7 +334,7 @@ function rewriteSpecifiers(source: string): string {
 }
 
 /** Import specifiers outside the SDK map. Everything that is not
- *  `@hermes/plugin-sdk` / `react*` is refused up-front: a bare package would
+ *  `@envoy/plugin-sdk` / `react*` is refused up-front: a bare package would
  *  only fail later as a cryptic native "Failed to resolve module specifier",
  *  a relative path cannot resolve against the blob: base the module is
  *  evaluated from, and a URL scheme (`import 'https://…'`) is a second stage
@@ -395,7 +395,7 @@ export async function loadRuntimePlugin(
     if (unsupported.length > 0) {
       throw new Error(
         `unsupported import${unsupported.length > 1 ? 's' : ''}: ${unsupported.join(', ')} — ` +
-          `runtime plugins may only import @hermes/plugin-sdk and react`
+          `runtime plugins may only import @envoy/plugin-sdk and react`
       )
     }
 

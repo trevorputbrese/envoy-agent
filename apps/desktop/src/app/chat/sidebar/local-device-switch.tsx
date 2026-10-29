@@ -1,4 +1,4 @@
-import { LOCAL_CONNECTION_ID } from '@hermes/shared'
+import { LOCAL_CONNECTION_ID } from '@envoy/shared'
 import { useRef, useState } from 'react'
 
 import { FirstRunRemoteSetup } from '@/components/remote-setup/first-run'

@@ -122,4 +122,4 @@ The relevant endpoints (all public, pre-auth bootstrap, same as the existing
 
 - [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md) — the loopback-callback
   pattern for provider/MCP OAuth on remote machines.
-- [Run Envoy with Nous Portal](./run-hermes-with-nous-portal.md)
+- [Run Envoy with Nous Portal](./run-envoy-with-nous-portal.md)

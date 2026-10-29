@@ -11,7 +11,7 @@
  * way chat does.
  */
 
-import { resolveGatewayWsUrl } from '@hermes/shared'
+import { resolveGatewayWsUrl } from '@envoy/shared'
 
 const RESOLVE_TIMEOUT_MS = 15_000
 

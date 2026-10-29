@@ -120,8 +120,8 @@ class Fixture {
 
     # Run the supported setup/activation entry from a real temporary checkout.
     # Prestage uv at its pinned store path so setup needs no download or mocks.
-    $setupScript = Join-Path $testInstallDir 'setup-hermes.ps1'
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'setup-hermes.ps1') -Destination $setupScript
+    $setupScript = Join-Path $testInstallDir 'setup-envoy.ps1'
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'setup-envoy.ps1') -Destination $setupScript
     $env:HERMES_RUNTIME_DIR = Join-Path $profileDir 'tools'
     foreach ($arch in @('x64', 'arm64')) {
         $uvEntry = Join-Path $env:HERMES_RUNTIME_DIR "uv-fixture-win32-$arch"

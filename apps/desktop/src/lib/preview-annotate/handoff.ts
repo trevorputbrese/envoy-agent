@@ -1,4 +1,4 @@
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 
 import { queryAllVisible, queryVisible } from '@/components/pane-shell/pane-visibility'
 import { $workspaceOwnerKey } from '@/components/pane-shell/workspace-scope'

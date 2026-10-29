@@ -291,7 +291,7 @@ Users can also change this per-session with the `/verbose` command in chat.
 
 Customize how the bot communicates by editing `~/.hermes/SOUL.md`:
 
-For a full guide, see [Use SOUL.md with Envoy](./use-soul-with-hermes.md).
+For a full guide, see [Use SOUL.md with Envoy](./use-soul-with-envoy.md).
 
 ```markdown
 # Soul

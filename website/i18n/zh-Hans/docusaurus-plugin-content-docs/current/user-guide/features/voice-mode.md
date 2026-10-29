@@ -8,7 +8,7 @@ description: "与 Envoy Agent 进行实时语音对话 — CLI、Telegram、Disc
 
 Envoy Agent 支持在 CLI 和消息平台上进行完整的语音交互。通过麦克风与 Agent 对话，听取语音回复，并在 Discord 语音频道中进行实时语音对话。
 
-如需包含推荐配置和实际使用模式的实践指南，请参阅 [使用 Envoy 的语音模式](../../guides/use-voice-mode-with-hermes.md)。
+如需包含推荐配置和实际使用模式的实践指南，请参阅 [使用 Envoy 的语音模式](../../guides/use-voice-mode-with-envoy.md)。
 
 ## 前提条件
 

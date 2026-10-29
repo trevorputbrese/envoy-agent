@@ -3,7 +3,7 @@
 
 Only prose changes: Python strings and comments, Markdown, locale YAML, TypeScript copy, shell
 messages. Identifiers stay as they are (module names, ``HERMES_*`` environment variables, the
-``~/.hermes`` state directory, ``@hermes/*`` workspace packages, protocol headers and storage
+``~/.hermes`` state directory, ``@envoy/*`` workspace packages, protocol headers and storage
 keys), so the fork keeps merging cleanly with upstream.
 
 Re-runnable. After an upstream merge, take upstream's side of any conflict in rebranded text and

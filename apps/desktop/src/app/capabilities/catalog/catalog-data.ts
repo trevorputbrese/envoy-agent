@@ -1,4 +1,4 @@
-import { skillCatalogInstallIdentifier } from '@hermes/shared'
+import { skillCatalogInstallIdentifier } from '@envoy/shared'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
 import { CATALOG_ORIGIN } from '@/lib/plugin-catalog'

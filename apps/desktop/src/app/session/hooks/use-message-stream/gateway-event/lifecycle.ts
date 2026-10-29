@@ -1,5 +1,5 @@
-import type { GatewayEvent } from '@hermes/shared'
-import type { HermesSkin } from '@hermes/shared/skin'
+import type { GatewayEvent } from '@envoy/shared'
+import type { HermesSkin } from '@envoy/shared/skin'
 
 import { invalidateContextBreakdown } from '@/app/shell/hooks/use-context-breakdown'
 import { eventSourceMatchesOwner, gatewayEventSource } from '@/lib/replay-gap-owner'

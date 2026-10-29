@@ -1,4 +1,4 @@
-import type { ModelOptionsResult } from '@hermes/shared'
+import type { ModelOptionsResult } from '@envoy/shared'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { invalidateProfileScopedQueries, keepWarmNousRow, queryClient } from './query-client'

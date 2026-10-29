@@ -6,8 +6,8 @@
  * Render-only. The editor UI that picks these lives in `avatar-picker.tsx`.
  */
 
-import * as sdk from '@hermes/plugin-sdk'
-import { profileColor } from '@hermes/plugin-sdk'
+import * as sdk from '@envoy/plugin-sdk'
+import { profileColor } from '@envoy/plugin-sdk'
 
 import type { AvatarAppearance, AvatarShape, BotMeta, FaceMood } from './types'
 

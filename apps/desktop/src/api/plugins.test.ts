@@ -1,4 +1,4 @@
-import { RECONNECT_STABLE_OPEN_MS } from '@hermes/shared'
+import { RECONNECT_STABLE_OPEN_MS } from '@envoy/shared'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { setApiRequestConnection, setApiRequestProfile } from '@/hermes'

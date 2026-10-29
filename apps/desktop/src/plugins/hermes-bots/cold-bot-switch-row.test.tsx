@@ -3,7 +3,7 @@
  * Highlight still follows the chat on screen (hermes-agent#120277).
  */
 
-import type * as HermesSdk from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
@@ -13,7 +13,7 @@ import { $groupChatWorkspace } from './group-chat'
 import { translateBotsIn } from './i18n-test-helper'
 import type { RosterRow } from './types'
 
-vi.mock('@hermes/plugin-sdk', async importOriginal => {
+vi.mock('@envoy/plugin-sdk', async importOriginal => {
   const sdk = await importOriginal<typeof HermesSdk>()
 
   return {

@@ -512,7 +512,7 @@ For that setup, prefer `chrome-devtools-mcp` through Envoy MCP support.
 
 See the MCP guide for the practical setup:
 
-- [Use MCP with Envoy](../../guides/use-mcp-with-hermes.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
+- [Use MCP with Envoy](../../guides/use-mcp-with-envoy.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
 
 ## Bot Desktop screen
 

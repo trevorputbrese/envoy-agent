@@ -1,4 +1,4 @@
-import { gaugeTitle } from '@hermes/shared'
+import { gaugeTitle } from '@envoy/shared'
 import { useStore } from '@nanostores/react'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'

@@ -16,13 +16,13 @@ def _tree(root: Path) -> None:
     (root / "package-lock.json").write_text(
         '{"version": "0.0.0", "packages": {'
         '"apps/desktop": {"name": "hermes", "version": "0.0.0"}, '
-        '"apps/bootstrap-installer": {"name": "@hermes/bootstrap-installer", "version": "0.0.0"}}}\n',
+        '"apps/bootstrap-installer": {"name": "@envoy/bootstrap-installer", "version": "0.0.0"}}}\n',
         encoding="utf-8")
     (root / "uv.lock").write_text(
         '[[package]]\nname = "hermes-agent"\nversion = "0.0.0"\n'
         '[[package]]\nname = "other"\nversion = "0.0.0"\n', encoding="utf-8")
     (root / "nix").mkdir()
-    (root / "nix" / "hermes-agent.nix").write_text(
+    (root / "nix" / "envoy-agent.nix").write_text(
         '{\n  version ? "0.0.0",\n}: version\n', encoding="utf-8")
     installer = root / "apps" / "bootstrap-installer" / "src-tauri"
     installer.mkdir(parents=True)
@@ -56,12 +56,12 @@ def test_stamping_only_writes_external_builder_inputs(tmp_path):
 
     assert not (build / "hermes_cli" / "_version.py").exists()
     assert {path: path.read_bytes() for path in inert} == before
-    assert 'version ? "0.21.5"' in (build / "nix" / "hermes-agent.nix").read_text()
+    assert 'version ? "0.21.5"' in (build / "nix" / "envoy-agent.nix").read_text()
     tauri = build / "apps" / "bootstrap-installer" / "src-tauri" / "tauri.conf.json"
     cargo = build / "apps" / "bootstrap-installer" / "src-tauri" / "Cargo.toml"
     assert json.loads(tauri.read_text())["version"] == "0.21.5"
     assert 'version = "0.21.5"' in cargo.read_text()
-    assert set(written) == {build / "nix" / "hermes-agent.nix", tauri, cargo}
+    assert set(written) == {build / "nix" / "envoy-agent.nix", tauri, cargo}
 
     tauri.write_text('{"version": "0.0.0"}\n', encoding="utf-8")
     from scripts.releases.stamping import validate_bootstrap_version

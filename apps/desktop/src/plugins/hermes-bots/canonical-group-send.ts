@@ -1,4 +1,4 @@
-import { randomUuid } from '@hermes/plugin-sdk'
+import { randomUuid } from '@envoy/plugin-sdk'
 
 import type { CanonicalGroupBinding } from './canonical-groups'
 

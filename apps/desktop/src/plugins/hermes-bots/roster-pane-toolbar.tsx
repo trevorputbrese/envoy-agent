@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   SearchField,
   Tip
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 
 import { seatableGroupBots, useGroupCapability } from './canonical-group-capabilities'
 import { botSourceStatus } from './data'

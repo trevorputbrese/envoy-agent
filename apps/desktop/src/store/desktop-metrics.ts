@@ -29,7 +29,7 @@
  * instead of overwriting each other; the backend latches each day and area once.
  */
 
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { $workspaceMode } from '@/components/pane-shell/workspace-scope'

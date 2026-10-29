@@ -326,7 +326,7 @@ google-chrome \
 
 具体配置请参阅 MCP 指南：
 
-- [在 Envoy 中使用 MCP](../../guides/use-mcp-with-hermes.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
+- [在 Envoy 中使用 MCP](../../guides/use-mcp-with-envoy.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
 
 ## Bot Desktop 屏幕
 

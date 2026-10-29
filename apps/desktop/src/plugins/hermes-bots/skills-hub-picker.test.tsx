@@ -9,7 +9,7 @@
  * frame's contentWindow and the identifier is charset-checked.
  */
 
-import type * as HermesSdk from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -25,7 +25,7 @@ const mocks = vi.hoisted(() => ({
   requestProfile: vi.fn(async (_route: unknown, _method: string, _params: Record<string, unknown>) => ({}))
 }))
 
-vi.mock('@hermes/plugin-sdk', async importOriginal => {
+vi.mock('@envoy/plugin-sdk', async importOriginal => {
   const original = await importOriginal<typeof HermesSdk>()
 
   return {

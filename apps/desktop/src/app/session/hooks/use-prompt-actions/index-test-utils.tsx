@@ -1,4 +1,4 @@
-import type { GatewayEvent } from '@hermes/shared'
+import type { GatewayEvent } from '@envoy/shared'
 import { QueryClient } from '@tanstack/react-query'
 import { act, render } from '@testing-library/react'
 import type { MutableRefObject } from 'react'

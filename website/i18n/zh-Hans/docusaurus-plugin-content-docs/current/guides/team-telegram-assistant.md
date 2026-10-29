@@ -291,7 +291,7 @@ display:
 
 通过编辑 `~/.hermes/SOUL.md` 自定义机器人的沟通方式：
 
-完整指南请参阅[在 Envoy 中使用 SOUL.md](./use-soul-with-hermes.md)。
+完整指南请参阅[在 Envoy 中使用 SOUL.md](./use-soul-with-envoy.md)。
 
 ```markdown
 # Soul

@@ -1,4 +1,4 @@
-import type { FreeTierClaimNudgeResult } from '@hermes/shared'
+import type { FreeTierClaimNudgeResult } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { invalidateAllConnectors } from '@/app/capabilities/connectors/data/keys'

@@ -1,4 +1,4 @@
-import { isStableOpen, reconnectBackoffDelayMs } from '@hermes/shared'
+import { isStableOpen, reconnectBackoffDelayMs } from '@envoy/shared'
 
 import type { HermesConnection } from '@/global'
 import { hostHas } from '@/lib/host-capabilities'

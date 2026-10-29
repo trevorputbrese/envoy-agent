@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 
-import { renderSync, Text } from '@hermes/ink'
+import { renderSync, Text } from '@envoy/ink'
 import { useStore } from '@nanostores/react'
 import React, { useEffect } from 'react'
 import { expect, it, vi } from 'vitest'

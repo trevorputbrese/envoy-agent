@@ -11,7 +11,7 @@ import type { RosterRow } from './types'
 
 const routeMock = vi.fn<() => { connectionId: string; profile: string; targetProfile?: string } | null>(() => null)
 
-vi.mock('@hermes/plugin-sdk', () => ({
+vi.mock('@envoy/plugin-sdk', () => ({
   host: { requestProfile: vi.fn() },
   resolveSiblingWsUrl: vi.fn()
 }))
@@ -44,7 +44,7 @@ vi.mock('./routing', async importOriginal => {
   }
 })
 
-import { host, resolveSiblingWsUrl } from '@hermes/plugin-sdk'
+import { host, resolveSiblingWsUrl } from '@envoy/plugin-sdk'
 
 import { displayRequest, isEventForBotScreen, resolveScreenWsUrl } from './screen-connection'
 

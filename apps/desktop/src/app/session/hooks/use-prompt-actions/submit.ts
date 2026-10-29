@@ -1,4 +1,4 @@
-import { type PromptSubmitResult, randomUuid } from '@hermes/shared'
+import { type PromptSubmitResult, randomUuid } from '@envoy/shared'
 import { type MutableRefObject, useCallback } from 'react'
 
 import { getSession, PROMPT_SUBMIT_REQUEST_TIMEOUT_MS } from '@/hermes'

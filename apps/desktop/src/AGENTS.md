@@ -6,7 +6,7 @@ Root TypeScript style rules apply.
 ## Desktop local execution belongs to the canonical gateway
 
 Electron + React + nanostores (`@assistant-ui/react`) talks JSON-RPC over the existing
-`@hermes/shared` client. Normal local primary and pooled launches invoke
+`@envoy/shared` client. Normal local primary and pooled launches invoke
 `envoy gateway ensure --json`, consume its credential-free endpoint, and authenticate
 WebSockets with fresh private control tickets. The app never acquires the gateway PID as
 an owned child. Closing, switching or evicting a Desktop connection disconnects the viewer;

@@ -6,7 +6,7 @@ description: >-
   default, or any palette JSON you point it at (settings page or ~/.config/hermes-wallpaper-theme/config.json),
   derives a palette with checked contrast floors and repaints live when the file changes. Optional
   glass mode paints a translucent background for native window materials or compositor blur.
-  Disclosure — the desktop half uses only @hermes/plugin-sdk; the palette file is read by the
+  Disclosure — the desktop half uses only @envoy/plugin-sdk; the palette file is read by the
   package's own backend route (dashboard/plugin_api.py, GET /api/plugins/wallpaper-theme/palette,
   mounted once the plugin is in plugins.enabled), polled every 3 seconds with a change stamp. That
   route reads only JSON files inside the user's home directory (or XDG_*_HOME) under 256 KiB and

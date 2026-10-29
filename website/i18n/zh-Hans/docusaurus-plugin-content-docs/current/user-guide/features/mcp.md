@@ -510,7 +510,7 @@ envoy plugins install mcp-serve
 
 ## 相关文档
 
-- [在 Envoy 中使用 MCP](../../guides/use-mcp-with-hermes.md)
+- [在 Envoy 中使用 MCP](../../guides/use-mcp-with-envoy.md)
 - [CLI 命令](../../reference/cli-commands.md)
 - [斜杠命令](../../reference/slash-commands.md)
 - [常见问题](../../reference/faq.md)

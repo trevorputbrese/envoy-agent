@@ -5,7 +5,7 @@ import type { ComponentProps } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 const request = vi.hoisted(() => vi.fn())
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { pluginSdkMock, createGroupGateway } = await import('./group-test-utils')
   const gateway = createGroupGateway()
   const { en } = await import('@/i18n/en')

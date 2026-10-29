@@ -41,12 +41,12 @@ async function loadEnglishCatalog(source) {
   mkdirSync(outdir, { recursive: true })
   const outfile = join(outdir, `en-${process.pid}.mjs`)
   const alias = {
-    '@hermes/shared/ansi': join(source, 'apps/shared/src/ansi.ts'),
-    '@hermes/shared/billing': join(source, 'apps/shared/src/billing-types.ts'),
-    '@hermes/shared/color': join(source, 'apps/shared/src/color.ts'),
-    '@hermes/shared/i18n': join(source, 'apps/shared/src/i18n.ts'),
-    '@hermes/shared/translucency': join(source, 'apps/shared/src/translucency.ts'),
-    '@hermes/shared': join(source, 'apps/shared/src/index.ts'),
+    '@envoy/shared/ansi': join(source, 'apps/shared/src/ansi.ts'),
+    '@envoy/shared/billing': join(source, 'apps/shared/src/billing-types.ts'),
+    '@envoy/shared/color': join(source, 'apps/shared/src/color.ts'),
+    '@envoy/shared/i18n': join(source, 'apps/shared/src/i18n.ts'),
+    '@envoy/shared/translucency': join(source, 'apps/shared/src/translucency.ts'),
+    '@envoy/shared': join(source, 'apps/shared/src/index.ts'),
     '@': join(app, 'src')
   }
   await build({

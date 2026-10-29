@@ -1,4 +1,4 @@
-import { Button, ConfirmDialog, Input } from '@hermes/plugin-sdk'
+import { Button, ConfirmDialog, Input } from '@envoy/plugin-sdk'
 import { useState } from 'react'
 
 import { CanonicalGroupRoster, type CanonicalMemberPhase } from './canonical-group-activity'

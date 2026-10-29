@@ -23,8 +23,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ACTIVATE = REPO_ROOT / "activate"
 ACTIVATE_FISH = REPO_ROOT / "activate.fish"
 ACTIVATE_PS1 = REPO_ROOT / "activate.ps1"
-SETUP_HERMES_SH = REPO_ROOT / "setup-hermes.sh"
-SETUP_HERMES_PS1 = REPO_ROOT / "setup-hermes.ps1"
+SETUP_HERMES_SH = REPO_ROOT / "setup-envoy.sh"
+SETUP_HERMES_PS1 = REPO_ROOT / "setup-envoy.ps1"
 CANARY = "HERMES_PM_ACTIVATE_CANARY"
 
 
@@ -168,11 +168,11 @@ def isolated_checkout(tmp_path: Path) -> Path:
         shutil.copy2(REPO_ROOT / relative, root / relative)
     # Environment-only tests do not exercise provisioning; the runtime tests
     # replace these stubs with a publisher that records and applies each sync.
-    (root / "setup-hermes.sh").write_text(
+    (root / "setup-envoy.sh").write_text(
         'test "$#" = 2 && test "$1" = --runtime-only && case "$2" in --test-environment*) ;; *) exit 2 ;; esac\n',
         encoding="utf-8",
     )
-    (root / "setup-hermes.ps1").write_text(
+    (root / "setup-envoy.ps1").write_text(
         "param([switch]$RuntimeOnly)\nif (-not $RuntimeOnly) { exit 2 }\n", encoding="utf-8",
     )
     return root
@@ -257,12 +257,12 @@ def sync_checkout(tmp_path: Path):
         binary.chmod(0o755)
     # Activation's contract with setup is the runtime-only switch; setup
     # itself maps that to PM's --trust-recorded install.
-    (root / "setup-hermes.sh").write_text(
+    (root / "setup-envoy.sh").write_text(
         'test "$#" = 2 && test "$1" = --runtime-only && test "$2" = --test-environment || exit 2\n'
         f'cd {shlex.quote(str(root))} || exit 3\n'
         f'exec {shlex.quote(str(python))} sync.py runtime-only --trust-recorded --test-environment\n', encoding="utf-8",
     )
-    (root / "setup-hermes.ps1").write_text(
+    (root / "setup-envoy.ps1").write_text(
         "param([switch]$RuntimeOnly)\n"
         "if (-not $RuntimeOnly) { exit 2 }\n"
         "$ErrorActionPreference = 'Stop'\n"

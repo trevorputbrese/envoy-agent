@@ -1,5 +1,5 @@
-import { JsonRpcGatewayError } from '@hermes/shared'
-import type { GatewayEventName } from '@hermes/shared'
+import { JsonRpcGatewayError } from '@envoy/shared'
+import type { GatewayEventName } from '@envoy/shared'
 import { act, cleanup, render, waitFor } from '@testing-library/react'
 import type { MutableRefObject } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

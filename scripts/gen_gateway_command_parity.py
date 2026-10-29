@@ -1,4 +1,4 @@
-#!/usr/bin/env -S bash -c 'exec "$BASH" "$(dirname "$0")/run-in-hermes-env" python3 "$0" "$@"'
+#!/usr/bin/env -S bash -c 'exec "$BASH" "$(dirname "$0")/run-in-envoy-env" python3 "$0" "$@"'
 """Regenerate website/docs/developer-guide/gateway-command-parity.md from the code.
 
 For every ``COMMAND_REGISTRY`` command it records what each local client does with it on the

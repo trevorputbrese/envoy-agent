@@ -9,7 +9,7 @@
  * store, one writer.
  */
 
-import { atom, host, randomUuid } from '@hermes/plugin-sdk'
+import { atom, host, randomUuid } from '@envoy/plugin-sdk'
 
 import { $botMeta, $lastRoster, botRosterKey } from './data'
 import { groupMemberReferencesConnection, markOrphanedGroupMemberDescriptor } from './hygiene'

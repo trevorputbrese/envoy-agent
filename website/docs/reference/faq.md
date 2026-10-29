@@ -50,7 +50,7 @@ This is more reliable than trying to force Envoy core browser transport to attac
 
 See:
 
-- [Use MCP with Envoy](../guides/use-mcp-with-hermes.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
+- [Use MCP with Envoy](../guides/use-mcp-with-envoy.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
 - [Browser Automation](../user-guide/features/browser.md#wsl2--windows-chrome-prefer-mcp-over-browser-connect)
 
 ### Is my data sent anywhere?
@@ -631,7 +631,7 @@ envoy chat
 
 See also:
 - [MCP (Model Context Protocol)](../user-guide/features/mcp.md)
-- [Use MCP with Envoy](../guides/use-mcp-with-hermes.md)
+- [Use MCP with Envoy](../guides/use-mcp-with-envoy.md)
 - [MCP Config Reference](./mcp-config-reference.md)
 
 #### MCP timeout errors

@@ -1,4 +1,4 @@
-import { type GatewayEvent } from '@hermes/shared'
+import { type GatewayEvent } from '@envoy/shared'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HermesGateway } from '@/api/client'

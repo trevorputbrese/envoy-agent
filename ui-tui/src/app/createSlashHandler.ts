@@ -1,4 +1,4 @@
-import { parseCommandDispatch, parseSlashCommand } from '@hermes/shared/slash'
+import { parseCommandDispatch, parseSlashCommand } from '@envoy/shared/slash'
 
 import type { GatewayClient } from '../gatewayClient.js'
 import type { SlashExecResponse } from '../gatewayTypes.js'

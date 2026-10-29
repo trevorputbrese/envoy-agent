@@ -103,14 +103,14 @@ def test_prebuilt_bundle_launch_does_not_touch_missing_source(tmp_path, monkeypa
 @pytest.mark.parametrize("local_tsx", [False, True])
 def test_dev_launch_builds_ink_before_running_source(tui_source, local_tsx):
     root, acquired = tui_source
-    ink = root / "ui-tui/packages/hermes-ink"
+    ink = root / "ui-tui/packages/envoy-ink"
     ink.mkdir(parents=True)
     (ink / "package.json").write_text(json.dumps({
         "name": "fixture-ink", "version": "1.0.0", "scripts": {"build": "node build.mjs"},
     }))
     (ink / "build.mjs").write_text("import { writeFileSync } from 'node:fs'; writeFileSync('built', 'ink');")
     manifest = json.loads((root / "package.json").read_text())
-    manifest["workspaces"].append("ui-tui/packages/hermes-ink")
+    manifest["workspaces"].append("ui-tui/packages/envoy-ink")
     (root / "package.json").write_text(json.dumps(manifest))
     subprocess.run([shutil.which("npm"), "install", "--package-lock-only", "--ignore-scripts", "--offline"], cwd=root, check=True)
     tsx = root / "ui-tui/node_modules/.bin/tsx"

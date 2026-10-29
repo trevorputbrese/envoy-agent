@@ -1,5 +1,5 @@
-import type * as HermesSdk from '@hermes/plugin-sdk'
-import { host } from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
+import { host } from '@envoy/plugin-sdk'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { WritableAtom } from 'nanostores'
 import { useSyncExternalStore } from 'react'
@@ -19,7 +19,7 @@ import { renderRosterToolbar } from './roster-pane-toolbar'
 import type { RosterRow } from './types'
 
 const { request, notify, openWorkspace, activation } = vi.hoisted(() => ({ request: vi.fn(), notify: vi.fn(), openWorkspace: vi.fn(), activation: { epoch: 1, listeners: new Set<() => void>() } }))
-vi.mock('@hermes/plugin-sdk', async importOriginal => {
+vi.mock('@envoy/plugin-sdk', async importOriginal => {
   const sdk = await importOriginal<typeof HermesSdk>()
   const { en } = await import('@/i18n/en')
 

@@ -759,6 +759,6 @@ The short version:
 - [Profile Commands reference](../reference/profile-commands.md) — every flag, every option
 - [`envoy profile export` / `import`](../reference/profile-commands.md#hermes-profile-export) — the CLI form of [export files](#export-and-import-a-profile-file)
 - [Slash Commands reference](../reference/slash-commands.md) — `/export`, `/import`, and every other in-chat command
-- [Using SOUL with Envoy](../guides/use-soul-with-hermes.md) — authoring personalities
+- [Using SOUL with Envoy](../guides/use-soul-with-envoy.md) — authoring personalities
 - [Personality & SOUL](./features/personality.md) — how SOUL fits into the agent
 - [Skills catalog](../reference/skills-catalog.md) — skills you can bundle

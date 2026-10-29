@@ -1,4 +1,4 @@
-import { host } from '@hermes/plugin-sdk'
+import { host } from '@envoy/plugin-sdk'
 
 import { botsText } from './i18n'
 

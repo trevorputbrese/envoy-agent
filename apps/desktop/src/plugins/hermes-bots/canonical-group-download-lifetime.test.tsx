@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { expectDownloaded, observeDownloads } from './canonical-download-test-utils'
 
 const request = vi.hoisted(() => vi.fn())
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { en } = await import('@/i18n/en')
   const { Textarea } = await import('@/components/ui/textarea')
 

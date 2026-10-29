@@ -338,7 +338,7 @@ The **prompt surface** is what a stock install sends before the first user messa
 Regenerate after any change that moves the surface:
 
 ```bash
-scripts/run-in-hermes-env python scripts/ci/prompt_surface.py render
+scripts/run-in-envoy-env python scripts/ci/prompt_surface.py render
 ```
 
 User-side customization (`SOUL.md`, context files, skills you install, `platform_hints`, `agent.*` guidance toggles) never touches the snapshot. The render uses stock defaults and only bundled skills.

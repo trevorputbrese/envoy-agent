@@ -1,4 +1,4 @@
-import { colorize } from '@hermes/ink'
+import { colorize } from '@envoy/ink'
 import { describe, expect, it } from 'vitest'
 
 import {

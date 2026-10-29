@@ -1,4 +1,4 @@
-import { skillInvocationText } from '@hermes/shared'
+import { skillInvocationText } from '@envoy/shared'
 
 import { formatRefValue } from '@/components/assistant-ui/directive-text'
 import { splitLeadingAttachmentRefs } from '@/components/assistant-ui/reference-kinds'

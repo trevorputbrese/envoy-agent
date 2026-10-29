@@ -1,4 +1,4 @@
-import { compactNumber } from '@hermes/shared'
+import { compactNumber } from '@envoy/shared'
 import { useMemo } from 'react'
 
 import { Codicon } from '@/components/ui/codicon'

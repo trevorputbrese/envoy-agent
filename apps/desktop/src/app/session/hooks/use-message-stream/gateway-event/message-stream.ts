@@ -1,4 +1,4 @@
-import { type BillingBlock, mergeUsage } from '@hermes/shared'
+import { type BillingBlock, mergeUsage } from '@envoy/shared'
 
 import { noteTurnSettled } from '@/app/session/hooks/use-session-actions/settled-turns'
 import { burstVibeHearts } from '@/components/chat/vibe-hearts'

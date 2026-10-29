@@ -1,4 +1,4 @@
-import { normalizeBasePath } from '@hermes/shared'
+import { normalizeBasePath } from '@envoy/shared'
 
 import { webappSessionKey } from '@/lib/browser-launch-session'
 

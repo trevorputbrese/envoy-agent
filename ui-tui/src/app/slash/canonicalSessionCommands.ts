@@ -3,8 +3,8 @@
 // `session.mutate` rename / rewind (`gateway/session_mutations.py`), the committed admission
 // result (`prompt.receipt include_result`) and the frozen launch policy (`session.info`).
 
-import type { SessionStats } from '@hermes/shared/gateway-events'
-import { JsonRpcGatewayError } from '@hermes/shared/json-rpc-channel'
+import type { SessionStats } from '@envoy/shared/gateway-events'
+import { JsonRpcGatewayError } from '@envoy/shared/json-rpc-channel'
 
 import { CANONICAL_REASONING_EFFORTS } from '../../domain/slash.js'
 import { usageFromTick } from '../../domain/usage.js'

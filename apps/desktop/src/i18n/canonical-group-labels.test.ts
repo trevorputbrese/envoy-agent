@@ -3,7 +3,7 @@ import { expect, it, vi } from 'vitest'
 
 const active = vi.hoisted(() => ({ locale: 'en' }))
 
-vi.mock('@hermes/plugin-sdk', () => ({
+vi.mock('@envoy/plugin-sdk', () => ({
   useI18n: () => ({ t: TRANSLATIONS[active.locale as keyof typeof TRANSLATIONS] }),
   usePluginI18n: () => (key: string) =>
     key

@@ -11,7 +11,7 @@
 #   * Env vars blanked (conftest.py also does this, but this
 #     is belt-and-suspenders for anyone running pytest outside our
 #     conftest path — e.g. on a single file)
-#   * The checkout's test environment (via scripts/run-in-hermes-env when needed)
+#   * The checkout's test environment (via scripts/run-in-envoy-env when needed)
 #
 # Usage:
 #   scripts/run_tests.sh                            # full suite
@@ -40,7 +40,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # ── Locate python ───────────────────────────────────────────────────────────
 # The suite runs under the checkout's isolated test environment (pm.testenv),
 # and only there: unless the inherited environment is current for this
-# checkout, this script re-executes itself under scripts/run-in-hermes-env,
+# checkout, this script re-executes itself under scripts/run-in-envoy-env,
 # which syncs and applies it. That holds however the script is launched
 # (`scripts/run_tests.sh`, `bash scripts/run_tests.sh`, from CI or a shell), so
 # a branch switch or lock edit never runs the suite against the previous
@@ -92,7 +92,7 @@ _store_has_pins() {
 if _shared="$(_account_tool_store)"; then
   _account="${_shared%%$'\n'*}"
   export HERMES_RUNTIME_DIR="$_account/.hermes/tools"
-  # setup-hermes.sh's uv-managed bootstrap interpreter is the same kind of
+  # setup-envoy.sh's uv-managed bootstrap interpreter is the same kind of
   # cache, but only reused: a missing pinned minor would download into it.
   if [ -z "${UV_PYTHON_INSTALL_DIR:-}" ] && [ -w "$_account/.local/share/uv/python" ] \
       && compgen -G "$_account/.local/share/uv/python/cpython-${_shared#*$'\n'}[.-]*" >/dev/null; then
@@ -107,12 +107,12 @@ if [ -z "${__HERMES_ACTIVATED:-}" ] && _has_pytest "${HERMES_PYTHON:-}"; then
 else
   if ! hermes_activation_current "$REPO_ROOT"; then
     if [ -n "${__HERMES_TESTS_REEXEC:-}" ]; then
-      echo "error: run-in-hermes-env did not produce a current environment for $REPO_ROOT" >&2
+      echo "error: run-in-envoy-env did not produce a current environment for $REPO_ROOT" >&2
       exit 1
     fi
-    echo "▶ environment missing or stale for $REPO_ROOT — re-running under run-in-hermes-env" >&2
+    echo "▶ environment missing or stale for $REPO_ROOT — re-running under run-in-envoy-env" >&2
     export __HERMES_TESTS_REEXEC=1
-    exec "$SCRIPT_DIR/run-in-hermes-env" "$BASH" "${BASH_SOURCE[0]}" "$@"
+    exec "$SCRIPT_DIR/run-in-envoy-env" "$BASH" "${BASH_SOURCE[0]}" "$@"
   fi
   PYTHON="${__HERMES_TEST_PYTHON:-}"
   if ! _has_pytest "$PYTHON"; then

@@ -1,4 +1,4 @@
-import { DEFAULT_REASONING_EFFORT, type ModelOptionsResult } from '@hermes/shared'
+import { DEFAULT_REASONING_EFFORT, type ModelOptionsResult } from '@envoy/shared'
 import { useStore } from '@nanostores/react'
 import { useQuery } from '@tanstack/react-query'
 import { atom } from 'nanostores'

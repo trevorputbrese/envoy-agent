@@ -14,7 +14,7 @@ const { host } = vi.hoisted(() => ({
   }
 }))
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const nanostores = await import('nanostores')
 
   return {

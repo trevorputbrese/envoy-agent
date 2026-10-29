@@ -55,7 +55,7 @@ Envoy Agent 功能丰富——CLI 助手、Telegram/Discord 机器人、任务�
 4. [Telegram 配置](../user-guide/messaging/telegram.md)
 5. [Discord 配置](../user-guide/messaging/discord.md)
 6. [语音模式](../user-guide/features/voice-mode.md)
-7. [在 Envoy 中使用语音模式](../guides/use-voice-mode-with-hermes.md)
+7. [在 Envoy 中使用语音模式](../guides/use-voice-mode-with-envoy.md)
 8. [安全](../user-guide/security.md)
 
 完整项目示例请参阅：

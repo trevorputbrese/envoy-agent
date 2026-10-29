@@ -11,7 +11,7 @@ import { botHandle, botMentionTag, claimDefaultHandles, mergeMultiSourceRoster, 
 import { previewKind } from './row-helpers'
 import type { RosterRow } from './types'
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { atom } = await import('nanostores')
 
   return { atom, host: {}, queryClient: undefined, useQuery: vi.fn(), useValue: vi.fn() }

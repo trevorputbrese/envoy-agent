@@ -346,14 +346,14 @@ and removes the function and the prompt prefix.
 It does not uninstall packages or stop processes that you started.
 
 To run one command or script in that environment without activating a shell,
-prefix it with `scripts/run-in-hermes-env`. It applies the same environment to
+prefix it with `scripts/run-in-envoy-env`. It applies the same environment to
 that command only, syncing first when there is none to inherit or the inherited
 one is stale, and leaves your shell untouched. `scripts/run_tests.sh` re-runs
 itself this way, and the repo's Python scripts hand themselves to it from their
 shebang.
 
 ```bash
-scripts/run-in-hermes-env python scripts/release.py --help
+scripts/run-in-envoy-env python scripts/release.py --help
 ```
 
 Verify the interpreter and source before doing work:
@@ -461,7 +461,7 @@ selected generation.
 ### Test and editor environments
 
 `source ./activate` (or `. .\activate.ps1` in PowerShell) and both direct
-`setup-hermes` scripts prepare an isolated test interpreter from the locked
+`setup-envoy` scripts prepare an isolated test interpreter from the locked
 `dev` and `test` dependency groups. `scripts/run_tests.sh` uses that interpreter,
 re-activating if the checkout or its dependency inputs changed. The application
 venv, installers, and bundles select neither group. The developer default

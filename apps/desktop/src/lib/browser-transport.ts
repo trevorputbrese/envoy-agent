@@ -1,4 +1,4 @@
-import { BROWSER_NATIVE_DIAL, buildHermesWebSocketUrl, normalizeBasePath } from '@hermes/shared'
+import { BROWSER_NATIVE_DIAL, buildHermesWebSocketUrl, normalizeBasePath } from '@envoy/shared'
 
 import type { HermesApiRequest } from '@/global'
 import { readWebappSession, webappSignInRequired } from '@/lib/browser-launch-session'

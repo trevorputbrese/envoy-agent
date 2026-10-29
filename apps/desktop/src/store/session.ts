@@ -1,4 +1,4 @@
-import type { ConnectionState } from '@hermes/shared'
+import type { ConnectionState } from '@envoy/shared'
 import { atom, computed } from 'nanostores'
 
 import { setApiRequestLocalMode } from '@/api/client'

@@ -311,7 +311,7 @@ FROM runtime_base AS frontend_build
 COPY package.json package-lock.json ./
 COPY web/package.json web/
 COPY ui-tui/package.json ui-tui/
-COPY ui-tui/packages/hermes-ink/ ui-tui/packages/hermes-ink/
+COPY ui-tui/packages/envoy-ink/ ui-tui/packages/envoy-ink/
 COPY apps/shared/ apps/shared/
 COPY scripts/build/node-deps.mjs scripts/build/electron-runtime.mjs scripts/build/
 ENV npm_config_install_links=false
@@ -397,7 +397,7 @@ RUN /opt/hermes/.venv/bin/python -m docker.build_agent
 
 USER root
 RUN mkdir -p /opt/hermes/bin && \
-    cp /opt/hermes/docker/hermes-exec-shim.sh /opt/hermes/bin/hermes && \
+    cp /opt/hermes/docker/envoy-exec-shim.sh /opt/hermes/bin/hermes && \
     chmod 0755 /opt/hermes /opt/hermes/bin/hermes && \
     printf 'docker\n' > /opt/hermes/.install_method
 # The ``.install_method`` stamp is baked next to the running code (the install
@@ -441,7 +441,7 @@ RUN set -eu; \
     python3 -c 'import json, pathlib, tomllib; project = tomllib.loads(pathlib.Path("/opt/hermes/pyproject.toml").read_text(encoding="utf-8"))["project"]; stamp = json.loads(pathlib.Path("/opt/hermes/install-stamp.json").read_text(encoding="utf-8")); commit = stamp.get("commit"); revision = commit if commit and set(commit) != {"0"} else None; marker = pathlib.Path("/etc/hermes/image-provenance.json"); marker.write_text(json.dumps({"schema": 1, "deployment_kind": "image", "manager": "docker", "image": "nousresearch/hermes-agent", "version": project["version"], "revision": revision}, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"); marker.chmod(0o444)'
 
 # ---------- s6-overlay service wiring ----------
-# Static services declared at build time: main-hermes + dashboard.
+# Static services declared at build time: main-envoy + dashboard.
 # Per-profile gateway services are registered dynamically at runtime by
 # the profile create/delete hooks (Phase 4); they live under
 # /run/service/ (tmpfs) and are reconciled on container restart by
@@ -506,7 +506,7 @@ ENV XDG_RUNTIME_DIR=/tmp/hermes-runtime
 # Recursion is impossible because the shim exec's the venv binary by
 # absolute path (/opt/hermes/.venv/bin/hermes). See the shim source for
 # the opt-out env var (HERMES_DOCKER_EXEC_AS_ROOT=1).
-COPY --chmod=0755 docker/hermes-exec-shim.sh /opt/hermes/bin/hermes
+COPY --chmod=0755 docker/envoy-exec-shim.sh /opt/hermes/bin/hermes
 COPY --chmod=0755 docker/entrypoint-dispatch.sh /opt/hermes/docker/entrypoint-dispatch.sh
 
 # Pre-s6 entrypoint.sh did `source .venv/bin/activate` which exported

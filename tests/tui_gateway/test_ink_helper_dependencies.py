@@ -67,7 +67,7 @@ def test_packaged_gateway_bootstrap_boots_the_root_it_is_given_or_names_why_it_c
     where parents[2] is not the Python root: the helper must boot the generation of the root Ink
     passes, and an interpreter that still cannot load Envoy is a named, terminal verdict the client
     stops retrying on, never a bare ImportError retried every 30 s (#138878)."""
-    packaged = tmp_path / "hermes-tui" / "dist" / "scripts"
+    packaged = tmp_path / "envoy-tui" / "dist" / "scripts"
     packaged.mkdir(parents=True)
     shutil.copy2(_SCRIPTS / "gateway_bootstrap.py", packaged / "gateway_bootstrap.py")
 

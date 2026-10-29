@@ -18,7 +18,7 @@
  * dispatch at all for a row whose connection is gone.
  */
 
-import type * as HermesSdk from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
@@ -36,9 +36,9 @@ const { hostMock } = vi.hoisted(() => ({
   }
 }))
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { useQuery } = await import('@tanstack/react-query')
-  const { catalogProviderMatches, useI18n } = await vi.importActual<typeof HermesSdk>('@hermes/plugin-sdk')
+  const { catalogProviderMatches, useI18n } = await vi.importActual<typeof HermesSdk>('@envoy/plugin-sdk')
 
   return {
     Button: (props: React.ComponentProps<'button'>) => <button {...props} />,

@@ -1,4 +1,4 @@
-"""``scripts/run-in-hermes-env``: run a command in the Envoy environment, syncing only when needed.
+"""``scripts/run-in-envoy-env``: run a command in the Envoy environment, syncing only when needed.
 
 The runner is what repo scripts hand themselves to from their shebang and what
 ``scripts/run_tests.sh`` re-executes under. Its decision worth pinning is
@@ -33,7 +33,7 @@ from pm.environments import ACTIVATION_INPUTS, activation_input_mtimes, record_a
 from tests.pm.activation_support import bash, posix
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RUNNER = REPO_ROOT / "scripts" / "run-in-hermes-env"
+RUNNER = REPO_ROOT / "scripts" / "run-in-envoy-env"
 
 EARLIER = "2018-01-01 00:00:00"
 LONG_AGO = "2019-01-01 00:00:00"
@@ -74,7 +74,7 @@ def checkout(tmp_path: Path) -> Path:
     _shim(root / "shim" / "python3")
     _shim(root / ".venv" / "bin" / "python")  # the bootstrap interpreter that reads the pm env
 
-    (root / "setup-hermes.sh").write_text(
+    (root / "setup-envoy.sh").write_text(
         "echo SYNCED >&2\n"
         f'test ! -e "{posix(root)}/fail"\n', encoding="utf-8",
     )

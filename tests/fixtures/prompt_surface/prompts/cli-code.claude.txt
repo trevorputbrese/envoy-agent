@@ -106,8 +106,8 @@ After difficult/iterative tasks, offer to save as a skill. If a skill you loaded
     - codebase-inspection: Inspect codebases w/ pygount: LOC, languages, ratios.
     - dogfood: Exploratory QA of web apps: find bugs, evidence, reports.
     - github: GitHub via gh CLI: PRs, issues, reviews, repos, auth.
-    - hermes-agent-skill-authoring: Author in-repo SKILL.md files: frontmatter and structure.
-    - inspecting-hermes-desktop-dom: Read the live Envoy desktop DOM/CSS over CDP.
+    - envoy-agent-skill-authoring: Author in-repo SKILL.md files: frontmatter and structure.
+    - inspecting-envoy-desktop-dom: Read the live Envoy desktop DOM/CSS over CDP.
     - node-inspect-debugger: Debug Node.js via --inspect + Chrome DevTools Protocol CLI.
     - python-debugpy: Debug Python: pdb REPL + debugpy remote (DAP).
     - requesting-code-review: Pre-commit review: security scan, quality gates, auto-fix.

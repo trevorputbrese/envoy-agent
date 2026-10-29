@@ -152,7 +152,7 @@ const terminalExpression = `(async () => {
       'ModuleNotFoundError:',
       'Traceback (most recent call last)'
     ].find(marker => output.includes(marker))
-    const hostShellStarted = session.shell !== 'hermes-tui' && Boolean(output)
+    const hostShellStarted = session.shell !== 'envoy-tui' && Boolean(output)
     return {
       cwd,
       error: fatalOutput

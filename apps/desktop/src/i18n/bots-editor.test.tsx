@@ -1,4 +1,4 @@
-import type * as HermesSdk from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeAll, expect, it, vi } from 'vitest'
@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({
   connections: vi.fn(async () => [])
 }))
 
-vi.mock('@hermes/plugin-sdk', async importOriginal => {
+vi.mock('@envoy/plugin-sdk', async importOriginal => {
   const sdk = await importOriginal<typeof HermesSdk>()
 
   return { ...sdk, host: { ...sdk.host, request: mocks.request, connections: mocks.connections } }

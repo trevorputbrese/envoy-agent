@@ -1,4 +1,4 @@
-import type { ModelOptionProvider } from '@hermes/shared'
+import type { ModelOptionProvider } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { invalidateAllConnectors } from '@/app/capabilities/connectors/data/keys'

@@ -107,7 +107,7 @@ test('a legacy dial branches from a message with the serve contract\'s count, ne
 test('a compress settle resumes under the caller\'s original timeout and abort signal', async () => {
   // R4: the follow-up `session.resume` must not fall back to the default 120 s deadline
   // and ignore the caller's AbortSignal (a cancelled compress would otherwise hang).
-  const { JsonRpcGatewayClient } = await import('@hermes/shared')
+  const { JsonRpcGatewayClient } = await import('@envoy/shared')
   const wire: Array<[string, unknown, AbortSignal | undefined]> = []
 
   const spy = vi.spyOn(JsonRpcGatewayClient.prototype, 'request').mockImplementation(async function (method: string, _params?: unknown, timeoutMs?: number, signal?: AbortSignal) {

@@ -8,7 +8,7 @@ description: "Real-time voice conversations with Envoy Agent — CLI, Telegram, 
 
 Envoy Agent supports full voice interaction across CLI and messaging platforms. Talk to the agent using your microphone, hear spoken replies, and have live voice conversations in Discord voice channels.
 
-If you want a practical setup walkthrough with recommended configurations and real usage patterns, see [Use Voice Mode with Envoy](../../guides/use-voice-mode-with-hermes.md).
+If you want a practical setup walkthrough with recommended configurations and real usage patterns, see [Use Voice Mode with Envoy](../../guides/use-voice-mode-with-envoy.md).
 
 For hands-free session start — saying "hey hermes" (or any phrase) to open a fresh voice session on the CLI, TUI, or desktop app — see [Wake Word](./wake-word.md).
 

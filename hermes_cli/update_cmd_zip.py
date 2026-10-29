@@ -43,7 +43,7 @@ _ZIP_PRESERVED_NESTED = {
     "apps": ("desktop/release", "desktop/dist", "desktop/dist-webapp", "desktop/node_modules", "desktop/build"),
     "hermes_cli": ("web_dist",),
     "scripts": ("whatsapp-bridge/node_modules",),
-    "ui-tui": ("dist", "node_modules", "packages/hermes-ink/dist"),
+    "ui-tui": ("dist", "node_modules", "packages/envoy-ink/dist"),
     "web": ("node_modules",),
 }
 

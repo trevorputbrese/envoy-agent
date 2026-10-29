@@ -1,4 +1,4 @@
-import { Button, Codicon, Tip } from '@hermes/plugin-sdk'
+import { Button, Codicon, Tip } from '@envoy/plugin-sdk'
 import type { ComponentProps } from 'react'
 
 import { GroupRow } from './bot-row'

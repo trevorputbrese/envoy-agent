@@ -1,4 +1,4 @@
-import { REASONING_EFFORTS } from '@hermes/shared'
+import { REASONING_EFFORTS } from '@envoy/shared'
 import { type FormEvent, useState } from 'react'
 
 import { Button } from '@/components/ui/button'

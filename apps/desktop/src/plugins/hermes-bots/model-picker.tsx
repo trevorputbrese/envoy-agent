@@ -18,7 +18,7 @@ import {
   SelectValue,
   useI18n,
   useQuery
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 import { useState } from 'react'
 
 import { labeled } from './dialog-parts'

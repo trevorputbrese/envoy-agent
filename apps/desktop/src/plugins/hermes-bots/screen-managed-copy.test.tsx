@@ -14,7 +14,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { DisplayStatus } from './screen-connection'
 import type { RosterRow } from './types'
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { useStore } = await import('@nanostores/react')
   const { onGatewayEvent } = await import('../../contrib/events')
 
@@ -54,7 +54,7 @@ vi.mock('./i18n', () => ({
   })
 }))
 
-import { host } from '@hermes/plugin-sdk'
+import { host } from '@envoy/plugin-sdk'
 
 import { BotScreenPane } from './screen-pane'
 import { $screenState } from './screen-state'

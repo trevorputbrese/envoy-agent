@@ -1,4 +1,4 @@
-import { JSON_RPC_INTERNAL_ERROR, type SetupBeat } from '@hermes/shared'
+import { JSON_RPC_INTERNAL_ERROR, type SetupBeat } from '@envoy/shared'
 
 import {
   hasLivePreviewSurface,

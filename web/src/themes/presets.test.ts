@@ -1,4 +1,4 @@
-import { contrastRatio, THEME_PRESET_PALETTES, type ThemePresetPalette } from "@hermes/shared";
+import { contrastRatio, THEME_PRESET_PALETTES, type ThemePresetPalette } from "@envoy/shared";
 import { describe, expect, it } from "vitest";
 
 import { BUILTIN_THEMES, defaultTheme, webPresetFromShared } from "./presets";

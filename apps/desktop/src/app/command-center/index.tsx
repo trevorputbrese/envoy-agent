@@ -1,4 +1,4 @@
-import { compactNumber } from '@hermes/shared'
+import { compactNumber } from '@envoy/shared'
 import { type MouseEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { LogSearchField, useLogSearch } from '@/components/chat/log-search'

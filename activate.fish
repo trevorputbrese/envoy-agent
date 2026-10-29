@@ -6,7 +6,7 @@
 # CURRENT shell, with save/restore (`deactivate` undoes exactly what activation
 # changed), makes `hermes` a function for this checkout, and prefixes the prompt
 # with the worktree name. Scripts and other processes run under
-# `scripts/run-in-hermes-env` instead.
+# `scripts/run-in-envoy-env` instead.
 #
 # Options: `--test-extras a,b` selects the test environment's runtime extras
 # (default: [all]).

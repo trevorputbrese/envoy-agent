@@ -16,8 +16,8 @@
  *    bot-scoped, so the tile must not sit beside a group chat.
  */
 
-import type * as HermesSdk from '@hermes/plugin-sdk'
-import type { PluginContext } from '@hermes/plugin-sdk'
+import type * as HermesSdk from '@envoy/plugin-sdk'
+import type { PluginContext } from '@envoy/plugin-sdk'
 import { atom } from 'nanostores'
 import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -38,7 +38,7 @@ const mocks = vi.hoisted(() => ({
   undismissPane: vi.fn()
 }))
 
-vi.mock('@hermes/plugin-sdk', async importOriginal => {
+vi.mock('@envoy/plugin-sdk', async importOriginal => {
   const original = await importOriginal<typeof HermesSdk>()
 
   return {
@@ -327,7 +327,7 @@ describe('returning to Sessions', () => {
 
 describe('a desktop without host.paneVisibility', () => {
   it('keeps the always-registered pane', async () => {
-    const { host } = await import('@hermes/plugin-sdk')
+    const { host } = await import('@envoy/plugin-sdk')
     const restore = host.paneVisibility
 
     // @ts-expect-error modelling an older SDK that lacks the export entirely

@@ -37,7 +37,7 @@ import fs from 'node:fs'
 import https from 'node:https'
 import path from 'node:path'
 
-// Relative, not `@hermes/shared/ansi`: the electron bundle is built by esbuild
+// Relative, not `@envoy/shared/ansi`: the electron bundle is built by esbuild
 // with no tsconfig path resolution (see scripts/bundle-electron-main.mjs).
 import { stripAnsi } from '../../shared/src/ansi'
 

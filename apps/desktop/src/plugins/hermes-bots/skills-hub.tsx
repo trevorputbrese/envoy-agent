@@ -6,7 +6,7 @@
  * it reaches back into neither.
  */
 
-import { Button, Codicon, host, Input, useI18n } from '@hermes/plugin-sdk'
+import { Button, Codicon, host, Input, useI18n } from '@envoy/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 
 import { useBots } from './i18n'

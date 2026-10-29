@@ -1,4 +1,4 @@
-import { isUndeliveredCorrectionRefusal } from '@hermes/shared/json-rpc-channel'
+import { isUndeliveredCorrectionRefusal } from '@envoy/shared/json-rpc-channel'
 
 import type { GatewayClient } from '../gatewayClient.js'
 import type { InputDetectDropResponse, PromptSubmitResponse, SessionActivateResponse } from '../gatewayTypes.js'

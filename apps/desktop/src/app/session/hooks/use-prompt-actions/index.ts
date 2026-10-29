@@ -1,6 +1,6 @@
 import type { AppendMessage, ThreadMessage } from '@assistant-ui/react'
-import { isUndeliveredCorrectionRefusal, JsonRpcGatewayError } from '@hermes/shared'
-import { stripAnsi } from '@hermes/shared/ansi'
+import { isUndeliveredCorrectionRefusal, JsonRpcGatewayError } from '@envoy/shared'
+import { stripAnsi } from '@envoy/shared/ansi'
 import { useStore } from '@nanostores/react'
 import { type MutableRefObject, useCallback, useEffect, useRef } from 'react'
 

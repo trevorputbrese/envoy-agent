@@ -1,5 +1,5 @@
-import { skillInvocationText } from '@hermes/shared'
-import { mergeUsage, parseCommandDispatch, parseSlashCommand, randomUuid } from '@hermes/shared'
+import { skillInvocationText } from '@envoy/shared'
+import { mergeUsage, parseCommandDispatch, parseSlashCommand, randomUuid } from '@envoy/shared'
 import { type MutableRefObject, useCallback, useRef } from 'react'
 
 import { mergeOlderTranscriptPage } from '@/app/chat/transcript-backfill'

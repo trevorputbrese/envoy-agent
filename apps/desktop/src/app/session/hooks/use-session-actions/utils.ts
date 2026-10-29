@@ -1,4 +1,4 @@
-import { mergeUsage } from '@hermes/shared'
+import { mergeUsage } from '@envoy/shared'
 
 import { resolveSessionRpcOwner } from '@/app/contrib/wiring-routing'
 import { textWithoutReferenceLines } from '@/components/assistant-ui/reference-kinds'

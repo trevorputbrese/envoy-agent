@@ -1,4 +1,4 @@
-import * as sdk from '@hermes/plugin-sdk'
+import * as sdk from '@envoy/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 
 import { type CanonicalGroupAttachment, CanonicalGroupAttachments, fetchCanonicalGroupAttachment } from './canonical-group-attachments'

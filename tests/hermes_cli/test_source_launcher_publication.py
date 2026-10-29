@@ -21,7 +21,7 @@ BOOT_FILES = (
     "hermes_cli/_early_recovery.py", "hermes_cli/_parser.py",
     "hermes_cli/venv_sync.py", "hermes_cli/steward.py",
     "hermes_cli/stderr_timestamp.py",
-    "scripts/hermes-gateway",
+    "scripts/envoy-gateway",
 )
 
 
@@ -299,7 +299,7 @@ def _command_survives_generation_collection(tmp_path, monkeypatch, surface):
         (selected.parent / ".lease-managed").touch()
         if value == "old":
             if surface == "legacy":
-                command = [sys.executable, "-I", str(repo / "scripts/hermes-gateway"), "--help"]
+                command = [sys.executable, "-I", str(repo / "scripts/envoy-gateway"), "--help"]
                 args = ["gateway", "--help"]
             elif surface == "ssh":
                 from hermes_cli.windows_ssh_runtime import _resolve_direct_command

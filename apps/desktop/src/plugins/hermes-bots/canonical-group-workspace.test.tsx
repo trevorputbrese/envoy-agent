@@ -5,7 +5,7 @@ import type { ComponentProps } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 const request = vi.hoisted(() => vi.fn())
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { pluginSdkMock, createGroupGateway } = await import('./group-test-utils')
   const gateway = createGroupGateway()
   const { en } = await import('@/i18n/en')
@@ -20,7 +20,7 @@ vi.mock('@hermes/plugin-sdk', async () => {
     RowButton: (p: ComponentProps<'button'>) => <button type="button" {...p} />,
     host: { ...gateway.host, requestProfile: request } }
 })
-import { host } from '@hermes/plugin-sdk'
+import { host } from '@envoy/plugin-sdk'
 
 import { $canonicalGroupBindings, CanonicalGroupList, registerCanonicalGroup } from './canonical-group-registry'
 import { prepareCanonicalGroupSend, readCanonicalGroupSend } from './canonical-group-send'

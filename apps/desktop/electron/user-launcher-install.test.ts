@@ -33,7 +33,7 @@ function publishLauncher(dir: string, reported: string): string {
   return launcher
 }
 
-// The reported machine: setup-hermes.sh published ~/.local/bin/hermes for a
+// The reported machine: setup-envoy.sh published ~/.local/bin/hermes for a
 // clone outside ~/.hermes/hermes-agent, and a Finder/Dock launch inherited
 // launchd's PATH, which has no ~/.local/bin. Desktop must still find it.
 test.skipIf(process.platform === 'win32')(

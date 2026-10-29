@@ -1,4 +1,4 @@
-import { JsonRpcGatewayError } from '@hermes/shared'
+import { JsonRpcGatewayError } from '@envoy/shared'
 import { describe, expect, it } from 'vitest'
 
 import { isMissingPendingPromptRequest, isMissingRpcMethod, isOfflineMaintenance } from './gateway-rpc'

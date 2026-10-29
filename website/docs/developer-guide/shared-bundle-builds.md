@@ -238,7 +238,7 @@ admission, generation selection, and transaction state. Both paths use
 | Desktop bundled/Store | Icons, TUI, web, agent, desktop UI | Products: `apps/desktop/build/products/`. Agent: `apps/desktop/build/agent-payload/`. UI: `apps/desktop/dist/`. Packages: `apps/desktop/release/` |
 | Desktop light | Icons and desktop UI | `apps/desktop/dist/` and `apps/desktop/release/`, without an agent payload |
 | Docker | Icons, TUI, web, agent | Agent at `/opt/hermes`, dependencies at `.venv`, PM at `pm-runtime`, generated commands at `libexec` |
-| Nix TUI | TUI | `$out/lib/hermes-tui/{dist/entry.js,package.json}` |
+| Nix TUI | TUI | `$out/lib/envoy-tui/{dist/entry.js,package.json}` |
 | Nix web | Web | `$out/index.html` and assets |
 | Nix agent | Agent with TUI/web references | `$out/bin`, `$out/share/hermes-agent`, `$out/ui-tui`, `manifest.json`, and `command-map.json` |
 | Nix desktop | Icons and desktop UI, with the Nix agent | `$out/share/hermes-desktop` and `$out/bin/hermes-desktop` |

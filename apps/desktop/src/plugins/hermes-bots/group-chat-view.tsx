@@ -10,7 +10,7 @@
  * touch stay below, in `group-panes.ts`.
  */
 
-import * as sdk from '@hermes/plugin-sdk'
+import * as sdk from '@envoy/plugin-sdk'
 import {
   atom,
   Button,
@@ -34,7 +34,7 @@ import {
   useGatewayActivationEpoch,
   useI18n,
   useValue
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 import type { ClipboardEvent, DragEvent, ReactNode } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 

@@ -1,12 +1,12 @@
 <#
-  Smoke test for hermes-update-rehearsal.ps1 (this directory).
+  Smoke test for envoy-update-rehearsal.ps1 (this directory).
   Builds a synthetic install in a temp tree and drives pre/post/status for real.
 #>
 [CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
 
-$Script = Join-Path $PSScriptRoot 'hermes-update-rehearsal.ps1'
+$Script = Join-Path $PSScriptRoot 'envoy-update-rehearsal.ps1'
 # A python is needed for the sqlite assertions. Prefer an explicit checkout, then
 # a hermes-agent checkout next to this kit (the usual layout while developing).
 $Checkout = $env:HERMES_REHEARSAL_CHECKOUT

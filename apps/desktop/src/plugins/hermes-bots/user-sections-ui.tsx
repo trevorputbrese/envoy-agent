@@ -30,7 +30,7 @@ import {
   isSubmitEnter,
   useI18n,
   useValue
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 import { type DragEvent, type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useBots } from './i18n'

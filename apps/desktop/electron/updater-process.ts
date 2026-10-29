@@ -136,7 +136,7 @@ function userBinLaunchers(isWindows: boolean, hermesHome: string, extraDirs: str
 
 /**
  * A source install outside the canonical root (install.sh --dir, a
- * setup-hermes.sh clone) is reachable only through the user-bin launcher it
+ * setup-envoy.sh clone) is reachable only through the user-bin launcher it
  * published. Return the install directory that launcher reports, when it is a
  * Envoy source tree; the caller still resolves and probes it by root.
  */

@@ -1,4 +1,4 @@
-import { withInkSuspended } from '@hermes/ink'
+import { withInkSuspended } from '@envoy/ink'
 
 import { t } from '../../../i18n/runtime.js'
 import { launchHermesCommand } from '../../../lib/externalCli.js'

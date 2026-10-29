@@ -54,7 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/trevorputbrese/envoy-agent/main/scr
 
 参见：
 
-- [在 Envoy 中使用 MCP](../guides/use-mcp-with-hermes.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
+- [在 Envoy 中使用 MCP](../guides/use-mcp-with-envoy.md#wsl2-bridge-hermes-in-wsl-to-windows-chrome)
 - [浏览器自动化](../user-guide/features/browser.md#wsl2--windows-chrome优先使用-mcp-而非-browser-connect)
 
 ### 支持 Android 吗？
@@ -581,7 +581,7 @@ envoy chat
 
 另请参阅：
 - [MCP（模型上下文协议）](../user-guide/features/mcp.md)
-- [在 Envoy 中使用 MCP](../guides/use-mcp-with-hermes.md)
+- [在 Envoy 中使用 MCP](../guides/use-mcp-with-envoy.md)
 - [MCP 配置参考](./mcp-config-reference.md)
 
 #### MCP 超时错误

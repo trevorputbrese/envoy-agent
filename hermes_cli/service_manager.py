@@ -218,7 +218,7 @@ def get_service_manager() -> ServiceManager:
 
 # ---------------------------------------------------------------------------
 # S6ServiceManager (container-only). Per-profile gateways are registered dynamically by
-# `envoy profile create` inside the container. Static services (main-hermes, dashboard) live in
+# `envoy profile create` inside the container. Static services (main-envoy, dashboard) live in
 # /etc/s6-overlay/s6-rc.d/ as part of the image and are NOT managed here.
 # ---------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 import { createContext, useContext, useMemo } from 'react'
 
 import { useGatewayRequest } from '@/app/gateway/hooks/use-gateway-request'

@@ -1,4 +1,4 @@
-import { resolveGatewayWsUrl } from '@hermes/shared'
+import { resolveGatewayWsUrl } from '@envoy/shared'
 
 import type { HermesConnection } from '@/global'
 

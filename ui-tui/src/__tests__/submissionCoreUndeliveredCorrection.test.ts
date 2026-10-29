@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { JsonRpcGatewayError } from '@hermes/shared/json-rpc-channel'
+import { JsonRpcGatewayError } from '@envoy/shared/json-rpc-channel'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { submitPrompt, type SubmitPromptDeps } from '../app/submissionCore.js'

@@ -366,7 +366,7 @@ describe('plugin source reads (512 KiB preview-cap bug)', () => {
 
     try {
       const source = `
-        import { host } from '@hermes/plugin-sdk'
+        import { host } from '@envoy/plugin-sdk'
         export default {
           id: 'runtime-event-reload',
           register() {
@@ -640,13 +640,13 @@ describe('specifier scanning is limited to code (strings/comments never load-blo
       ;(globalThis as unknown as { __captured?: string }).__captured = undefined
 
       const id = await loadRuntimePlugin(
-        `const doc = "from '@hermes/plugin-sdk'"
+        `const doc = "from '@envoy/plugin-sdk'"
 export default { id: 'quoted-spec', register: () => { globalThis.__captured = doc } }`,
         'quoted-spec'
       )
 
       expect(id).toBe('quoted-spec')
-      expect((globalThis as unknown as { __captured?: string }).__captured).toBe("from '@hermes/plugin-sdk'")
+      expect((globalThis as unknown as { __captured?: string }).__captured).toBe("from '@envoy/plugin-sdk'")
     } finally {
       unloadRuntimePlugin('quoted-spec')
       delete (globalThis as unknown as { __captured?: string }).__captured
@@ -680,7 +680,7 @@ export default { id: 'quoted-spec', register: () => { globalThis.__captured = do
 
     try {
       const id = await loadRuntimePlugin(
-        "var htmlReplacer = /[\\t\\n\\f!-,./:-@[-`{-}\\^@-\\uFFFF]/g;\nimport { host } from '@hermes/plugin-sdk'\nconst label = `ok`\nexport default { id: 'entities-re', register() { void host; void label; void htmlReplacer } }",
+        "var htmlReplacer = /[\\t\\n\\f!-,./:-@[-`{-}\\^@-\\uFFFF]/g;\nimport { host } from '@envoy/plugin-sdk'\nconst label = `ok`\nexport default { id: 'entities-re', register() { void host; void label; void htmlReplacer } }",
         'entities-re'
       )
 
@@ -699,7 +699,7 @@ export default { id: 'quoted-spec', register: () => { globalThis.__captured = do
 
     try {
       const id = await loadRuntimePlugin(
-        "const total = 10, count = 4, earned = 6\nconst half = total / count + earned / 2\nimport { host } from '@hermes/plugin-sdk'\nconst label = `n=${half}`\nexport default { id: 'division', register() { void host; void label } }",
+        "const total = 10, count = 4, earned = 6\nconst half = total / count + earned / 2\nimport { host } from '@envoy/plugin-sdk'\nconst label = `n=${half}`\nexport default { id: 'division', register() { void host; void label } }",
         'division'
       )
 
@@ -739,7 +739,7 @@ export default { id: 'quoted-spec', register: () => { globalThis.__captured = do
 
     try {
       const id = await loadRuntimePlugin(
-        "import { host } from '@hermes/plugin-sdk'\nexport default { id: 'real-mapped', register() { void host } }",
+        "import { host } from '@envoy/plugin-sdk'\nexport default { id: 'real-mapped', register() { void host } }",
         'real-mapped'
       )
 
@@ -788,7 +788,7 @@ describe('register() failure isolation', () => {
 
     try {
       const source = `
-        import { host } from '@hermes/plugin-sdk'
+        import { host } from '@envoy/plugin-sdk'
         export default {
           id: 'register-throw',
           register() {
@@ -1094,7 +1094,7 @@ describe('loader hardening: hangs, leaks, duplicate ids, stale incarnations', ()
     counters.__staleHits = 0
 
     let source = `
-      import { host } from '@hermes/plugin-sdk'
+      import { host } from '@envoy/plugin-sdk'
       export default {
         id: 'stale',
         register() { host.onEvent('bot_relay.outbox.pending', () => { globalThis.__staleHits++ }) }

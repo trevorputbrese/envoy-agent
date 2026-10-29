@@ -68,7 +68,7 @@ export type RunGit = (
  * The paths that actually reach the user: renderer sources, main-process
  * sources, the HTML entry, the public/ assets Vite copies into the bundle, app
  * icons, and the packaging config -- plus apps/shared, which both bundles
- * compile in (the renderer through the `@hermes/shared` alias, the main process
+ * compile in (the renderer through the `@envoy/shared` alias, the main process
  * by relative import). Docs, e2e specs, scratch scripts, and dev tooling never
  * reach the shipped app, so a delta confined to them is not a torn install in
  * any way the user can see.

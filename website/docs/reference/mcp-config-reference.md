@@ -10,7 +10,7 @@ This page is the compact reference companion to the main MCP docs.
 
 For conceptual guidance, see:
 - [MCP (Model Context Protocol)](../user-guide/features/mcp.md)
-- [Use MCP with Envoy](../guides/use-mcp-with-hermes.md)
+- [Use MCP with Envoy](../guides/use-mcp-with-envoy.md)
 
 ## Root config shape
 

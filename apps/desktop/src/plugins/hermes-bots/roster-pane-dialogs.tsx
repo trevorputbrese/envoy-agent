@@ -1,5 +1,5 @@
-import { ConfirmDialog, host } from '@hermes/plugin-sdk'
-import type { useI18n } from '@hermes/plugin-sdk'
+import { ConfirmDialog, host } from '@envoy/plugin-sdk'
+import type { useI18n } from '@envoy/plugin-sdk'
 
 import { CreateAgentDialog, CreateGroupChatDialog, GroupDialog } from './create-dialog'
 import type { useRoster } from './data'

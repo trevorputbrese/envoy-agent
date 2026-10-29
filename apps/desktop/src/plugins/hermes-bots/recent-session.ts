@@ -12,8 +12,8 @@
  * canonical open uses, in the bot's own workspace and connection route.
  */
 
-import * as sdk from '@hermes/plugin-sdk'
-import { haptic, host } from '@hermes/plugin-sdk'
+import * as sdk from '@envoy/plugin-sdk'
+import { haptic, host } from '@envoy/plugin-sdk'
 
 import { saveSelectedRosterBot } from './bot-state'
 import { prepareBotSource, resolveExpectHistory } from './canonical-chat'

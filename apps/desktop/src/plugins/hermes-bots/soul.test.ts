@@ -22,7 +22,7 @@ const { hostMock, serverInjects } = vi.hoisted(() => ({
   serverInjects: { value: false }
 }))
 
-vi.mock('@hermes/plugin-sdk', () => ({ host: hostMock }))
+vi.mock('@envoy/plugin-sdk', () => ({ host: hostMock }))
 
 vi.mock('./data', () => ({
   botHandle: (name: string) => (String(name).toLowerCase() === 'default' ? 'hermes' : name),
@@ -69,7 +69,7 @@ describe('appending the protocol to an existing SOUL', () => {
     expect(once).toMatch(/I am the default profile on this machine/)
     expect(once).toMatch(/`researcher` — research specialist/)
     // The primary profile addresses itself by its callable alias.
-    expect(once).toMatch(/@hermes/)
+    expect(once).toMatch(/@envoy/)
     expect(once).not.toMatch(/@default/)
 
     const twice = ensureMessagingProtocol(once, 'default', roster)

@@ -18,7 +18,7 @@ export default function setup(): void {
   try {
     const python = execFileSync(
       'bash',
-      [path.join(repo, 'scripts', 'run-in-hermes-env'), 'sh', '-c', 'printf %s "$__HERMES_TEST_PYTHON"'],
+      [path.join(repo, 'scripts', 'run-in-envoy-env'), 'sh', '-c', 'printf %s "$__HERMES_TEST_PYTHON"'],
       { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
     )
 

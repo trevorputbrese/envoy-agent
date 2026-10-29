@@ -833,7 +833,7 @@ Envoy Agent supports Discord voice messages:
 
 For the full setup and operational guide, see:
 - [Voice Mode](../features/voice-mode.md)
-- [Use Voice Mode with Envoy](../../guides/use-voice-mode-with-hermes.md)
+- [Use Voice Mode with Envoy](../../guides/use-voice-mode-with-envoy.md)
 
 ### Voice Channel Audio Effects (ambient + verbal acks)
 

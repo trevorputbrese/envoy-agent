@@ -18,7 +18,7 @@ Pins, station, and volume use plugin-scoped local storage.
 
 ## Plugin boundary
 
-`plugin.js` imports only `@hermes/plugin-sdk`, `react`, and
+`plugin.js` imports only `@envoy/plugin-sdk`, `react`, and
 `react/jsx-runtime`. Existing bundled discovery finds it automatically;
 `defaultEnabled: false` uses the ordinary live enable toggle. No shell,
 SDK, backend, dependency, or registry changes are needed.

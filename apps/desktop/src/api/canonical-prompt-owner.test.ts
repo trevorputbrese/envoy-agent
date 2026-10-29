@@ -1,4 +1,4 @@
-import { JsonRpcGatewayClient } from '@hermes/shared'
+import { JsonRpcGatewayClient } from '@envoy/shared'
 import { afterEach, expect, test, vi } from 'vitest'
 
 import { CanonicalDesktopProtocol } from './canonical-protocol'

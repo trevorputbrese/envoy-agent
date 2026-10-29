@@ -11,7 +11,7 @@
  * leaves whatever the registry already holds (never blank the UI over i18n).
  */
 
-import { isRecord } from '@hermes/shared/i18n'
+import { isRecord } from '@envoy/shared/i18n'
 
 import { isMissingRpcMethod } from '@/lib/gateway-rpc'
 

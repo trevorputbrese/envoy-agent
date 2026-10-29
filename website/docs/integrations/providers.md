@@ -81,7 +81,7 @@ envoy portal info        # inspect login + routing at any time
 
 Don't have a subscription yet? Get one at [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription).
 
-**For full details:** see the dedicated [Nous Portal integration page](./nous-portal.md) (what's in the subscription, model catalog, troubleshooting) and the step-by-step [Run Envoy Agent with Nous Portal guide](../guides/run-hermes-with-nous-portal.md).
+**For full details:** see the dedicated [Nous Portal integration page](./nous-portal.md) (what's in the subscription, model catalog, troubleshooting) and the step-by-step [Run Envoy Agent with Nous Portal guide](../guides/run-envoy-with-nous-portal.md).
 
 **Client identification.** Every Portal request from Envoy Agent carries a `client=hermes-client-v<version>` tag (e.g. `client=hermes-client-v0.13.0`) auto-aligned to your installed release. This is sent on all Portal pathways — main chat loop, auxiliary calls, compression summarizer, web extraction — and lets Portal-side telemetry distinguish Envoy traffic from other clients. No config required; the tag updates automatically when you `envoy update`.
 

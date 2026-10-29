@@ -6,7 +6,7 @@ const { refreshSupportedSessionControlAfterTurn } = vi.hoisted(() => ({
 
 vi.mock('@/store/session-control', () => ({ refreshSupportedSessionControlAfterTurn }))
 
-import type { GatewayEventName } from '@hermes/shared'
+import type { GatewayEventName } from '@envoy/shared'
 
 import { CanonicalDesktopProtocol } from '@/api/canonical-protocol'
 import { createClientSessionState } from '@/lib/chat-runtime'

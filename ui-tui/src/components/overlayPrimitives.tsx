@@ -1,6 +1,6 @@
-import type { Key } from '@hermes/ink'
-import { Text, useInput } from '@hermes/ink'
-import { mix } from '@hermes/shared/color'
+import type { Key } from '@envoy/ink'
+import { Text, useInput } from '@envoy/ink'
+import { mix } from '@envoy/shared/color'
 import { type ReactNode, useState } from 'react'
 
 import type { UsageModelData } from '../gatewayTypes.js'

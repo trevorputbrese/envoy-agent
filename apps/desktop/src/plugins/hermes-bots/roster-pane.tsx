@@ -1,4 +1,4 @@
-import { host, useI18n, useValue } from '@hermes/plugin-sdk'
+import { host, useI18n, useValue } from '@envoy/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 
 import { BotRow } from './bot-row'

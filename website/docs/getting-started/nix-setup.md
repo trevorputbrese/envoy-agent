@@ -123,7 +123,7 @@ This module needs NixOS. Envoy is an agent for one person. If you want an agent 
     nixosConfigurations.your-host = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        hermes-agent.nixosModules.default
+        envoy-agent.nixosModules.default
         ./configuration.nix
       ];
     };

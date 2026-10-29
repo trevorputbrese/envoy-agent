@@ -14,7 +14,7 @@ import { buildGroupChatTurnPrompt } from './group-round-prompt'
 import { parseGroupChatMentions } from './group-rounds'
 import type { RosterRow } from './types'
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { atom } = await import('nanostores')
 
   return {

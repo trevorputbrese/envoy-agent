@@ -4981,7 +4981,7 @@ async function resolveHermesBackend(backendArgs: string[]): Promise<ResolvedHerm
     rememberLog('[bootstrap] repair requested; bypassing the usable active runtime to re-run the installer')
   } else {
     // 5. A source install outside ACTIVE_HERMES_ROOT (install.sh --dir, a
-    //    setup-hermes.sh clone), found through the launcher it published at a
+    //    setup-envoy.sh clone), found through the launcher it published at a
     //    fixed user-bin location: a Finder/Dock launch inherits a PATH without
     //    ~/.local/bin. The reported root is then resolved and probed like any
     //    installed runtime; HERMES_DESKTOP_IGNORE_EXISTING=1 skips it too.

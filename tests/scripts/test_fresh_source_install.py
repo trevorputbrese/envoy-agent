@@ -68,7 +68,7 @@ def test_current_installer_publishes_real_dependencies_and_warm_path(tmp_path, s
     for name in ("pm", "hermes_cli", "hermes_platform"):
         shutil.copytree(ROOT / name, source / name, ignore=shutil.ignore_patterns("__pycache__"))
     for name in ("utils.py", "hermes_constants.py", "hermes_dir_acl.py", "hermes_yaml.py", "hermes_bootstrap.py",
-                 "setup-hermes.sh"):
+                 "setup-envoy.sh"):
         shutil.copy2(ROOT / name, source / name)
     # The CLI's user-facing text resolves through the i18n kernel (agent.i18n + the English catalog),
     # its config/env layer consults the stdlib-only safe-worker policy, and the update path's wait
@@ -150,7 +150,7 @@ def test_current_installer_publishes_real_dependencies_and_warm_path(tmp_path, s
     assert not (install / "venv").exists()
     # The developer setup path publishes through the same writer after real PM.
     launcher.unlink()
-    run(["bash", str(install / "setup-hermes.sh")])
+    run(["bash", str(install / "setup-envoy.sh")])
     assert json.loads(run([str(launcher), "from setup"]).stdout)["argv"] == ["from setup"]
     # Warm path publication must work with all acquisition inputs unavailable.
     shutil.rmtree(docroot)

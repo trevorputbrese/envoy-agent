@@ -725,7 +725,7 @@ Envoy Agent 支持 Discord 语音消息：
 
 完整的设置和操作指南，请参阅：
 - [语音模式](../features/voice-mode.md)
-- [与 Envoy 使用语音模式](../../guides/use-voice-mode-with-hermes.md)
+- [与 Envoy 使用语音模式](../../guides/use-voice-mode-with-envoy.md)
 
 ## 论坛频道
 

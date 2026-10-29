@@ -1,4 +1,4 @@
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 import { atom } from 'nanostores'
 
 import { isMissingRpcMethod } from '@/lib/gateway-rpc'

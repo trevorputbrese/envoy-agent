@@ -14,7 +14,7 @@
 # keeps its own command. A prompt prefix names the worktree.
 #
 # Scripts and other processes do not source this: they run under
-# `scripts/run-in-hermes-env`. Both build on scripts/_activation.sh.
+# `scripts/run-in-envoy-env`. Both build on scripts/_activation.sh.
 #
 # Sync through setup before selecting the environment. PM owns freshness;
 # activation does not maintain a second dependency stamp. It trusts the

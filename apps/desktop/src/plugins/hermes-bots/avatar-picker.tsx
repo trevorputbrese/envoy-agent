@@ -16,7 +16,7 @@ import {
   Textarea,
   Tip,
   useValue
-} from '@hermes/plugin-sdk'
+} from '@envoy/plugin-sdk'
 import { useState } from 'react'
 
 import {

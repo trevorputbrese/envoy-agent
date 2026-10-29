@@ -1,4 +1,4 @@
-import { isGatewayReauthRequired } from '@hermes/shared'
+import { isGatewayReauthRequired } from '@envoy/shared'
 import { afterEach, expect, it, vi } from 'vitest'
 
 import { pluginSocket } from '@/api/plugins'

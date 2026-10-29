@@ -7,7 +7,7 @@
  * drives the two doors, startBotRelay / stopBotRelay.
  */
 
-import { host, LruCache } from '@hermes/plugin-sdk'
+import { host, LruCache } from '@envoy/plugin-sdk'
 
 import { botHandle, clearBotAttention, noteBotAttention } from './data'
 import { RELAY_DELIVER_TIMEOUT_MS } from './relay-budget'

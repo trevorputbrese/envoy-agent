@@ -14,7 +14,7 @@ import type {
   OnboardingStartParams,
   OnboardingStartResult,
   OnboardingStateParams
-} from '@hermes/shared'
+} from '@envoy/shared'
 import { atom, computed } from 'nanostores'
 
 import { getRuntimeI18nLocale } from '@/i18n/runtime'

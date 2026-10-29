@@ -191,7 +191,7 @@ def _check_s6_supervision(issues: list[str]) -> None:
         return
     _section("s6 Supervision")
     mgr = S6ServiceManager()
-    for static in ("main-hermes", "dashboard"):  # s6-rc symlinks under /run/service/, same s6-svstat probe
+    for static in ("main-envoy", "dashboard"):  # s6-rc symlinks under /run/service/, same s6-svstat probe
         up = mgr.is_running(static)
         (check_ok if up else check_info)(f"{static}: up" if up else f"{static}: down (expected if not enabled via env)")
     _report_host_gateway_slot(mgr, issues)

@@ -1,4 +1,4 @@
-import type { ModelOptionProvider, ModelOptionsResult, ModelPricing } from '@hermes/shared'
+import type { ModelOptionProvider, ModelOptionsResult, ModelPricing } from '@envoy/shared'
 import {
   DEFAULT_REASONING_EFFORT,
   planBlocks,
@@ -6,7 +6,7 @@ import {
   splitRecommended,
   usageLevel,
   usageTag
-} from '@hermes/shared'
+} from '@envoy/shared'
 import { useStore } from '@nanostores/react'
 import { useQuery } from '@tanstack/react-query'
 import {

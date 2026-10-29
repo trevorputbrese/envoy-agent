@@ -59,7 +59,7 @@ Deploy Envoy Agent as a bot on your favorite messaging platform.
 4. [Telegram Setup](../user-guide/messaging/telegram.md)
 5. [Discord Setup](../user-guide/messaging/discord.md)
 6. [Voice Mode](../user-guide/features/voice-mode.md)
-7. [Use Voice Mode with Envoy](../guides/use-voice-mode-with-hermes.md)
+7. [Use Voice Mode with Envoy](../guides/use-voice-mode-with-envoy.md)
 8. [Security](../user-guide/security.md)
 
 For full project examples, see:

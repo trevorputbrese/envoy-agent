@@ -17,7 +17,7 @@ const { focusMock, hostMock, requestForBotMock } = vi.hoisted(() => ({
   requestForBotMock: vi.fn()
 }))
 
-vi.mock('@hermes/plugin-sdk', () => ({
+vi.mock('@envoy/plugin-sdk', () => ({
   BOT_CHAT_SESSION_HYDRATION_TIMEOUT_MS: 15_000,
   host: hostMock
 }))

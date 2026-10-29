@@ -1,5 +1,5 @@
 /* Visual self-verification tool: `npm run visual` renders real TUI surfaces
- * across theme x background scenes to <tmpdir>/hermes-tui-visual/tui-visual.html,
+ * across theme x background scenes to <tmpdir>/envoy-tui-visual/tui-visual.html,
  * then shot.mjs screenshots it to tui-visual.png for eyeball + agent review.
  *
  * Original note: : render real TUI surfaces with ANSI colors intact,
@@ -13,9 +13,7 @@ import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { PassThrough } from 'stream'
 
-import { visualOutDir } from './paths.mjs'
-
-import { Box, renderSync, Text } from '@hermes/ink'
+import { Box, renderSync, Text } from '@envoy/ink'
 import React, { type ReactElement } from 'react'
 
 import { GatewayProvider } from '../../src/app/gatewayContext.js'
@@ -25,6 +23,8 @@ import { FloatingOverlays } from '../../src/components/appOverlays.js'
 import { Banner, SessionPanel } from '../../src/components/branding.js'
 import { fromSkin, type Theme } from '../../src/theme.js'
 import type { SessionInfo } from '../../src/types.js'
+
+import { visualOutDir } from './paths.mjs'
 
 const noop = () => {}
 const pending = () => new Promise<never>(() => {})

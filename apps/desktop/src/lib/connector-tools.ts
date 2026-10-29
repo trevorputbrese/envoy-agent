@@ -1,6 +1,6 @@
 import { isRecord } from '@assistant-ui/core/internal'
 import type { ToolCallMessagePart } from '@assistant-ui/react'
-import type { ToolLabel } from '@hermes/shared'
+import type { ToolLabel } from '@envoy/shared'
 
 export interface McpTarget {
   name: string

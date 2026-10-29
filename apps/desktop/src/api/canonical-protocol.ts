@@ -1,7 +1,7 @@
 // Canonical local authority wire adapter. Remote legacy transports keep their
 // existing protocol; unsupported explicit semantics fail before network admission.
 
-import { randomUuid } from '@hermes/shared'
+import { randomUuid } from '@envoy/shared'
 
 export const CANONICAL_GATEWAY_PROTOCOL = 'hermes-gateway-v1'
 

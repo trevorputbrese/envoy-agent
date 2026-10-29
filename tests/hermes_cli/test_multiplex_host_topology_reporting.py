@@ -59,7 +59,7 @@ def test_doctor_reports_the_single_host_gateway_not_per_profile_slots(served_hos
 
     class _Mgr:
         def is_running(self, name):
-            return name in ("main-hermes", "gateway-legacy")
+            return name in ("main-envoy", "gateway-legacy")
 
         def list_profile_gateways(self):
             return ["default", "served", "legacy"]
@@ -84,7 +84,7 @@ def test_doctor_raises_an_issue_when_nothing_owns_the_gateway_role(served_host, 
 
     class _Mgr:
         def is_running(self, name):
-            return name == "main-hermes"
+            return name == "main-envoy"
 
         def list_profile_gateways(self):
             return ["default", "served", "legacy"]

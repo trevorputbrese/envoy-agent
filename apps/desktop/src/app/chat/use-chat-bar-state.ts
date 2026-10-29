@@ -1,4 +1,4 @@
-import type { ModelOptionsResult } from '@hermes/shared'
+import type { ModelOptionsResult } from '@envoy/shared'
 import { useQuery } from '@tanstack/react-query'
 import type * as React from 'react'
 import { useMemo } from 'react'

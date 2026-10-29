@@ -15,7 +15,7 @@ import type { Attachment, GroupChat, GroupMember, GroupMessage } from './types'
 
 const { host } = vi.hoisted(() => ({ host: {} as Record<string, unknown> }))
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { pluginSdkMock } = await import('./group-test-utils')
 
   return pluginSdkMock(host)
@@ -990,7 +990,7 @@ describe('turn prompt', () => {
       viewer: { name: 'builder', title: '' }
     })
 
-    expect(peer).toMatch(/group chat with @hermes/)
+    expect(peer).toMatch(/group chat with @envoy/)
   })
 
   // #89720: a renamed primary is @bobby to the roster, autocomplete and the

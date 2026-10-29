@@ -16,7 +16,7 @@
  * itself here as the delegate so tile UI stays dependency-light.
  */
 
-import { backendScopeKey, type GatewayEvent, LOCAL_CONNECTION_ID, registryBackendScopeKey } from '@hermes/shared'
+import { backendScopeKey, type GatewayEvent, LOCAL_CONNECTION_ID, registryBackendScopeKey } from '@envoy/shared'
 import { atom, computed } from 'nanostores'
 
 import { setSessionOwnerResolver } from '@/api/client'

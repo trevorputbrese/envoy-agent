@@ -18,7 +18,7 @@ const { cache, connection } = vi.hoisted(() => ({
   connection: { id: 'local' }
 }))
 
-vi.mock('@hermes/plugin-sdk', async () => {
+vi.mock('@envoy/plugin-sdk', async () => {
   const { atom } = await import('nanostores')
   const keyOf = (key: unknown[]) => JSON.stringify(key)
 

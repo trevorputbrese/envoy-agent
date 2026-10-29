@@ -1,8 +1,8 @@
 # Sourced, never executed: how a POSIX shell gets the Envoy dev environment.
-# `activate` (interactive, reversible) and `scripts/run-in-hermes-env` (a child
+# `activate` (interactive, reversible) and `scripts/run-in-envoy-env` (a child
 # process, one-way) both build on it; neither owns any of it.
 #
-#   hermes_sync REPO [FLAG]         bring the install up to date (setup-hermes.sh)
+#   hermes_sync REPO [FLAG]         bring the install up to date (setup-envoy.sh)
 #   hermes_compose_env REPO DIALECT print the composed environment, `sh` or `fish`
 #   hermes_apply_env SCRIPT         evaluate a composed `sh` script into this shell
 #   hermes_activation_current REPO  is the inherited environment still REPO's?
@@ -26,7 +26,7 @@ hermes_sync() {
     local repo="$1" test_environment="${2:---test-environment}"
     (
         unset PYTHONHOME PYTHONPATH VIRTUAL_ENV
-        bash "$repo/setup-hermes.sh" --runtime-only "$test_environment"
+        bash "$repo/setup-envoy.sh" --runtime-only "$test_environment"
     ) >&2
 }
 
@@ -53,12 +53,12 @@ hermes_bootstrap_python() {
 hermes_compose_env() {
     local repo="$1" dialect="$2" python script
     python="$(hermes_bootstrap_python "$repo")" || {
-        echo "no bootstrap Python found; run setup-hermes.sh" >&2
+        echo "no bootstrap Python found; run setup-envoy.sh" >&2
         return 1
     }
     script="$(PYTHONHOME= PYTHONPATH="$repo" "$python" -m pm.environments --format "$dialect")" &&
         [ -n "$script" ] || {
-        echo "could not read pm env (run ./setup-hermes.sh first)" >&2
+        echo "could not read pm env (run ./setup-envoy.sh first)" >&2
         return 1
     }
     printf '%s\n' "$script"

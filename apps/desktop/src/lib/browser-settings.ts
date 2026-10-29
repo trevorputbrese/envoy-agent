@@ -1,4 +1,4 @@
-import { normalizeBasePath } from '@hermes/shared'
+import { normalizeBasePath } from '@envoy/shared'
 
 import { type BrowserHostGlobals, browserLaunchProfileOrDefault } from './platform'
 import { readKey, writeKey } from './storage'

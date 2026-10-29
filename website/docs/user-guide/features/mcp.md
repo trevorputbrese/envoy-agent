@@ -1111,7 +1111,7 @@ It used to be built in as `envoy mcp serve`. An MCP client configured with `"arg
 
 ## Related docs
 
-- [Use MCP with Envoy](../../guides/use-mcp-with-hermes.md)
+- [Use MCP with Envoy](../../guides/use-mcp-with-envoy.md)
 - [CLI Commands](../../reference/cli-commands.md)
 - [Slash Commands](../../reference/slash-commands.md)
 - [FAQ](../../reference/faq.md)
